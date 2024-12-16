@@ -13,5 +13,6 @@ namespace app
 		~gfx();
 		static void init_instance();
 		void init_window();
+		void update();
 	};
 }
