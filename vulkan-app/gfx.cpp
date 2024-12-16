@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <vulkan/vulkan.h>
 
 #include "gfx.hpp"
@@ -18,10 +20,12 @@ namespace app
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+		std::cout << "Initializing" << std::endl;
 	}
 
 	app::gfx::~gfx()
 	{
+		std::cout << "Tearing down" << std::endl;
 		glfwDestroyWindow(m_window);
 		glfwTerminate();
 	}
