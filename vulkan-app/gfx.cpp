@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <vulkan/vulkan.h>
-
+#include <GLFW/glfw3.h>
 #include "gfx.hpp"
 
 #define WIDTH	800
@@ -9,23 +9,14 @@
 
 namespace app
 {
-	void app::gfx::init_instance()
-	{
-		int foo;
-	}
-
 	app::gfx::gfx()
 	{
-		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+		set_up_glfw();
 	}
 
 	app::gfx::~gfx()
 	{
-		glfwDestroyWindow(m_window);
-		glfwTerminate();
+		tear_down_glfw();
 	}
 
 	void app::gfx::update()
@@ -36,7 +27,17 @@ namespace app
 		}
 	}
 	
-	void app::gfx::init_window()
+	void app::gfx::set_up_glfw()
 	{
+		glfwInit();
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+	}
+
+	void app::gfx::tear_down_glfw()
+	{
+		glfwDestroyWindow(m_window);
+		glfwTerminate();
 	}
 }

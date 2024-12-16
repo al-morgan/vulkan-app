@@ -7,12 +7,12 @@ namespace app
 	{
 	private:
 		GLFWwindow* m_window;
+		void set_up_glfw();
+		void tear_down_glfw();
 
 	public:
 		gfx();
 		~gfx();
-		static void init_instance();
-		void init_window();
 		void update();
 	};
 }
