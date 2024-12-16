@@ -1,5 +1,4 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+
 
 #include <iostream>
 #include <stdexcept>
@@ -38,7 +37,6 @@ private:
 
     void cleanup() {
         glfwDestroyWindow(window);
-
         glfwTerminate();
     }
 
@@ -54,7 +52,9 @@ private:
 int main() {
     HelloTriangleApplication app;
 
-    app::gfx::init_instance();
+    app::gfx gfx();
+
+    //app::gfx::init_instance();
 
     try {
         app.run();
