@@ -19,6 +19,12 @@ namespace app
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 	}
+
+	app::gfx::~gfx()
+	{
+		glfwDestroyWindow(m_window);
+		glfwTerminate();
+	}
 	
 	void app::gfx::init_window()
 	{

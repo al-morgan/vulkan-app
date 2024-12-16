@@ -10,6 +10,7 @@ namespace app
 
 	public:
 		gfx();
+		~gfx();
 		static void init_instance();
 		void init_window();
 	};
