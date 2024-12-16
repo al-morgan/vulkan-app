@@ -9,8 +9,6 @@
 
 #include "gfx.hpp"
 
-
-
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
@@ -55,6 +53,8 @@ private:
 
 int main() {
     HelloTriangleApplication app;
+
+    app::gfx::init_instance();
 
     try {
         app.run();
