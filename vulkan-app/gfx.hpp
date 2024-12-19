@@ -7,8 +7,13 @@ namespace app
 	{
 	private:
 		GLFWwindow* m_window;
+		VkInstance m_instance;
+
 		void set_up_glfw();
 		void tear_down_glfw();
+		void set_up_instance();
+		void tear_down_instance();
+
 
 	public:
 		gfx();
