@@ -10,6 +10,7 @@ namespace app
 		VkInstance m_instance;
 		VkPhysicalDevice m_physical_device;
 		VkDevice m_device;
+		VkSurfaceKHR m_surface;
 
 		void set_up_glfw();
 		void tear_down_glfw();
@@ -18,7 +19,10 @@ namespace app
 		void pick_physical_device();
 		void set_up_device();
 		void tear_down_device();
-
+		void set_up_surface();
+		void tear_down_surface();
+		void set_up_swap_chain();
+		void tear_down_swap_chain();
 
 	public:
 		gfx();

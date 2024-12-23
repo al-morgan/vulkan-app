@@ -1,11 +1,20 @@
 #include <iostream>
 
+#define VK_USE_PLATFORM_WIN32_KHR
+
 #include <vulkan/vulkan.h>
+
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 #include "gfx.hpp"
 #include <vector>
 #include <limits>
 #include <optional>
+
+//#include <vulkan/vulkan_win32.h>
 
 #define WIDTH	800
 #define HEIGHT	600
@@ -26,10 +35,14 @@ namespace app
 		set_up_instance();
 		pick_physical_device();
 		set_up_device();
+		set_up_surface();
+		set_up_swap_chain();
 	}
 
 	app::gfx::~gfx()
 	{
+		tear_down_swap_chain();
+		tear_down_surface();
 		tear_down_device();
 		tear_down_instance();
 		tear_down_glfw();
@@ -75,7 +88,9 @@ namespace app
 		instance_layers.resize(instance_layer_count);
 		vk_check(vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data()));
 
-		std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
+		std::vector<const char*> enabled_layers = {"VK_LAYER_KHRONOS_validation"};
+
+		//VkDebugUtilsMessen
 
 		VkInstanceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -153,6 +168,31 @@ namespace app
 		vkDestroyDevice(m_device, nullptr);
 	}
 
+	void app::gfx::set_up_surface()
+	{
+		VkWin32SurfaceCreateInfoKHR create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		create_info.hwnd = glfwGetWin32Window(m_window);
+		create_info.hinstance = GetModuleHandle(nullptr);
+
+		vk_check(vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, &m_surface));
+	}
+
+	void app::gfx::tear_down_surface()
+	{
+		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+	}
+
+	void app::gfx::set_up_swap_chain()
+	{
+
+	}
+
+	void app::gfx::tear_down_swap_chain()
+	{
+
+	}
+
 	void app::gfx::update()
 	{
 		while (!glfwWindowShouldClose(m_window))
@@ -160,7 +200,4 @@ namespace app
 			glfwPollEvents();
 		}
 	}
-	
-
-
 }
