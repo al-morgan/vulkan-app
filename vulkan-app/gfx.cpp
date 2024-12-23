@@ -51,16 +51,23 @@ namespace app
 		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
 		VkInstanceCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		create_info.pApplicationInfo = &app_info;
 		create_info.ppEnabledExtensionNames = glfw_extensions;
 		create_info.enabledExtensionCount = glfw_extension_count;
 
-		uint32_t instance_extensions_count;
+		uint32_t instance_extension_count;
 		std::vector<VkExtensionProperties> instance_extensions;
 		
-		vkEnumerateInstanceExtensionProperties(nullptr, &instance_extensions_count, nullptr);
-		instance_extensions.resize(instance_extensions_count);
-		vkEnumerateInstanceExtensionProperties(nullptr, &instance_extensions_count, instance_extensions.data());
+		vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr);
+		instance_extensions.resize(instance_extension_count);
+		vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data());
+
+		uint32_t instance_layer_count;
+		std::vector<VkLayerProperties> instance_layers;
+		vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr);
+		instance_layers.resize(instance_layer_count);
+		vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data());		
 
 		for (auto& extension : instance_extensions)
 		{
@@ -74,6 +81,17 @@ namespace app
 			std::cout << glfw_extensions[i] << std::endl;
 		}
 
+		std::cout << std::endl;
+
+		for (auto& layer : instance_layers)
+		{
+			std::cout << layer.layerName << std::endl;
+		}
+
+		std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
+
+		create_info.enabledLayerCount = 1;
+		create_info.ppEnabledLayerNames = enabled_layers.data();
 
 		VkResult result = vkCreateInstance(&create_info, nullptr, &m_instance);
 	}
@@ -91,5 +109,6 @@ namespace app
 		}
 	}
 	
+
 
 }
