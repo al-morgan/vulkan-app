@@ -34,16 +34,18 @@ namespace app
 		set_up_glfw();
 		set_up_instance();
 		pick_physical_device();
-		set_up_device();
 		set_up_surface();
+		set_up_device();
+		set_up_queues();
 		set_up_swap_chain();
 	}
 
 	app::gfx::~gfx()
 	{
 		tear_down_swap_chain();
-		tear_down_surface();
+		tear_down_queues();
 		tear_down_device();
+		tear_down_surface();
 		tear_down_instance();
 		tear_down_glfw();
 	}
@@ -70,7 +72,7 @@ namespace app
 		app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		app_info.pEngineName = "Unknown Engine.";
 		app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		app_info.apiVersion = VK_API_VERSION_1_3;
+	app_info.apiVersion = VK_API_VERSION_1_3;
 
 		uint32_t glfw_extension_count;
 		const char** glfw_extensions;
@@ -136,7 +138,10 @@ namespace app
 		for(uint32_t i = 0; i < queue_family_count; i++)
 		{
 			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
-			if ((queue_families[i].queueFlags & required_flags) == required_flags)
+			VkBool32 surface_support = VK_FALSE;
+			
+			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface, &surface_support));
+			if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
 			{
 				queue_family_index = i;
 				break;
@@ -189,6 +194,16 @@ namespace app
 	}
 
 	void app::gfx::tear_down_swap_chain()
+	{
+
+	}
+
+	void app::gfx::set_up_queues()
+	{
+
+	}
+
+	void app::gfx::tear_down_queues()
 	{
 
 	}
