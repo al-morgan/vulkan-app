@@ -110,13 +110,13 @@ namespace app
 	void app::gfx::set_up_device()
 	{
 		VkDeviceCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;		
+		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
 	}
 
 	void app::gfx::tear_down_device()
 	{
-
+		vkDestroyDevice(m_device, nullptr);
 	}
 
 	void app::gfx::update()
