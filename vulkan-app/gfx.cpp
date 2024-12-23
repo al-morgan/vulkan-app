@@ -14,7 +14,7 @@ namespace app
 	{
 		if (result != VK_SUCCESS)
 		{
-			throw std::runtime_error("Error!");
+			throw std::runtime_error("Vulkan error!");
 		}
 	}
 
@@ -95,6 +95,11 @@ namespace app
 		vk_check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr));
 		physical_devices.resize(physical_device_count);
 		vk_check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data()));
+
+		if (physical_device_count != 1)
+		{
+			throw std::runtime_error("Multiple physical devices not supported!");
+		}
 
 		// I only have one physical device right now so I'm going to cheat
 		m_physical_device = physical_devices[0];
