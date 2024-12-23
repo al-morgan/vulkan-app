@@ -88,9 +88,9 @@ namespace app
 			std::cout << layer.layerName << std::endl;
 		}
 
-		std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
+		std::vector<const char*> enabled_layers = {"VK_LAYER_KHRONOS_validation"};
 
-		create_info.enabledLayerCount = 1;
+		create_info.enabledLayerCount = enabled_layers.size();
 		create_info.ppEnabledLayerNames = enabled_layers.data();
 
 		VkResult result = vkCreateInstance(&create_info, nullptr, &m_instance);
