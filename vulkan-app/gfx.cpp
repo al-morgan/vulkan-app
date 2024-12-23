@@ -23,10 +23,12 @@ namespace app
 		set_up_glfw();
 		set_up_instance();
 		pick_physical_device();
+		set_up_device();
 	}
 
 	app::gfx::~gfx()
 	{
+		tear_down_device();
 		tear_down_instance();
 		tear_down_glfw();
 	}
@@ -103,6 +105,18 @@ namespace app
 
 		// I only have one physical device right now so I'm going to cheat
 		m_physical_device = physical_devices[0];
+	}
+
+	void app::gfx::set_up_device()
+	{
+		VkDeviceCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;		
+		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
+	}
+
+	void app::gfx::tear_down_device()
+	{
+
 	}
 
 	void app::gfx::update()
