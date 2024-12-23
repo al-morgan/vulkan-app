@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include "gfx.hpp"
 #include <vector>
+#include <limits>
+#include <optional>
 
 #define WIDTH	800
 #define HEIGHT	600
@@ -114,7 +116,7 @@ namespace app
 		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, nullptr);
 		queue_families.resize(queue_family_count);
 		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, queue_families.data());
-		uint32_t queue_family_index;
+		std::optional<uint32_t> queue_family_index;
 
 		for(uint32_t i = 0; i < queue_family_count; i++)
 		{
@@ -126,15 +128,17 @@ namespace app
 			}
 		}
 
-		float queue_priority = 1.0f;
+		if (!queue_family_index.has_value())
+		{
+			throw std::runtime_error("Queue selection failed!");
+		}
 
-		//VkQueueCreateInfo queue_create_info{};
-		//queue_
+		float queue_priority = 1.0f;
 
 		VkDeviceQueueCreateInfo device_queue_create_info{};
 		device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		device_queue_create_info.queueCount = 1;
-		device_queue_create_info.queueFamilyIndex = queue_family_index;
+		device_queue_create_info.queueFamilyIndex = queue_family_index.value();
 		device_queue_create_info.pQueuePriorities = &queue_priority;
 
 		VkDeviceCreateInfo create_info{};
