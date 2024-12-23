@@ -18,11 +18,11 @@ namespace app
 		}
 	}
 
-
 	app::gfx::gfx()
 	{
 		set_up_glfw();
 		set_up_instance();
+		pick_physical_device();
 	}
 
 	app::gfx::~gfx()
@@ -86,6 +86,18 @@ namespace app
 	void app::gfx::tear_down_instance()
 	{
 		vkDestroyInstance(m_instance, nullptr);
+	}
+
+	void app::gfx::pick_physical_device()
+	{
+		uint32_t physical_device_count;
+		std::vector<VkPhysicalDevice> physical_devices;
+		vk_check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr));
+		physical_devices.resize(physical_device_count);
+		vk_check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data()));
+
+		// I only have one physical device right now so I'm going to cheat
+		m_physical_device = physical_devices[0];
 	}
 
 	void app::gfx::update()

@@ -8,11 +8,13 @@ namespace app
 	private:
 		GLFWwindow* m_window;
 		VkInstance m_instance;
+		VkPhysicalDevice m_physical_device;
 
 		void set_up_glfw();
 		void tear_down_glfw();
 		void set_up_instance();
 		void tear_down_instance();
+		void pick_physical_device();
 
 
 	public:
