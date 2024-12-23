@@ -109,8 +109,38 @@ namespace app
 
 	void app::gfx::set_up_device()
 	{
+		uint32_t queue_family_count;
+		std::vector<VkQueueFamilyProperties> queue_families;
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, nullptr);
+		queue_families.resize(queue_family_count);
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, queue_families.data());
+		uint32_t queue_family_index;
+
+		for(uint32_t i = 0; i < queue_family_count; i++)
+		{
+			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
+			if ((queue_families[i].queueFlags & required_flags) == required_flags)
+			{
+				queue_family_index = i;
+				break;
+			}
+		}
+
+		float queue_priority = 1.0f;
+
+		//VkQueueCreateInfo queue_create_info{};
+		//queue_
+
+		VkDeviceQueueCreateInfo device_queue_create_info{};
+		device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		device_queue_create_info.queueCount = 1;
+		device_queue_create_info.queueFamilyIndex = queue_family_index;
+		device_queue_create_info.pQueuePriorities = &queue_priority;
+
 		VkDeviceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		create_info.pQueueCreateInfos = &device_queue_create_info;
+		create_info.queueCreateInfoCount = 1;
 		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
 	}
 
