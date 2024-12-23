@@ -72,7 +72,7 @@ namespace app
 		app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		app_info.pEngineName = "Unknown Engine.";
 		app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	app_info.apiVersion = VK_API_VERSION_1_3;
+		app_info.apiVersion = VK_API_VERSION_1_3;
 
 		uint32_t glfw_extension_count;
 		const char** glfw_extensions;
@@ -152,13 +152,15 @@ namespace app
 		{
 			throw std::runtime_error("Queue selection failed!");
 		}
+		
+		m_queue_family_index = queue_family_index.value();
 
 		float queue_priority = 1.0f;
 
 		VkDeviceQueueCreateInfo device_queue_create_info{};
 		device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		device_queue_create_info.queueCount = 1;
-		device_queue_create_info.queueFamilyIndex = queue_family_index.value();
+		device_queue_create_info.queueFamilyIndex = m_queue_family_index;
 		device_queue_create_info.pQueuePriorities = &queue_priority;
 
 		VkDeviceCreateInfo create_info{};
@@ -188,22 +190,25 @@ namespace app
 		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 	}
 
+	void app::gfx::set_up_queues()
+	{
+		vkGetDeviceQueue(m_device, m_queue_family_index, 0, &m_graphics_queue);
+		
+		// Hack for now, maybe optimize later.
+		m_present_queue = m_graphics_queue;
+	}
+
+	void app::gfx::tear_down_queues()
+	{
+
+	}
+
 	void app::gfx::set_up_swap_chain()
 	{
 
 	}
 
 	void app::gfx::tear_down_swap_chain()
-	{
-
-	}
-
-	void app::gfx::set_up_queues()
-	{
-
-	}
-
-	void app::gfx::tear_down_queues()
 	{
 
 	}
