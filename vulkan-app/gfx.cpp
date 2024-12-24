@@ -163,7 +163,7 @@ namespace app
 		device_queue_create_info.queueFamilyIndex = m_queue_family_index;
 		device_queue_create_info.pQueuePriorities = &queue_priority;
 
-		std::vector<const char *> enabled_extensions = {"VK_KHR_swapchain" };
+		std::vector<const char *> enabled_extensions = {"VK_KHR_swapchain"};
 		
 		VkDeviceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -210,12 +210,32 @@ namespace app
 
 	void app::gfx::set_up_swap_chain()
 	{
+		VkExtent2D extent{};
+		extent.width = WIDTH;
+		extent.height = HEIGHT;
+		
+		VkSwapchainCreateInfoKHR create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		create_info.surface = m_surface;
+		create_info.minImageCount = 3;
+		create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+		create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		create_info.imageExtent = extent;
+		create_info.imageArrayLayers = 1;
+		create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+		create_info.clipped = VK_TRUE;
+		create_info.oldSwapchain = VK_NULL_HANDLE;
 
+		vkCreateSwapchainKHR(m_device, &create_info, nullptr, &m_swapchain);
 	}
 
 	void app::gfx::tear_down_swap_chain()
 	{
-
+		vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 	}
 
 	void app::gfx::update()

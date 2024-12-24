@@ -14,6 +14,7 @@ namespace app
 		VkQueue m_graphics_queue;
 		VkQueue m_present_queue;
 		uint32_t m_queue_family_index;	// Used for both graphics and present for now.
+		VkSwapchainKHR m_swapchain;
 
 		void set_up_glfw();
 		void tear_down_glfw();
