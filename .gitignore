@@ -2,3 +2,4 @@
 .vs
 *vcxproj.filters
 *vcxproj.user
+*.spv
