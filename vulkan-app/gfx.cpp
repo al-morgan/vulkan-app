@@ -99,7 +99,7 @@ namespace app
 		create_info.pApplicationInfo = &app_info;
 		create_info.ppEnabledExtensionNames = glfw_extensions;
 		create_info.enabledExtensionCount = glfw_extension_count;
-		create_info.enabledLayerCount = enabled_layers.size();
+		create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
 		create_info.ppEnabledLayerNames = enabled_layers.data();
 		vk_check(vkCreateInstance(&create_info, nullptr, &m_instance));
 	}
@@ -163,10 +163,15 @@ namespace app
 		device_queue_create_info.queueFamilyIndex = m_queue_family_index;
 		device_queue_create_info.pQueuePriorities = &queue_priority;
 
+		std::vector<const char *> enabled_extensions = {"VK_KHR_swapchain" };
+		
 		VkDeviceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		create_info.pQueueCreateInfos = &device_queue_create_info;
 		create_info.queueCreateInfoCount = 1;
+		create_info.ppEnabledExtensionNames = enabled_extensions.data();
+		create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
+
 		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
 	}
 
