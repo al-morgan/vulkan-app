@@ -251,7 +251,6 @@ namespace app
 			image_view_create_info.subresourceRange.levelCount = 1;
 
 			vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i]);
-			
 		}
 	}
 
