@@ -231,10 +231,37 @@ namespace app
 		create_info.oldSwapchain = VK_NULL_HANDLE;
 
 		vkCreateSwapchainKHR(m_device, &create_info, nullptr, &m_swapchain);
+
+		uint32_t swapchain_image_count;
+		vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, nullptr);
+		m_swapchain_images.resize(swapchain_image_count);
+		vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, m_swapchain_images.data());
+
+		m_swapchain_image_views.resize(swapchain_image_count);
+
+		for (uint32_t i = 0; i < swapchain_image_count; i++)
+		{
+			VkImageViewCreateInfo image_view_create_info{};
+			image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			image_view_create_info.image = m_swapchain_images[i];
+			image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+			image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			image_view_create_info.subresourceRange.layerCount = 1;
+			image_view_create_info.subresourceRange.levelCount = 1;
+
+			vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i]);
+			
+		}
 	}
 
 	void app::gfx::tear_down_swap_chain()
 	{
+		for (uint32_t i = 0; i < static_cast<uint32_t>(m_swapchain_image_views.size()); i++)
+		{
+			vkDestroyImageView(m_device, m_swapchain_image_views[i], nullptr);
+		}
+		
 		vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 	}
 

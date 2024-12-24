@@ -1,3 +1,5 @@
+#include <vector>
+
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
@@ -15,6 +17,8 @@ namespace app
 		VkQueue m_present_queue;
 		uint32_t m_queue_family_index;	// Used for both graphics and present for now.
 		VkSwapchainKHR m_swapchain;
+		std::vector<VkImage> m_swapchain_images;
+		std::vector<VkImageView> m_swapchain_image_views;
 
 		void set_up_glfw();
 		void tear_down_glfw();
