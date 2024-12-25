@@ -18,6 +18,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="fragment\simple.frag" />
+    <None Include="vertex\simple.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -110,13 +114,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>glslc $(ProjectDir)simple.vert
-glslc $(ProjectDir)simple.frag
+      <Command>glslc -o $(OutDir)\shaders\vertex\simple.spv $(ProjectDir)\vertex\simple.vert
+glslc -o $(OutDir)\shaders\fragment\simple.spv $(ProjectDir)\fragment\simple.frag
 </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Inputs>$(ProjectDir)/simple.vert</Inputs>
-      <Outputs>simple.spv</Outputs>
+      <Inputs>$(ProjectDir)\shaders\vertex\simple.vert;$(ProjectDir)\shaders\fragment\simple.frag</Inputs>
+      <Outputs>$(OutDir)\shaders\vertex\simple.spv;$(OutDir)\shaders\fragment\simple.spv</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,19 +139,15 @@ glslc $(ProjectDir)simple.frag
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>glslc $(ProjectDir)simple.vert
-glslc $(ProjectDir)simple.frag
+      <Command>glslc -o $(OutDir)\shaders\vertex\simple.spv $(ProjectDir)\vertex\simple.vert
+glslc -o $(OutDir)\shaders\fragment\simple.spv $(ProjectDir)\fragment\simple.frag
 </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Inputs>$(ProjectDir)/simple.vert</Inputs>
-      <Outputs>simple.spv</Outputs>
+      <Inputs>$(ProjectDir)\shaders\vertex\simple.vert;$(ProjectDir)\shaders\fragment\simple.frag</Inputs>
+      <Outputs>$(OutDir)\shaders\vertex\simple.spv;$(OutDir)\shaders\fragment\simple.spv</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="simple.frag" />
-    <None Include="simple.vert" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
