@@ -110,12 +110,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>glslc $(ProjectDir)/simple.vert
-glslc $(ProjectDir)/simple.frag
+      <Command>glslc $(ProjectDir)simple.vert
+glslc $(ProjectDir)simple.frag
 </Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Inputs>$(ProjectDir)/simple.vert</Inputs>
+      <Outputs>simple.spv</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,12 +135,13 @@ glslc $(ProjectDir)/simple.frag
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>glslc $(ProjectDir)/simple.vert
-glslc $(ProjectDir)/simple.frag
+      <Command>glslc $(ProjectDir)simple.vert
+glslc $(ProjectDir)simple.frag
 </Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Inputs>$(ProjectDir)/simple.vert</Inputs>
+      <Outputs>simple.spv</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
