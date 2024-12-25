@@ -119,8 +119,9 @@ glslc -o $(OutDir)\shaders\fragment\simple.spv $(ProjectDir)\fragment\simple.fra
 </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Inputs>$(ProjectDir)\shaders\vertex\simple.vert;$(ProjectDir)\shaders\fragment\simple.frag</Inputs>
+      <Inputs>$(ProjectDir)\vertex\simple.vert;$(ProjectDir)\fragment\simple.frag</Inputs>
       <Outputs>$(OutDir)\shaders\vertex\simple.spv;$(OutDir)\shaders\fragment\simple.spv</Outputs>
+      <Message>Compiling Shaders</Message>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,8 +145,9 @@ glslc -o $(OutDir)\shaders\fragment\simple.spv $(ProjectDir)\fragment\simple.fra
 </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Inputs>$(ProjectDir)\shaders\vertex\simple.vert;$(ProjectDir)\shaders\fragment\simple.frag</Inputs>
+      <Inputs>$(ProjectDir)\vertex\simple.vert;$(ProjectDir)\fragment\simple.frag</Inputs>
       <Outputs>$(OutDir)\shaders\vertex\simple.spv;$(OutDir)\shaders\fragment\simple.spv</Outputs>
+      <Message>Compiling Shaders</Message>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
