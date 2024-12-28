@@ -35,6 +35,8 @@ namespace app
 		void tear_down_swap_chain();
 		void set_up_command_pool();
 		void tear_down_command_pool();
+		void set_up_shaders();
+		void tear_down_shaders();
 
 	public:
 		gfx();

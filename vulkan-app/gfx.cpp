@@ -13,6 +13,7 @@
 #include <vector>
 #include <limits>
 #include <optional>
+#include <fstream>
 
 //#include <vulkan/vulkan_win32.h>
 
@@ -39,10 +40,12 @@ namespace app
 		get_queues();
 		set_up_swap_chain();
 		set_up_command_pool();
+		set_up_shaders();
 	}
 
 	app::gfx::~gfx()
 	{
+		tear_down_shaders();
 		tear_down_command_pool();
 		tear_down_swap_chain();
 		tear_down_device();
@@ -273,6 +276,40 @@ namespace app
 	void app::gfx::tear_down_command_pool()
 	{
 		vkDestroyCommandPool(m_device, m_command_pool, nullptr);
+	}
+
+	void app::gfx::set_up_shaders()
+	{
+		std::vector<char> buffer;
+		size_t size;
+		std::ifstream file("./shaders/vertex/simple.spv", std::ios::in | std::ios::ate | std::ios::binary);
+		if (file.is_open())
+		{
+			size = file.tellg();
+			file.seekg(0);
+			buffer.resize(size);
+			file.read(buffer.data(), size);
+			file.close();
+		}
+		else
+		{
+			throw std::runtime_error("Could not open file!");
+		}
+
+		
+		VkShaderModuleCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
+		create_info.codeSize = size;
+
+		VkShaderModule shader_module;
+
+		vkCreateShaderModule(m_device, &create_info, nullptr, &shader_module);
+	}
+
+	void app::gfx::tear_down_shaders()
+	{
+
 	}
 
 	void app::gfx::update()
