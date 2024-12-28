@@ -15,6 +15,8 @@
 #include <optional>
 #include <fstream>
 
+#include "file.hpp"
+
 //#include <vulkan/vulkan_win32.h>
 
 #define WIDTH	800
@@ -281,35 +283,25 @@ namespace app
 	void app::gfx::set_up_shaders()
 	{
 		std::vector<char> buffer;
-		size_t size;
-		std::ifstream file("./shaders/vertex/simple.spv", std::ios::in | std::ios::ate | std::ios::binary);
-		if (file.is_open())
-		{
-			size = file.tellg();
-			file.seekg(0);
-			buffer.resize(size);
-			file.read(buffer.data(), size);
-			file.close();
-		}
-		else
-		{
-			throw std::runtime_error("Could not open file!");
-		}
 
-		
 		VkShaderModuleCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		
+		buffer = app::read_file("./shaders/vertex/simple.spv");		
 		create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
-		create_info.codeSize = size;
+		create_info.codeSize = buffer.size();
+		vkCreateShaderModule(m_device, &create_info, nullptr, &m_vertex_shader_module);
 
-		VkShaderModule shader_module;
-
-		vkCreateShaderModule(m_device, &create_info, nullptr, &shader_module);
+		buffer = app::read_file("./shaders/fragment/simple.spv");
+		create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
+		create_info.codeSize = buffer.size();
+		vkCreateShaderModule(m_device, &create_info, nullptr, &m_fragment_shader_module);
 	}
 
 	void app::gfx::tear_down_shaders()
 	{
-
+		vkDestroyShaderModule(m_device, m_vertex_shader_module, nullptr);
+		vkDestroyShaderModule(m_device, m_fragment_shader_module, nullptr);
 	}
 
 	void app::gfx::update()

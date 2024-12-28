@@ -20,6 +20,8 @@ namespace app
 		std::vector<VkImage> m_swapchain_images;
 		std::vector<VkImageView> m_swapchain_image_views;
 		VkCommandPool m_command_pool;
+		VkShaderModule m_fragment_shader_module;
+		VkShaderModule m_vertex_shader_module;
 
 		void set_up_glfw();
 		void tear_down_glfw();
