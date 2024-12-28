@@ -39,6 +39,8 @@ namespace app
 		void tear_down_command_pool();
 		void set_up_shaders();
 		void tear_down_shaders();
+		void set_up_pipeline();
+		void tear_down_pipeline();
 
 	public:
 		gfx();

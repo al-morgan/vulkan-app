@@ -43,10 +43,12 @@ namespace app
 		set_up_swap_chain();
 		set_up_command_pool();
 		set_up_shaders();
+		set_up_pipeline();
 	}
 
 	app::gfx::~gfx()
 	{
+		tear_down_pipeline();
 		tear_down_shaders();
 		tear_down_command_pool();
 		tear_down_swap_chain();
@@ -278,6 +280,16 @@ namespace app
 	void app::gfx::tear_down_command_pool()
 	{
 		vkDestroyCommandPool(m_device, m_command_pool, nullptr);
+	}
+
+	void app::gfx::set_up_pipeline()
+	{
+
+	}
+
+	void app::gfx::tear_down_pipeline()
+	{
+
 	}
 
 	void app::gfx::set_up_shaders()
