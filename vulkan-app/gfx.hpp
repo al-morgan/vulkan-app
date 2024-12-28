@@ -19,6 +19,7 @@ namespace app
 		VkSwapchainKHR m_swapchain;
 		std::vector<VkImage> m_swapchain_images;
 		std::vector<VkImageView> m_swapchain_image_views;
+		VkCommandPool m_command_pool;
 
 		void set_up_glfw();
 		void tear_down_glfw();
@@ -29,10 +30,11 @@ namespace app
 		void tear_down_surface();
 		void set_up_device();
 		void tear_down_device();
-		void set_up_queues();
-		void tear_down_queues();
+		void get_queues();
 		void set_up_swap_chain();
 		void tear_down_swap_chain();
+		void set_up_command_pool();
+		void tear_down_command_pool();
 
 	public:
 		gfx();

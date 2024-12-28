@@ -36,14 +36,15 @@ namespace app
 		pick_physical_device();
 		set_up_surface();
 		set_up_device();
-		set_up_queues();
+		get_queues();
 		set_up_swap_chain();
+		set_up_command_pool();
 	}
 
 	app::gfx::~gfx()
 	{
+		tear_down_command_pool();
 		tear_down_swap_chain();
-		tear_down_queues();
 		tear_down_device();
 		tear_down_surface();
 		tear_down_instance();
@@ -195,17 +196,12 @@ namespace app
 		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 	}
 
-	void app::gfx::set_up_queues()
+	void app::gfx::get_queues()
 	{
 		vkGetDeviceQueue(m_device, m_queue_family_index, 0, &m_graphics_queue);
 		
 		// Hack for now, maybe optimize later.
 		m_present_queue = m_graphics_queue;
-	}
-
-	void app::gfx::tear_down_queues()
-	{
-
 	}
 
 	void app::gfx::set_up_swap_chain()
@@ -262,6 +258,21 @@ namespace app
 		}
 		
 		vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+	}
+
+	void app::gfx::set_up_command_pool()
+	{
+		VkCommandPoolCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		create_info.queueFamilyIndex = m_queue_family_index;
+
+		vkCreateCommandPool(m_device, &create_info, nullptr, &m_command_pool);
+	}
+
+	void app::gfx::tear_down_command_pool()
+	{
+		vkDestroyCommandPool(m_device, m_command_pool, nullptr);
 	}
 
 	void app::gfx::update()
