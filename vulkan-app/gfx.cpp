@@ -174,10 +174,15 @@ namespace app
 		device_queue_create_info.queueFamilyIndex = m_queue_family_index;
 		device_queue_create_info.pQueuePriorities = &queue_priority;
 
-		std::vector<const char *> enabled_extensions = {"VK_KHR_swapchain"};
+		std::vector<const char *> enabled_extensions = {"VK_KHR_swapchain", "VK_KHR_dynamic_rendering"};
+
+		VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_features{};
+		dynamic_rendering_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+		dynamic_rendering_features.dynamicRendering = VK_TRUE;
 		
 		VkDeviceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		create_info.pNext = &dynamic_rendering_features;
 		create_info.pQueueCreateInfos = &device_queue_create_info;
 		create_info.queueCreateInfoCount = 1;
 		create_info.ppEnabledExtensionNames = enabled_extensions.data();
@@ -346,12 +351,30 @@ namespace app
 		VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
 		input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 
-		//VkPipelineVertexInputStateCreateInfo _input_state_create_info{};
-		//vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		VkPipelineMultisampleStateCreateInfo multisample_state{};
+		multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-		//pipeline_layout_create_info.pSetLayouts
-		
-		//vkCreatePipelineLayout()
+		VkPipelineRasterizationStateCreateInfo rasterization_state{};
+		rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		rasterization_state.lineWidth = 1.0f;
+
+		VkViewport viewport{};
+		viewport.width = 800.0f;
+		viewport.height = 600.0f;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+
+		VkRect2D scissor{};
+		scissor.extent.width = 800;
+		scissor.extent.height = 600;		
+
+		VkPipelineViewportStateCreateInfo viewport_state{};
+		viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewport_state.pViewports = &viewport;
+		viewport_state.viewportCount = 1;
+		viewport_state.pScissors = &scissor;
+		viewport_state.scissorCount = 1;
 
 		VkGraphicsPipelineCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -360,6 +383,10 @@ namespace app
 		create_info.layout = pipeline_layout;
 		create_info.pVertexInputState = &vertex_input_state_create_info;
 		create_info.pInputAssemblyState = &input_assembly_state;
+		create_info.pMultisampleState = &multisample_state;
+		create_info.pRasterizationState = &rasterization_state;
+		create_info.pViewportState = &viewport_state;
+
 		
 		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &pipeline);
 	}
