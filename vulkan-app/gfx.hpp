@@ -22,6 +22,7 @@ namespace app
 		VkCommandPool m_command_pool;
 		VkShaderModule m_fragment_shader_module;
 		VkShaderModule m_vertex_shader_module;
+		VkDescriptorPool m_descriptor_pool;
 
 		void set_up_glfw();
 		void tear_down_glfw();
@@ -39,6 +40,8 @@ namespace app
 		void tear_down_command_pool();
 		void set_up_shaders();
 		void tear_down_shaders();
+		void set_up_descriptor_pool();
+		void tear_down_descriptor_pool();
 		void set_up_pipeline();
 		void tear_down_pipeline();
 

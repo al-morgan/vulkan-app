@@ -14,6 +14,7 @@
 #include <limits>
 #include <optional>
 #include <fstream>
+#include <array>
 
 #include "file.hpp"
 
@@ -43,12 +44,14 @@ namespace app
 		set_up_swap_chain();
 		set_up_command_pool();
 		set_up_shaders();
+		set_up_descriptor_pool();
 		set_up_pipeline();
 	}
 
 	app::gfx::~gfx()
 	{
 		tear_down_pipeline();
+		tear_down_descriptor_pool();
 		tear_down_shaders();
 		tear_down_command_pool();
 		tear_down_swap_chain();
@@ -282,9 +285,83 @@ namespace app
 		vkDestroyCommandPool(m_device, m_command_pool, nullptr);
 	}
 
+	void app::gfx::set_up_descriptor_pool()
+	{
+		VkDescriptorPoolCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		create_info.poolSizeCount = 0;
+		create_info.pPoolSizes = nullptr;
+		create_info.maxSets = 10; // TODO real value here.
+		
+		vkCreateDescriptorPool(m_device, &create_info, nullptr, &m_descriptor_pool);
+	}
+
+	void app::gfx::tear_down_descriptor_pool()
+	{
+		vkDestroyDescriptorPool(m_device, m_descriptor_pool, nullptr);
+	}
+
 	void app::gfx::set_up_pipeline()
 	{
+		VkPipeline pipeline;
 
+		//VkDescriptorSetLayout layout{};
+		////layout.
+
+		//VkDescriptorSetLayoutCreateInfo layout_create_info{};
+		//layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;		
+
+		//vkCreateDescriptorSetLayout(m_device, &layout_create_info, nullptr, &layout);
+
+		//VkDescriptorSetAllocateInfo alloc_info{};
+		//alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		//alloc_info.descriptorPool = m_descriptor_pool;
+		//alloc_info.descriptorSetCount = 1;
+		//alloc_info.pSetLayouts = &layout;
+
+		//vkAllocateDescriptorSets()
+
+		VkPipelineShaderStageCreateInfo vertex_stage_create_info{};
+		vertex_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertex_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vertex_stage_create_info.pName = "main";
+		vertex_stage_create_info.module = m_vertex_shader_module;
+
+		VkPipelineShaderStageCreateInfo fragment_stage_create_info{};
+		fragment_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragment_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		fragment_stage_create_info.pName = "main";
+		fragment_stage_create_info.module = m_fragment_shader_module;
+
+		std::array<VkPipelineShaderStageCreateInfo, 2> stages = { vertex_stage_create_info, fragment_stage_create_info };
+
+		VkPipelineLayout pipeline_layout;
+		VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
+		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &pipeline_layout);
+
+		VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
+		vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
+		input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+
+		//VkPipelineVertexInputStateCreateInfo _input_state_create_info{};
+		//vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		//pipeline_layout_create_info.pSetLayouts
+		
+		//vkCreatePipelineLayout()
+
+		VkGraphicsPipelineCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		create_info.stageCount = 2;
+		create_info.pStages = stages.data();		
+		create_info.layout = pipeline_layout;
+		create_info.pVertexInputState = &vertex_input_state_create_info;
+		create_info.pInputAssemblyState = &input_assembly_state;
+		
+		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &pipeline);
 	}
 
 	void app::gfx::tear_down_pipeline()
