@@ -350,6 +350,7 @@ namespace app
 
 		VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
 		input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		input_assembly_state.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
 		VkPipelineMultisampleStateCreateInfo multisample_state{};
 		multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
