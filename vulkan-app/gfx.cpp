@@ -308,8 +308,6 @@ namespace app
 
 	void app::gfx::set_up_pipeline()
 	{
-		VkPipeline pipeline;
-
 		//VkDescriptorSetLayout layout{};
 		////layout.
 
@@ -387,14 +385,15 @@ namespace app
 		create_info.pMultisampleState = &multisample_state;
 		create_info.pRasterizationState = &rasterization_state;
 		create_info.pViewportState = &viewport_state;
-
 		
-		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &pipeline);
+		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &m_pipeline);
+
+		vkDestroyPipelineLayout(m_device, pipeline_layout, nullptr);
 	}
 
 	void app::gfx::tear_down_pipeline()
 	{
-
+		vkDestroyPipeline(m_device, m_pipeline, nullptr);
 	}
 
 	void app::gfx::set_up_shaders()
