@@ -283,6 +283,15 @@ namespace app
 		create_info.queueFamilyIndex = m_queue_family_index;
 
 		vkCreateCommandPool(m_device, &create_info, nullptr, &m_command_pool);
+
+		VkCommandBufferAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		alloc_info.commandBufferCount = 1;
+		alloc_info.commandPool = m_command_pool;
+		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+		vkAllocateCommandBuffers(m_device, &alloc_info, &m_command_buffer);
+
 	}
 
 	void app::gfx::tear_down_command_pool()
@@ -425,6 +434,8 @@ namespace app
 		while (!glfwWindowShouldClose(m_window))
 		{
 			glfwPollEvents();
+
+
 		}
 	}
 }

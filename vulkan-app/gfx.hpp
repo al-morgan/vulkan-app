@@ -24,6 +24,7 @@ namespace app
 		VkShaderModule m_vertex_shader_module;
 		VkDescriptorPool m_descriptor_pool;
 		VkPipeline m_pipeline;
+		VkCommandBuffer m_command_buffer;
 
 		void set_up_glfw();
 		void tear_down_glfw();
