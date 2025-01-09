@@ -46,10 +46,23 @@ namespace app
 		set_up_shaders();
 		set_up_descriptor_pool();
 		set_up_pipeline();
-	}
+
+		VkFenceCreateInfo fence_create_info{};
+		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		vkCreateFence(m_device, &fence_create_info, nullptr, &m_in_flight_fence);
+
+		VkSemaphoreCreateInfo semaphore_create_info{};
+		semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
+		vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
 
 	app::gfx::~gfx()
 	{
+		vkDestroySemaphore(m_device, m_render_finished_semaphore, nullptr);
+		vkDestroySemaphore(m_device, m_image_available_semaphore, nullptr);
+		vkDestroyFence(m_device, m_in_flight_fence, nullptr);
+
 		tear_down_pipeline();
 		tear_down_descriptor_pool();
 		tear_down_shaders();
@@ -464,8 +477,9 @@ namespace app
 			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-			vkBeginCommandBuffer(m_command_buffer, &begin_info);			
+			vkBeginCommandBuffer(m_command_buffer, &begin_info);
 			vkCmdBeginRendering(m_command_buffer, &rendering_info);
+
 			vkCmdEndRendering(m_command_buffer);
 			vkEndCommandBuffer(m_command_buffer);
 		}

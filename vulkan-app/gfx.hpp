@@ -26,6 +26,10 @@ namespace app
 		VkPipeline m_pipeline;
 		VkCommandBuffer m_command_buffer;
 
+		VkFence m_in_flight_fence;
+		VkSemaphore m_image_available_semaphore;
+		VkSemaphore m_render_finished_semaphore;
+
 		void set_up_glfw();
 		void tear_down_glfw();
 		void set_up_instance();
