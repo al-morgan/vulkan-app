@@ -433,9 +433,41 @@ namespace app
 	{
 		while (!glfwWindowShouldClose(m_window))
 		{
+			uint32_t image_view_index = 0; // TODO GET THE INDEX
+
 			glfwPollEvents();
 
+			vkResetCommandBuffer(m_command_buffer, 0);
+			
+			VkClearValue clear_value{};
 
+			VkRect2D render_area{};
+			render_area.extent.width = 800;
+			render_area.extent.height = 600;
+
+			VkRenderingAttachmentInfo color_attachment_info{};
+			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			color_attachment_info.clearValue = clear_value;
+			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+			color_attachment_info.imageView = m_swapchain_image_views[image_view_index];
+			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+			VkRenderingInfo rendering_info{};
+			rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+			rendering_info.pColorAttachments = &color_attachment_info;
+			rendering_info.colorAttachmentCount = 1;
+			rendering_info.layerCount = 1;
+			rendering_info.renderArea = render_area;
+
+			VkCommandBufferBeginInfo begin_info{};
+			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+			vkBeginCommandBuffer(m_command_buffer, &begin_info);			
+			vkCmdBeginRendering(m_command_buffer, &rendering_info);
+			vkCmdEndRendering(m_command_buffer);
+			vkEndCommandBuffer(m_command_buffer);
 		}
 	}
 }
