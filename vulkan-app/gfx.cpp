@@ -324,6 +324,26 @@ namespace app
 		create_info.maxSets = 10; // TODO real value here.
 		
 		vkCreateDescriptorPool(m_device, &create_info, nullptr, &m_descriptor_pool);
+
+		//VkDescriptorSetLayoutBinding binding{};
+		//binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		//binding.descriptorType
+
+		//
+		//VkDescriptorSetLayout layout;
+		//VkDescriptorSetLayoutCreateInfo layout_create_info{};
+		//layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		//layout_create_info.bindingCount = 1;
+		//layout_create_info.pBindings
+
+		//
+		//VkDescriptorSetAllocateInfo alloc_info{};
+		//alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		//alloc_info.descriptorPool = m_descriptor_pool;
+		//alloc_info.descriptorSetCount = 1;
+		//alloc_info.pSetLayouts
+
+		// vkAllocateDescriptorSets(m_device, )
 	}
 
 	void app::gfx::tear_down_descriptor_pool()
@@ -363,9 +383,15 @@ namespace app
 
 		std::array<VkPipelineShaderStageCreateInfo, 2> stages = { vertex_stage_create_info, fragment_stage_create_info };
 
+		VkPushConstantRange range{};
+		range.size = 12;
+		range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		
 		VkPipelineLayout pipeline_layout;
 		VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
 		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipeline_layout_create_info.pPushConstantRanges = &range;
+		pipeline_layout_create_info.pushConstantRangeCount = 1;
 		vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &pipeline_layout);
 
 		VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
