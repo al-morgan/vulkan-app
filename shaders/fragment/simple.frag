@@ -49,9 +49,9 @@ void main()
 		float remapped = f * 320.0f / MAX_INTENSITY_FLOAT + 390.f;
 		//remapped = 690.f - remapped;
 
-		float red = max(100.0f - abs(remapped - 600.0f), 0.0f);
-		float green = max(100.0f - abs(remapped - 575.0f), 0.0f);
-		float blue = max(50.0f - abs(remapped - 450.0f), 0.0f);
+		float red = max(100.0f - abs(remapped - 575.0f), 0.0f);
+		float green = max(100.0f - abs(remapped - 540.0f), 0.0f);
+		float blue = max(50.0f - abs(remapped - 440.0f), 0.0f);
 
 		red /= 100.0f;
 		green /= 100.0f;
