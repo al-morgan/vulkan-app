@@ -524,7 +524,7 @@ namespace app
 			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 			
 			vkCmdBeginRendering(m_command_buffer, &rendering_info);
-			vkCmdDraw(m_command_buffer, 3, 1, 0, 0);
+			vkCmdDraw(m_command_buffer, 6, 1, 0, 0);
 			vkCmdEndRendering(m_command_buffer);
 			
 			//VkSemaphoreWaitInfo 
