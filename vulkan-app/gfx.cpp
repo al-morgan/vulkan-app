@@ -400,6 +400,18 @@ namespace app
 		viewport_state.pScissors = &scissor;
 		viewport_state.scissorCount = 1;
 
+		VkPipelineColorBlendAttachmentState color_blend_attachment_state{};
+		color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		//color_blend_attachment_state.blendEnable = 
+		//color_blend_attachment_state.alphaBlendOp = 
+
+		VkPipelineColorBlendStateCreateInfo color_blend_state{};
+		color_blend_state.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		color_blend_state.attachmentCount = 1;
+		color_blend_state.pAttachments = &color_blend_attachment_state;
+		color_blend_state.logicOp = VK_LOGIC_OP_SET;
+		//color_blend_state.blendConstants
+
 		VkGraphicsPipelineCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		create_info.stageCount = 2;
@@ -410,6 +422,15 @@ namespace app
 		create_info.pMultisampleState = &multisample_state;
 		create_info.pRasterizationState = &rasterization_state;
 		create_info.pViewportState = &viewport_state;
+		create_info.pColorBlendState = &color_blend_state;
+
+		// Tutorial says I need this but it works without it?
+		VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
+		VkPipelineRenderingCreateInfo pipeline_rendering_create_info{};
+		pipeline_rendering_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+		pipeline_rendering_create_info.colorAttachmentCount = 1;
+		pipeline_rendering_create_info.pColorAttachmentFormats = &format;
+		create_info.pNext = &pipeline_rendering_create_info;
 		
 		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &m_pipeline);
 
