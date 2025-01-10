@@ -42,8 +42,8 @@ namespace app
 			double dx = mouse_x - last_update_x;
 			double dy = mouse_y - last_update_y;
 
-			double ndx = dx / 200.0;
-			double ndy = dy / 200.0;
+			double ndx = dx / 200.0 / zoom;
+			double ndy = dy / 200.0 / zoom;
 
 			center_x -= ndx;
 			center_y -= ndy;
@@ -55,7 +55,16 @@ namespace app
 
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
-		zoom -= yoffset / 10.0;
+		double constexpr factor = 1.1;
+
+		if (yoffset > 0)
+		{
+			zoom *= factor;
+		}
+		else
+		{
+			zoom /= factor;
+		}
 	}
 
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)

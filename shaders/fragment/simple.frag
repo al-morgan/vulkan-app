@@ -12,8 +12,8 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	float a = (gl_FragCoord.x / 200.0f - 2.0f) * my_push_constants.zoom + my_push_constants.x;
-	float b = (gl_FragCoord.y / 200.0f - 2.0f) * my_push_constants.zoom + my_push_constants.y;
+	float a = (gl_FragCoord.x / 200.0f - 2.0f) / my_push_constants.zoom + my_push_constants.x;
+	float b = (gl_FragCoord.y / 200.0f - 2.0f) / my_push_constants.zoom + my_push_constants.y;
 
 	vec4 color;
 
