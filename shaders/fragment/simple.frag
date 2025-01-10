@@ -10,7 +10,7 @@ layout (push_constant) uniform my_push_constants_t
 
 layout(location = 0) out vec4 outColor;
 
-int MAX_INTENSITY_INT = 1000;
+int MAX_INTENSITY_INT = 100;
 float MAX_INTENSITY_FLOAT = float(MAX_INTENSITY_INT);
 
 void main()
@@ -44,9 +44,21 @@ void main()
 			break;
 		}
 
+
 		//color = vec4(1.0, 1.0, 1.0, 1.0);
 		float f = float(i);
-		color = vec4(f / MAX_INTENSITY_FLOAT, f / MAX_INTENSITY_FLOAT, f / MAX_INTENSITY_FLOAT, 1.0);
+		float remapped = f * 300.0f / MAX_INTENSITY_FLOAT + 450.f;
+
+		float red = max(remapped - 600.0f, 0.0f);
+		float green = max(remapped - 575.0f, 0.0f);
+		float blue = max(remapped - 450.0f, 0.0f);
+
+		red /= 200.0f;
+		green /= 200.0f;
+		blue /= 100.0f;
+
+		//color = vec4(f / MAX_INTENSITY_FLOAT, f / MAX_INTENSITY_FLOAT, f / MAX_INTENSITY_FLOAT, 1.0);
+		color = vec4(red, green, blue, 1.0);
 	}
 
 	if(i >= 100)
