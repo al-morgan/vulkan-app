@@ -23,8 +23,16 @@
 #define WIDTH	800
 #define HEIGHT	800
 
+static double mouse_x, mouse_y;
+
 namespace app
 {
+	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+	{
+		mouse_x = xpos;
+		mouse_y = ypos;
+	}
+	
 	static void vk_check(VkResult result)
 	{
 		if (result != VK_SUCCESS)
@@ -83,6 +91,7 @@ namespace app
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+		glfwSetCursorPosCallback(m_window, cursor_position_callback);
 	}
 
 	void app::gfx::tear_down_glfw()
