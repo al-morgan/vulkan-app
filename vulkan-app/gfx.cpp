@@ -500,8 +500,10 @@ namespace app
 			barrier1.subresourceRange.levelCount = 1;
 			vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
 
+			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+			
 			vkCmdBeginRendering(m_command_buffer, &rendering_info);
-
+			vkCmdDraw(m_command_buffer, 3, 1, 0, 0);
 			vkCmdEndRendering(m_command_buffer);
 			
 			//VkSemaphoreWaitInfo 
