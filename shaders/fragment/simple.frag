@@ -10,6 +10,9 @@ layout (push_constant) uniform my_push_constants_t
 
 layout(location = 0) out vec4 outColor;
 
+int MAX_INTENSITY_INT = 1000;
+float MAX_INTENSITY_FLOAT = float(MAX_INTENSITY_INT);
+
 void main()
 {
 	float a = (gl_FragCoord.x / 200.0f - 2.0f) / my_push_constants.zoom + my_push_constants.x;
@@ -24,7 +27,7 @@ void main()
 
 	color = vec4(0.0, 0.0, 0.0, 0.0);
 
-	for(i = 0; i < 100; i++)
+	for(i = 0; i < MAX_INTENSITY_INT; i++)
 	{
 		// square z
 		float r1 = z1 * z1;		// first
@@ -43,7 +46,7 @@ void main()
 
 		//color = vec4(1.0, 1.0, 1.0, 1.0);
 		float f = float(i);
-		color = vec4(f / 100.0f, f / 100.0f, f / 100.0f, 1.0);
+		color = vec4(f / MAX_INTENSITY_FLOAT, f / MAX_INTENSITY_FLOAT, f / MAX_INTENSITY_FLOAT, 1.0);
 	}
 
 	if(i >= 100)
