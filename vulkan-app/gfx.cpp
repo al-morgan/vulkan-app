@@ -21,7 +21,7 @@
 //#include <vulkan/vulkan_win32.h>
 
 #define WIDTH	800
-#define HEIGHT	600
+#define HEIGHT	800
 
 namespace app
 {
@@ -384,14 +384,14 @@ namespace app
 		rasterization_state.lineWidth = 1.0f;
 
 		VkViewport viewport{};
-		viewport.width = 800.0f;
-		viewport.height = 600.0f;
+		viewport.width = static_cast<float>(WIDTH);
+		viewport.height = static_cast<float>(HEIGHT);
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 
 		VkRect2D scissor{};
-		scissor.extent.width = 800;
-		scissor.extent.height = 600;		
+		scissor.extent.width = WIDTH;
+		scissor.extent.height = HEIGHT;		
 
 		VkPipelineViewportStateCreateInfo viewport_state{};
 		viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -484,8 +484,8 @@ namespace app
 			VkClearValue clear_value{};
 
 			VkRect2D render_area{};
-			render_area.extent.width = 800;
-			render_area.extent.height = 600;
+			render_area.extent.width = WIDTH;
+			render_area.extent.height = HEIGHT;
 
 			VkRenderingAttachmentInfo color_attachment_info{};
 			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
