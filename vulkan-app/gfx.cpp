@@ -387,12 +387,12 @@ namespace app
 		range.size = 12;
 		range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		
-		VkPipelineLayout pipeline_layout;
+		//VkPipelineLayout pipeline_layout;
 		VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
 		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipeline_layout_create_info.pPushConstantRanges = &range;
 		pipeline_layout_create_info.pushConstantRangeCount = 1;
-		vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &pipeline_layout);
+		vk_check(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
 
 		VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
 		vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -442,7 +442,7 @@ namespace app
 		create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		create_info.stageCount = 2;
 		create_info.pStages = stages.data();		
-		create_info.layout = pipeline_layout;
+		create_info.layout = m_pipeline_layout;
 		create_info.pVertexInputState = &vertex_input_state_create_info;
 		create_info.pInputAssemblyState = &input_assembly_state;
 		create_info.pMultisampleState = &multisample_state;
@@ -460,11 +460,12 @@ namespace app
 		
 		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &m_pipeline);
 
-		vkDestroyPipelineLayout(m_device, pipeline_layout, nullptr);
+		//vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
 	}
 
 	void app::gfx::tear_down_pipeline()
 	{
+		vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
 		vkDestroyPipeline(m_device, m_pipeline, nullptr);
 	}
 
@@ -548,6 +549,10 @@ namespace app
 			vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
 
 			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+
+			float values[3]{};
+
+			vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
 			vkCmdBeginRendering(m_command_buffer, &rendering_info);
 			vkCmdDraw(m_command_buffer, 6, 1, 0, 0);

@@ -26,6 +26,7 @@ namespace app
 		VkDescriptorSet m_descriptor_set;
 		VkPipeline m_pipeline;
 		VkCommandBuffer m_command_buffer;
+		VkPipelineLayout m_pipeline_layout;
 
 		VkFence m_in_flight_fence;
 		VkSemaphore m_image_available_semaphore;
