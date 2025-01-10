@@ -49,6 +49,7 @@ namespace app
 
 		VkFenceCreateInfo fence_create_info{};
 		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 		vkCreateFence(m_device, &fence_create_info, nullptr, &m_in_flight_fence);
 
 		VkSemaphoreCreateInfo semaphore_create_info{};
@@ -59,6 +60,8 @@ namespace app
 
 	app::gfx::~gfx()
 	{
+		vkDeviceWaitIdle(m_device);
+
 		vkDestroySemaphore(m_device, m_render_finished_semaphore, nullptr);
 		vkDestroySemaphore(m_device, m_image_available_semaphore, nullptr);
 		vkDestroyFence(m_device, m_in_flight_fence, nullptr);
@@ -450,7 +453,12 @@ namespace app
 
 			glfwPollEvents();
 
+
+			vkWaitForFences(m_device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
 			vkResetCommandBuffer(m_command_buffer, 0);
+			vkResetFences(m_device, 1, &m_in_flight_fence);
+
+			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
 			VkClearValue clear_value{};
 
@@ -475,13 +483,71 @@ namespace app
 
 			VkCommandBufferBeginInfo begin_info{};
 			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			//begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 			vkBeginCommandBuffer(m_command_buffer, &begin_info);
+
+			VkImageMemoryBarrier barrier1{};
+			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			barrier1.image = m_swapchain_images[image_view_index];
+			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier1.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			barrier1.subresourceRange.baseArrayLayer = 0;
+			barrier1.subresourceRange.baseMipLevel = 0;
+			barrier1.subresourceRange.layerCount = 1;
+			barrier1.subresourceRange.levelCount = 1;
+			vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
+
 			vkCmdBeginRendering(m_command_buffer, &rendering_info);
 
 			vkCmdEndRendering(m_command_buffer);
+			
+			//VkSemaphoreWaitInfo 
+
+			//VkSemaphoreWait()
+
+			VkImageMemoryBarrier barrier2{};
+			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			barrier2.image = m_swapchain_images[image_view_index];
+			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			barrier2.subresourceRange.baseArrayLayer = 0;
+			barrier2.subresourceRange.baseMipLevel = 0;
+			barrier2.subresourceRange.layerCount = 1;
+			barrier2.subresourceRange.levelCount = 1;
+			vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier2);
+
 			vkEndCommandBuffer(m_command_buffer);
+
+			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			
+			VkSubmitInfo submit_info{};
+			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submit_info.commandBufferCount = 1;
+			submit_info.pCommandBuffers = &m_command_buffer;
+			submit_info.pWaitSemaphores = &m_image_available_semaphore;
+			submit_info.waitSemaphoreCount = 1;
+			submit_info.pWaitDstStageMask = &wait_stage;
+			submit_info.pSignalSemaphores = &m_render_finished_semaphore;
+			submit_info.signalSemaphoreCount = 1;
+
+			//submit_info.
+			
+			vkQueueSubmit(m_present_queue, 1, &submit_info, m_in_flight_fence);
+
+			VkPresentInfoKHR present_info{};
+			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+			present_info.pSwapchains = &m_swapchain;
+			present_info.swapchainCount = 1;
+			present_info.pWaitSemaphores = &m_render_finished_semaphore;
+			present_info.waitSemaphoreCount = 1;
+			present_info.pImageIndices = &image_view_index;
+
+			vkQueuePresentKHR(m_present_queue, &present_info);
 		}
 	}
 }
