@@ -46,7 +46,7 @@ void main()
 
 		//color = vec4(1.0, 1.0, 1.0, 1.0);
 		float f = float(i);
-		float remapped = f * 300.0f / MAX_INTENSITY_FLOAT + 450.f;
+		float remapped = f * 300.0f / MAX_INTENSITY_FLOAT + 390.f;
 
 		float red = max(100.0f - abs(remapped - 600.0f), 0.0f);
 		float green = max(100.0f - abs(remapped - 575.0f), 0.0f);
