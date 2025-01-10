@@ -550,7 +550,7 @@ namespace app
 
 			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-			float values[3]{};
+			float values[3] = { 0.0f, 0.0f, 1.0f };
 
 			vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			

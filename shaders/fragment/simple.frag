@@ -1,11 +1,19 @@
 #version 450
 
+
+layout (push_constant) uniform my_push_constants_t
+{
+	float x;
+	float y;
+	float zoom;
+} my_push_constants;
+
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	float a = gl_FragCoord.x / 200.0f - 2.0f;
-	float b = gl_FragCoord.y / 200.0f - 2.0f;
+	float a = (gl_FragCoord.x / 200.0f - 2.0f) * my_push_constants.zoom;
+	float b = (gl_FragCoord.y / 200.0f - 2.0f) * my_push_constants.zoom;
 
 	vec4 color;
 
