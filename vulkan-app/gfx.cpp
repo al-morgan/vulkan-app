@@ -28,6 +28,7 @@ static double mouse_down_x, mouse_down_y;
 static bool is_mouse_down;
 static double center_x, center_y;
 static double last_update_x, last_update_y;
+static double zoom = 1.0;
 
 namespace app
 {
@@ -50,6 +51,11 @@ namespace app
 			last_update_x = mouse_x;
 			last_update_y = mouse_y;
 		}
+	}
+
+	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		zoom -= yoffset / 10.0;
 	}
 
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -130,6 +136,7 @@ namespace app
 		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 		glfwSetCursorPosCallback(m_window, cursor_position_callback);
 		glfwSetMouseButtonCallback(m_window, mouse_button_callback);
+		glfwSetScrollCallback(m_window, scroll_callback);
 	}
 
 	void app::gfx::tear_down_glfw()
@@ -597,7 +604,7 @@ namespace app
 
 			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-			float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), 1.0f };
+			float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 
 			vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
