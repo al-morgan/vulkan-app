@@ -23,10 +23,13 @@ namespace app
 		VkShaderModule m_fragment_shader_module;
 		VkShaderModule m_vertex_shader_module;
 		VkDescriptorPool m_descriptor_pool;
-		VkDescriptorSet m_descriptor_set;
 		VkPipeline m_pipeline;
 		VkCommandBuffer m_command_buffer;
+
 		VkPipelineLayout m_pipeline_layout;
+		VkDescriptorSet m_descriptor_set;
+		VkDescriptorSetLayout m_layout;
+
 
 		VkFence m_in_flight_fence;
 		VkSemaphore m_image_available_semaphore;

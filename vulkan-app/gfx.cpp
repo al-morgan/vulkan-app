@@ -388,29 +388,34 @@ namespace app
 		
 		vkCreateDescriptorPool(m_device, &create_info, nullptr, &m_descriptor_pool);
 
-		//VkDescriptorSetLayoutBinding binding{};
-		//binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		//binding.descriptorType
+		VkDescriptorSetLayoutBinding binding{};
+		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		binding.descriptorCount = 1;
 
 		//
-		//VkDescriptorSetLayout layout;
-		//VkDescriptorSetLayoutCreateInfo layout_create_info{};
-		//layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//layout_create_info.bindingCount = 1;
-		//layout_create_info.pBindings
+
+		VkDescriptorSetLayoutCreateInfo layout_create_info{};
+		layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layout_create_info.bindingCount = 1;
+		layout_create_info.pBindings = &binding;
+		vkCreateDescriptorSetLayout(m_device, &layout_create_info, nullptr, &m_layout);
 
 		//
-		//VkDescriptorSetAllocateInfo alloc_info{};
-		//alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		//alloc_info.descriptorPool = m_descriptor_pool;
-		//alloc_info.descriptorSetCount = 1;
-		//alloc_info.pSetLayouts
+		VkDescriptorSetAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		alloc_info.descriptorPool = m_descriptor_pool;
+		alloc_info.descriptorSetCount = 1;
+		alloc_info.pSetLayouts = &m_layout;
 
-		// vkAllocateDescriptorSets(m_device, )
+		vk_check(vkAllocateDescriptorSets(m_device, &alloc_info, &m_descriptor_set));
+
 	}
 
 	void app::gfx::tear_down_descriptor_pool()
 	{
+		vkDestroyDescriptorSetLayout(m_device, m_layout, nullptr);
 		vkDestroyDescriptorPool(m_device, m_descriptor_pool, nullptr);
 	}
 
@@ -453,8 +458,10 @@ namespace app
 		//VkPipelineLayout pipeline_layout;
 		VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
 		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipeline_layout_create_info.pPushConstantRanges = &range;
-		pipeline_layout_create_info.pushConstantRangeCount = 1;
+		//pipeline_layout_create_info.pPushConstantRanges = &range;
+		//pipeline_layout_create_info.pushConstantRangeCount = 1;
+		pipeline_layout_create_info.pSetLayouts = &m_layout;
+		pipeline_layout_create_info.setLayoutCount = 1;
 		vk_check(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
 
 		VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
@@ -512,6 +519,7 @@ namespace app
 		create_info.pRasterizationState = &rasterization_state;
 		create_info.pViewportState = &viewport_state;
 		create_info.pColorBlendState = &color_blend_state;
+		//create_info.layout
 
 		// Tutorial says I need this but it works without it?
 		VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
@@ -613,9 +621,8 @@ namespace app
 
 			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-			float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
-
-			vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
+			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
+			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
 			vkCmdBeginRendering(m_command_buffer, &rendering_info);
 			vkCmdDraw(m_command_buffer, 6, 1, 0, 0);
