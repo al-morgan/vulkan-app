@@ -590,10 +590,13 @@ namespace app
 			VkBuffer buffer;
 			vkCreateBuffer(m_device, &buffer_create_info, nullptr, &buffer);
 
+			VkPhysicalDeviceMemoryProperties mem_properties;
+			vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
+
 			VkMemoryAllocateInfo memory_allocate_info{};
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			memory_allocate_info.allocationSize = buffer_size;
-			memory_allocate_info.memoryTypeIndex = 1; // hard coded host-visible/coherent on my machine.
+			memory_allocate_info.memoryTypeIndex = 2; // hard coded host-visible/coherent on my machine.
 
 			VkDeviceMemory device_buffer_memory;
 			vkAllocateMemory(m_device, &memory_allocate_info, nullptr, &device_buffer_memory);
@@ -614,6 +617,9 @@ namespace app
 			vkCreateBufferView(m_device, &buffer_view_create_info, nullptr, &buffer_view);
 
 			//vkBindBufferMemory
+
+			uint32_t* mem;
+			vkMapMemory(m_device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void **>(&mem));
 
 			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
