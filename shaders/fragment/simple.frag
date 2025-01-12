@@ -16,15 +16,18 @@ void main()
 	int x = int(gl_FragCoord.x / 80.0f);
 	int y = int(gl_FragCoord.y / 80.0f);
 	float value = 0.0f;
-	
 	value = objectBuffer.foo[y * 10 + x];
 
-	if(value >= 1.0f)
-	{
-		outColor = vec4(1.0, 0.0, 0.0, 1.0);
-	}
-	else
-	{
-		outColor = vec4(0.0, 1.0, 0.0, 1.0);
-	}	
+	float fx = float(x);
+	float fy = float(y);
+
+	float cx = fx + 0.5f;
+	float cy = fy + 0.5f;
+
+	vec2 base = vec2(cos(value), sin(value));
+	vec2 dir = vec2((gl_FragCoord.x / 80.f) - cx, (gl_FragCoord.y / 80.f) - cy);
+
+	float d = dot(base, dir);
+	
+	outColor = vec4(d, d, d, 1.0f);
 }
