@@ -395,10 +395,7 @@ namespace app
 		VkDescriptorSetLayoutBinding binding{};
 		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		binding.descriptorCount = 1;
-
-		//
 
 		VkDescriptorSetLayoutCreateInfo layout_create_info{};
 		layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -573,7 +570,7 @@ namespace app
 		while (!glfwWindowShouldClose(m_window))
 		{
 			uint32_t image_view_index = 0; // TODO GET THE INDEX
-			constexpr uint32_t buffer_size = 128;
+			constexpr uint32_t buffer_size = 128 * 4;
 
 			glfwPollEvents();
 
@@ -610,7 +607,7 @@ namespace app
 			VkBufferViewCreateInfo buffer_view_create_info{};
 			buffer_view_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
 			buffer_view_create_info.format = VK_FORMAT_R32_UINT;
-			buffer_view_create_info.range = VK_WHOLE_SIZE;
+			buffer_view_create_info.range = buffer_size;
 			buffer_view_create_info.buffer = buffer;
 
 			VkBufferView buffer_view;
@@ -618,8 +615,15 @@ namespace app
 
 			//vkBindBufferMemory
 
-			uint32_t* mem;
-			vkMapMemory(m_device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void **>(&mem));
+			float* mem;
+			vk_check(vkMapMemory(m_device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
+
+			for (uint32_t i = 0; i < 100; i += 2)
+			{
+				mem[i] = 10.0f;
+				mem[i + 1] = 0.0f;
+			}
+
 			// Fill out memory here.
 			vkUnmapMemory(m_device, device_buffer_memory);
 
@@ -639,7 +643,6 @@ namespace app
 			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
 			vkUpdateDescriptorSets(m_device, 1, &write_descriptor_set, 0, nullptr);
-
 
 			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
