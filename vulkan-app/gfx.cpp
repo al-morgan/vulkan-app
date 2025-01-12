@@ -640,8 +640,6 @@ namespace app
 
 			vkUpdateDescriptorSets(m_device, 1, &write_descriptor_set, 0, nullptr);
 
-			
-			//vkCmdBindDescriptorSets
 
 			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
@@ -671,6 +669,8 @@ namespace app
 			//begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 			vkBeginCommandBuffer(m_command_buffer, &begin_info);
+
+			vkCmdBindDescriptorSets(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &m_descriptor_set, 0, nullptr);
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -738,6 +738,9 @@ namespace app
 			present_info.pImageIndices = &image_view_index;
 
 			vkQueuePresentKHR(m_present_queue, &present_info);
+
+			// NO NO NO
+			vkDeviceWaitIdle(m_device);
 
 			vkDestroyBufferView(m_device, buffer_view, nullptr);
 			vkDestroyBuffer(m_device, buffer, nullptr);
