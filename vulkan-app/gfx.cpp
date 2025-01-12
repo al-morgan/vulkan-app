@@ -380,17 +380,21 @@ namespace app
 
 	void app::gfx::set_up_descriptor_pool()
 	{
+		VkDescriptorPoolSize types;
+		types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+		types.descriptorCount = 1;
+		
 		VkDescriptorPoolCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		create_info.poolSizeCount = 0;
-		create_info.pPoolSizes = nullptr;
+		create_info.pPoolSizes = &types;
 		create_info.maxSets = 10; // TODO real value here.
 		
 		vkCreateDescriptorPool(m_device, &create_info, nullptr, &m_descriptor_pool);
 
 		VkDescriptorSetLayoutBinding binding{};
 		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		binding.descriptorCount = 1;
 
@@ -569,13 +573,47 @@ namespace app
 		while (!glfwWindowShouldClose(m_window))
 		{
 			uint32_t image_view_index = 0; // TODO GET THE INDEX
+			constexpr uint32_t buffer_size = 128;
 
 			glfwPollEvents();
-
 
 			vkWaitForFences(m_device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
 			vkResetCommandBuffer(m_command_buffer, 0);
 			vkResetFences(m_device, 1, &m_in_flight_fence);
+
+			VkBufferCreateInfo buffer_create_info{};
+			buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+			buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			buffer_create_info.size = buffer_size;
+			buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+
+			VkBuffer buffer;
+			vkCreateBuffer(m_device, &buffer_create_info, nullptr, &buffer);
+
+			VkMemoryAllocateInfo memory_allocate_info{};
+			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+			memory_allocate_info.allocationSize = buffer_size;
+			memory_allocate_info.memoryTypeIndex = 1; // hard coded host-visible/coherent on my machine.
+
+			VkDeviceMemory device_buffer_memory;
+			vkAllocateMemory(m_device, &memory_allocate_info, nullptr, &device_buffer_memory);
+
+			VkBindBufferMemoryInfo bind_buffer_memory_info{};
+			bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+			bind_buffer_memory_info.memory = device_buffer_memory;
+			bind_buffer_memory_info.buffer = buffer;
+			vkBindBufferMemory(m_device, buffer, device_buffer_memory, 0);
+			
+			VkBufferViewCreateInfo buffer_view_create_info{};
+			buffer_view_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
+			buffer_view_create_info.format = VK_FORMAT_R32_UINT;
+			buffer_view_create_info.range = VK_WHOLE_SIZE;
+			buffer_view_create_info.buffer = buffer;
+
+			VkBufferView buffer_view;
+			vkCreateBufferView(m_device, &buffer_view_create_info, nullptr, &buffer_view);
+
+			//vkBindBufferMemory
 
 			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
@@ -672,6 +710,11 @@ namespace app
 			present_info.pImageIndices = &image_view_index;
 
 			vkQueuePresentKHR(m_present_queue, &present_info);
+
+			vkDestroyBufferView(m_device, buffer_view, nullptr);
+			vkDestroyBuffer(m_device, buffer, nullptr);
+			vkFreeMemory(m_device, device_buffer_memory, nullptr);
+
 		}
 	}
 }
