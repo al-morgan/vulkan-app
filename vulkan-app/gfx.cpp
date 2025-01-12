@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 
@@ -567,6 +569,8 @@ namespace app
 
 	void app::gfx::update()
 	{
+		std::srand(std::time(nullptr));
+
 		while (!glfwWindowShouldClose(m_window))
 		{
 			uint32_t image_view_index = 0; // TODO GET THE INDEX
@@ -618,10 +622,9 @@ namespace app
 			float* mem;
 			vk_check(vkMapMemory(m_device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
 
-			for (uint32_t i = 0; i < 100; i += 2)
+			for (uint32_t i = 0; i < 100; i += 1)
 			{
-				mem[i] = 10.0f;
-				mem[i + 1] = 0.0f;
+				mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
 			}
 
 			// Fill out memory here.
