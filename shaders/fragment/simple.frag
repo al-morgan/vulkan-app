@@ -7,7 +7,7 @@ struct ObjectData
 	float x[100];
 };
 
-layout(std430, set = 0, binding = 0) readonly buffer ObjectBuffer{
+layout(set = 0, binding = 0) readonly buffer ObjectBuffer{
 	float foo[];
 } objectBuffer;
 
