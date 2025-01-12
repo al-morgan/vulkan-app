@@ -70,12 +70,21 @@ void main()
 
 	// v = sample_noise(int(gx), int(gy), gx, gy);
 
-	//v = (v + 1.0f) / 2.0f;
+	// v = (v + 1.0f) / 2.0f;
 
 	// v = wy;
 
 
-	//float s = sample_noise(gl_FragCoord.x, gl_FragCoord.y);
+	// float s = sample_noise(gl_FragCoord.x, gl_FragCoord.y);
 	//s = (s + 1.0f) / 2.0f;
-	outColor = vec4(v, v, v, 1.0f);
+	
+	outColor = vec4(max(v, 0.0f), 0.0f, max(-v, 0.0f), 1.0f);
+
+	//v = (v + .707f) / 2.0f;
+	
+	//outColor = vec4(v, v, v, 1.0f);
+
+	// outColor = vec4((0.7f - max(-v, 0.0f)), max(0.7f - abs(v), 0.0f), (0.7f - max(v, 0.0f)), 1.0f);
+
+	//outColor = vec4(v, v, v, 1.0f);
 }
