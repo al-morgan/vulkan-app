@@ -11,23 +11,31 @@ layout(set = 0, binding = 0) readonly buffer ObjectBuffer{
 	float foo[];
 } objectBuffer;
 
-void main()
-{
-	int x = int(gl_FragCoord.x / 80.0f);
-	int y = int(gl_FragCoord.y / 80.0f);
-	float value = 0.0f;
-	value = objectBuffer.foo[y * 10 + x];
+#define FACTOR 80.0f
 
-	float fx = float(x);
-	float fy = float(y);
+float sample_noise(float x, float y)
+{	
+	int ix = int(x / FACTOR);
+	int iy = int(y / FACTOR);
+	float value = objectBuffer.foo[iy * 10 + ix];
+
+	float fx = float(ix);
+	float fy = float(iy);
 
 	float cx = fx + 0.5f;
 	float cy = fy + 0.5f;
 
 	vec2 base = vec2(cos(value), sin(value));
-	vec2 dir = vec2((gl_FragCoord.x / 80.f) - cx, (gl_FragCoord.y / 80.f) - cy);
+	vec2 dir = vec2((x / 80.f) - cx, (y / 80.f) - cy);
 
 	float d = dot(base, dir);
 	
-	outColor = vec4(d, d, d, 1.0f);
+	return d;
+	
+}
+
+void main()
+{
+	float s = sample_noise(gl_FragCoord.x, gl_FragCoord.y);
+	outColor = vec4(s, s, s, 1.0f);
 }
