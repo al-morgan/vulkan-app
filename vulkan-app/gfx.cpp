@@ -620,6 +620,28 @@ namespace app
 
 			uint32_t* mem;
 			vkMapMemory(m_device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void **>(&mem));
+			// Fill out memory here.
+			vkUnmapMemory(m_device, device_buffer_memory);
+
+			
+			VkDescriptorBufferInfo descriptor_buffer_info{};
+			descriptor_buffer_info.buffer = buffer;
+			descriptor_buffer_info.offset = 0;
+			descriptor_buffer_info.range = buffer_size;
+
+			VkWriteDescriptorSet write_descriptor_set{};
+			write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			write_descriptor_set.dstSet = m_descriptor_set;
+			write_descriptor_set.dstBinding = 0;
+			write_descriptor_set.descriptorCount = 1;
+			write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			write_descriptor_set.dstArrayElement = 0;
+			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+
+			vkUpdateDescriptorSets(m_device, 1, &write_descriptor_set, 0, nullptr);
+
+			
+			//vkCmdBindDescriptorSets
 
 			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
