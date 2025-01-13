@@ -19,6 +19,7 @@
 #include <array>
 
 #include "file.hpp"
+#include "vk.hpp"
 
 //#include <vulkan/vulkan_win32.h>
 
@@ -95,10 +96,11 @@ namespace app
 		}
 	}
 
-	app::gfx::gfx()
+	app::gfx::gfx() :
+		m_instance()
 	{
 		set_up_glfw();
-		set_up_instance();
+		//set_up_instance();
 		pick_physical_device();
 		set_up_surface();
 		set_up_device();
@@ -193,21 +195,21 @@ namespace app
 		create_info.enabledExtensionCount = glfw_extension_count;
 		create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
 		create_info.ppEnabledLayerNames = enabled_layers.data();
-		vk_check(vkCreateInstance(&create_info, nullptr, &m_instance));
+		//vk_check(vkCreateInstance(&create_info, nullptr, &m_instance));
 	}
 
 	void app::gfx::tear_down_instance()
 	{
-		vkDestroyInstance(m_instance, nullptr);
+		//vkDestroyInstance(m_instance.handle, nullptr);
 	}
 
 	void app::gfx::pick_physical_device()
 	{
 		uint32_t physical_device_count;
 		std::vector<VkPhysicalDevice> physical_devices;
-		vk_check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr));
+		vk_check(vkEnumeratePhysicalDevices(m_instance.handle, &physical_device_count, nullptr));
 		physical_devices.resize(physical_device_count);
-		vk_check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data()));
+		vk_check(vkEnumeratePhysicalDevices(m_instance.handle, &physical_device_count, physical_devices.data()));
 
 		if (physical_device_count != 1)
 		{
@@ -284,12 +286,12 @@ namespace app
 		create_info.hwnd = glfwGetWin32Window(m_window);
 		create_info.hinstance = GetModuleHandle(nullptr);
 
-		vk_check(vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, &m_surface));
+		vk_check(vkCreateWin32SurfaceKHR(m_instance.handle, &create_info, nullptr, &m_surface));
 	}
 
 	void app::gfx::tear_down_surface()
 	{
-		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+		vkDestroySurfaceKHR(m_instance.handle, m_surface, nullptr);
 	}
 
 	void app::gfx::get_queues()

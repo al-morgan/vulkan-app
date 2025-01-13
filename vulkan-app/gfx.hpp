@@ -1,7 +1,11 @@
+#pragma once
+
 #include <vector>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+
+#include "vk.hpp"
 
 namespace app
 {
@@ -9,7 +13,10 @@ namespace app
 	{
 	private:
 		GLFWwindow* m_window;
-		VkInstance m_instance;
+		// VkInstance m_instance;
+
+		vk::instance m_instance;
+
 		VkPhysicalDevice m_physical_device;
 		VkDevice m_device;
 		VkSurfaceKHR m_surface;

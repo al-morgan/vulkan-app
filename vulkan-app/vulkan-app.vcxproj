@@ -138,10 +138,12 @@
     <ClCompile Include="file.cpp" />
     <ClCompile Include="gfx.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="vk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file.hpp" />
     <ClInclude Include="gfx.hpp" />
+    <ClInclude Include="vk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
