@@ -97,11 +97,13 @@ namespace app
 	}
 
 	app::gfx::gfx() :
-		m_instance()
+		m_instance(),
+		m_physical_device(m_instance)
 	{
+		//m_physical_device(m_instance);
+		
 		set_up_glfw();
 		//set_up_instance();
-		pick_physical_device();
 		set_up_surface();
 		set_up_device();
 		get_queues();
@@ -137,7 +139,6 @@ namespace app
 		tear_down_swap_chain();
 		tear_down_device();
 		tear_down_surface();
-		tear_down_instance();
 		tear_down_glfw();
 	}
 
@@ -158,75 +159,13 @@ namespace app
 		glfwTerminate();
 	}
 
-	void app::gfx::set_up_instance()
-	{
-		VkApplicationInfo app_info{};
-		app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		app_info.pApplicationName = "Vulcan App";
-		app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		app_info.pEngineName = "Unknown Engine.";
-		app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		app_info.apiVersion = VK_API_VERSION_1_3;
-
-		uint32_t glfw_extension_count;
-		const char** glfw_extensions;
-		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-
-		uint32_t instance_extension_count;
-		std::vector<VkExtensionProperties> instance_extensions;
-		vk_check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
-		instance_extensions.resize(instance_extension_count);
-		vk_check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data()));
-
-		uint32_t instance_layer_count;
-		std::vector<VkLayerProperties> instance_layers;
-		vk_check(vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr));
-		instance_layers.resize(instance_layer_count);
-		vk_check(vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data()));
-
-		std::vector<const char*> enabled_layers = {"VK_LAYER_KHRONOS_validation"};
-
-		//VkDebugUtilsMessen
-
-		VkInstanceCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		create_info.pApplicationInfo = &app_info;
-		create_info.ppEnabledExtensionNames = glfw_extensions;
-		create_info.enabledExtensionCount = glfw_extension_count;
-		create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
-		create_info.ppEnabledLayerNames = enabled_layers.data();
-		//vk_check(vkCreateInstance(&create_info, nullptr, &m_instance));
-	}
-
-	void app::gfx::tear_down_instance()
-	{
-		//vkDestroyInstance(m_instance.handle, nullptr);
-	}
-
-	void app::gfx::pick_physical_device()
-	{
-		uint32_t physical_device_count;
-		std::vector<VkPhysicalDevice> physical_devices;
-		vk_check(vkEnumeratePhysicalDevices(m_instance.handle, &physical_device_count, nullptr));
-		physical_devices.resize(physical_device_count);
-		vk_check(vkEnumeratePhysicalDevices(m_instance.handle, &physical_device_count, physical_devices.data()));
-
-		if (physical_device_count != 1)
-		{
-			throw std::runtime_error("Multiple physical devices not supported!");
-		}
-
-		// I only have one physical device right now so I'm going to cheat
-		m_physical_device = physical_devices[0];
-	}
-
 	void app::gfx::set_up_device()
 	{
 		uint32_t queue_family_count;
 		std::vector<VkQueueFamilyProperties> queue_families;
-		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device.handle, &queue_family_count, nullptr);
 		queue_families.resize(queue_family_count);
-		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, queue_families.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device.handle, &queue_family_count, queue_families.data());
 		std::optional<uint32_t> queue_family_index;
 
 		for(uint32_t i = 0; i < queue_family_count; i++)
@@ -234,7 +173,7 @@ namespace app
 			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
 			VkBool32 surface_support = VK_FALSE;
 			
-			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface, &surface_support));
+			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device.handle, i, m_surface, &surface_support));
 			if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
 			{
 				queue_family_index = i;
@@ -271,7 +210,7 @@ namespace app
 		create_info.ppEnabledExtensionNames = enabled_extensions.data();
 		create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
 
-		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
+		vkCreateDevice(m_physical_device.handle, &create_info, nullptr, &m_device);
 	}
 
 	void app::gfx::tear_down_device()
@@ -594,7 +533,7 @@ namespace app
 			vkCreateBuffer(m_device, &buffer_create_info, nullptr, &buffer);
 
 			VkPhysicalDeviceMemoryProperties mem_properties;
-			vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
+			vkGetPhysicalDeviceMemoryProperties(m_physical_device.handle, &mem_properties);
 
 			VkMemoryAllocateInfo memory_allocate_info{};
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;

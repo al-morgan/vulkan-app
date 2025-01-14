@@ -16,8 +16,9 @@ namespace app
 		// VkInstance m_instance;
 
 		vk::instance m_instance;
+		vk::physical_device m_physical_device;
 
-		VkPhysicalDevice m_physical_device;
+		//VkPhysicalDevice m_physical_device;
 		VkDevice m_device;
 		VkSurfaceKHR m_surface;
 		VkQueue m_graphics_queue;
@@ -44,9 +45,6 @@ namespace app
 
 		void set_up_glfw();
 		void tear_down_glfw();
-		void set_up_instance();
-		void tear_down_instance();
-		void pick_physical_device();
 		void set_up_surface();
 		void tear_down_surface();
 		void set_up_device();

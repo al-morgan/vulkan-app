@@ -10,4 +10,10 @@ namespace vk
 		~instance();
 		VkInstance handle;
 	};
+
+	class physical_device {
+	public:
+		physical_device(vk::instance& instance);
+		VkPhysicalDevice handle;
+	};
 }
