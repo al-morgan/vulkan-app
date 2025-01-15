@@ -2,10 +2,10 @@
 
 #include <vector>
 
+#include "vk.hpp"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
-#include "vk.hpp"
 
 namespace app
 {
@@ -36,6 +36,7 @@ namespace app
 		vk::queue m_present_queue;
 		vk::queue m_graphics_queue;
 		vk::swapchain m_swapchain;
+		vk::command_pool m_command_pool;
 
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
@@ -46,7 +47,7 @@ namespace app
 		//VkSwapchainKHR m_swapchain;
 		//std::vector<VkImage> m_swapchain_images;
 		//std::vector<VkImageView> m_swapchain_image_views;
-		VkCommandPool m_command_pool;
+		//VkCommandPool m_command_pool;
 		VkShaderModule m_fragment_shader_module;
 		VkShaderModule m_vertex_shader_module;
 		VkDescriptorPool m_descriptor_pool;
@@ -63,7 +64,6 @@ namespace app
 		VkSemaphore m_render_finished_semaphore;
 
 		void set_up_command_pool();
-		void tear_down_command_pool();
 		void set_up_shaders();
 		void tear_down_shaders();
 		void set_up_descriptor_pool();

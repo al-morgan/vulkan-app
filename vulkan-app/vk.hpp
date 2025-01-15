@@ -59,8 +59,17 @@ namespace vk
 		~swapchain();
 		operator VkSwapchainKHR() const { return handle; }
 		operator const VkSwapchainKHR * () const { return &handle; }
-		//operator const VkSwapchainKHR* () const { return &handle; }
 		std::vector<VkImage> images;
 		std::vector<VkImageView> image_views;
+	};
+
+	class command_pool {
+	private:
+		VkCommandPool handle;
+		vk::device& device;
+	public:
+		command_pool(vk::device& device, uint32_t queue_family_index);
+		~command_pool();
+		operator VkCommandPool() const { return handle; }
 	};
 }

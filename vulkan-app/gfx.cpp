@@ -6,10 +6,6 @@
 
 #include <vulkan/vulkan.h>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
 
 #include "gfx.hpp"
 #include <vector>
@@ -20,6 +16,12 @@
 
 #include "file.hpp"
 #include "vk.hpp"
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 
 //#include <vulkan/vulkan_win32.h>
 
@@ -122,7 +124,8 @@ namespace app
 		m_device(m_physical_device, m_surface),
 		m_graphics_queue(m_device, m_device.queue_family_index),
 		m_present_queue(m_device, m_device.queue_family_index),
-		m_swapchain(m_device, m_surface, WIDTH, HEIGHT)
+		m_swapchain(m_device, m_surface, WIDTH, HEIGHT),
+		m_command_pool(m_device, m_device.queue_family_index)
 	{
 		set_up_command_pool();
 		set_up_shaders();
@@ -151,19 +154,11 @@ namespace app
 		tear_down_pipeline();
 		tear_down_descriptor_pool();
 		tear_down_shaders();
-		tear_down_command_pool();
 		}
 
 
 	void app::gfx::set_up_command_pool()
 	{
-		VkCommandPoolCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		create_info.queueFamilyIndex = m_queue_family_index;
-
-		vkCreateCommandPool(m_device, &create_info, nullptr, &m_command_pool);
-
 		VkCommandBufferAllocateInfo alloc_info{};
 		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		alloc_info.commandBufferCount = 1;
@@ -174,10 +169,6 @@ namespace app
 
 	}
 
-	void app::gfx::tear_down_command_pool()
-	{
-		vkDestroyCommandPool(m_device, m_command_pool, nullptr);
-	}
 
 	void app::gfx::set_up_descriptor_pool()
 	{

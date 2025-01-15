@@ -48,7 +48,7 @@ vk::instance::instance()
 
 	std::vector<const char*> enabled_extensions = { "VK_KHR_surface", "VK_KHR_win32_surface" };
 
-	uint32_t instance_extension_count;
+	uint32_t instance_extension_count = 0;
 	std::vector<VkExtensionProperties> instance_extensions;
 	check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
 	instance_extensions.resize(instance_extension_count);
@@ -231,6 +231,22 @@ vk::swapchain::~swapchain()
 	}
 
 	vkDestroySwapchainKHR(m_device, handle, nullptr);
+}
+
+vk::command_pool::command_pool(vk::device& device, uint32_t queue_family_index) : device(device)
+{
+	VkCommandPoolCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	create_info.queueFamilyIndex = queue_family_index;
+
+	check(vkCreateCommandPool(device, &create_info, nullptr, &handle));
+}
+
+
+vk::command_pool::~command_pool()
+{
+	vkDestroyCommandPool(device, handle, nullptr);
 }
 
 
