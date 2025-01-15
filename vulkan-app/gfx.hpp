@@ -40,6 +40,7 @@ namespace app
 		vk::command_buffer m_command_buffer;
 		vk::shader_module m_fragment_shader_module;
 		vk::shader_module m_vertex_shader_module;
+		vk::descriptor_pool m_descriptor_pool;
 
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
@@ -53,7 +54,7 @@ namespace app
 		//VkCommandPool m_command_pool;
 		//VkShaderModule m_fragment_shader_module;
 		//VkShaderModule m_vertex_shader_module;
-		VkDescriptorPool m_descriptor_pool;
+		//VkDescriptorPool m_descriptor_pool;
 		VkPipeline m_pipeline;
 		//VkCommandBuffer m_command_buffer;
 

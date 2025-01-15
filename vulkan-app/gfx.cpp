@@ -128,7 +128,8 @@ namespace app
 		m_command_pool(m_device, m_device.queue_family_index),
 		m_command_buffer(m_device, m_command_pool),
 		m_fragment_shader_module(m_device, "./shaders/fragment/simple.spv"),
-		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv")
+		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv"),
+		m_descriptor_pool(m_device)
 	{
 		set_up_descriptor_pool();
 		set_up_pipeline();
@@ -159,17 +160,6 @@ namespace app
 
 	void app::gfx::set_up_descriptor_pool()
 	{
-		VkDescriptorPoolSize types;
-		types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-		types.descriptorCount = 1;
-		
-		VkDescriptorPoolCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		create_info.poolSizeCount = 0;
-		create_info.pPoolSizes = &types;
-		create_info.maxSets = 10; // TODO real value here.
-		
-		vkCreateDescriptorPool(m_device, &create_info, nullptr, &m_descriptor_pool);
 
 		VkDescriptorSetLayoutBinding binding{};
 		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -196,7 +186,7 @@ namespace app
 	void app::gfx::tear_down_descriptor_pool()
 	{
 		vkDestroyDescriptorSetLayout(m_device, m_layout, nullptr);
-		vkDestroyDescriptorPool(m_device, m_descriptor_pool, nullptr);
+		//vkDestroyDescriptorPool(m_device, m_descriptor_pool, nullptr);
 	}
 
 	void app::gfx::set_up_pipeline()

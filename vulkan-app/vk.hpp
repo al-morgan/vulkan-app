@@ -94,4 +94,14 @@ namespace vk
 		~shader_module();
 		operator VkShaderModule() const { return handle; }
 	};
+
+	class descriptor_pool {
+	private:
+		VkDescriptorPool handle;
+		vk::device& device;
+	public:
+		descriptor_pool(vk::device& device);
+		~descriptor_pool();
+		operator VkDescriptorPool() const { return handle; }
+	};
 }

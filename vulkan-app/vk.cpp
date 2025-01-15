@@ -283,6 +283,26 @@ vk::shader_module::~shader_module()
 	vkDestroyShaderModule(device, handle, nullptr);
 }
 
+vk::descriptor_pool::descriptor_pool(vk::device& device) : device(device)
+{
+	VkDescriptorPoolSize types;
+	types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+	types.descriptorCount = 1;
+
+	VkDescriptorPoolCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	create_info.poolSizeCount = 0;
+	create_info.pPoolSizes = &types;
+	create_info.maxSets = 10; // TODO real value here.
+
+	vkCreateDescriptorPool(device, &create_info, nullptr, &handle);
+}
+
+vk::descriptor_pool::~descriptor_pool()
+{
+	vkDestroyDescriptorPool(device, handle, nullptr);
+}
+
 
 // VkInstance handle;
 //};
