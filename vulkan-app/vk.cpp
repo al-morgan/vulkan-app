@@ -249,6 +249,23 @@ vk::command_pool::~command_pool()
 	vkDestroyCommandPool(device, handle, nullptr);
 }
 
+vk::command_buffer::command_buffer(vk::device& device, vk::command_pool& command_pool) : device(device), command_pool(command_pool)
+{
+	VkCommandBufferAllocateInfo alloc_info{};
+	alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	alloc_info.commandBufferCount = 1;
+	alloc_info.commandPool = command_pool;
+	alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+	vkAllocateCommandBuffers(device, &alloc_info, &handle);
+}
+
+vk::command_buffer::~command_buffer()
+{
+	vkFreeCommandBuffers(device, command_pool, 1, &handle);
+}
+
+
 
 // VkInstance handle;
 //};

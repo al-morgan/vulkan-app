@@ -72,4 +72,16 @@ namespace vk
 		~command_pool();
 		operator VkCommandPool() const { return handle; }
 	};
+
+	class command_buffer {
+	private:
+		VkCommandBuffer handle;
+		vk::device& device;
+		vk::command_pool& command_pool;
+	public:
+		command_buffer(vk::device& device, vk::command_pool& command_pool);
+		~command_buffer();
+		operator VkCommandBuffer() const { return handle; }
+		operator const VkCommandBuffer*() const { return &handle; }
+	};
 }

@@ -125,9 +125,9 @@ namespace app
 		m_graphics_queue(m_device, m_device.queue_family_index),
 		m_present_queue(m_device, m_device.queue_family_index),
 		m_swapchain(m_device, m_surface, WIDTH, HEIGHT),
-		m_command_pool(m_device, m_device.queue_family_index)
+		m_command_pool(m_device, m_device.queue_family_index),
+		m_command_buffer(m_device, m_command_pool)
 	{
-		set_up_command_pool();
 		set_up_shaders();
 		set_up_descriptor_pool();
 		set_up_pipeline();
@@ -155,19 +155,6 @@ namespace app
 		tear_down_descriptor_pool();
 		tear_down_shaders();
 		}
-
-
-	void app::gfx::set_up_command_pool()
-	{
-		VkCommandBufferAllocateInfo alloc_info{};
-		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		alloc_info.commandBufferCount = 1;
-		alloc_info.commandPool = m_command_pool;
-		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-
-		vkAllocateCommandBuffers(m_device, &alloc_info, &m_command_buffer);
-
-	}
 
 
 	void app::gfx::set_up_descriptor_pool()
@@ -514,7 +501,7 @@ namespace app
 			VkSubmitInfo submit_info{};
 			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			submit_info.commandBufferCount = 1;
-			submit_info.pCommandBuffers = &m_command_buffer;
+			submit_info.pCommandBuffers = m_command_buffer;
 			submit_info.pWaitSemaphores = &m_image_available_semaphore;
 			submit_info.waitSemaphoreCount = 1;
 			submit_info.pWaitDstStageMask = &wait_stage;

@@ -37,6 +37,7 @@ namespace app
 		vk::queue m_graphics_queue;
 		vk::swapchain m_swapchain;
 		vk::command_pool m_command_pool;
+		vk::command_buffer m_command_buffer;
 
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
@@ -52,7 +53,7 @@ namespace app
 		VkShaderModule m_vertex_shader_module;
 		VkDescriptorPool m_descriptor_pool;
 		VkPipeline m_pipeline;
-		VkCommandBuffer m_command_buffer;
+		//VkCommandBuffer m_command_buffer;
 
 		VkPipelineLayout m_pipeline_layout;
 		VkDescriptorSet m_descriptor_set;
