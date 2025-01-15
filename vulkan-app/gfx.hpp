@@ -38,6 +38,8 @@ namespace app
 		vk::swapchain m_swapchain;
 		vk::command_pool m_command_pool;
 		vk::command_buffer m_command_buffer;
+		vk::shader_module m_fragment_shader_module;
+		vk::shader_module m_vertex_shader_module;
 
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
@@ -49,8 +51,8 @@ namespace app
 		//std::vector<VkImage> m_swapchain_images;
 		//std::vector<VkImageView> m_swapchain_image_views;
 		//VkCommandPool m_command_pool;
-		VkShaderModule m_fragment_shader_module;
-		VkShaderModule m_vertex_shader_module;
+		//VkShaderModule m_fragment_shader_module;
+		//VkShaderModule m_vertex_shader_module;
 		VkDescriptorPool m_descriptor_pool;
 		VkPipeline m_pipeline;
 		//VkCommandBuffer m_command_buffer;
@@ -64,9 +66,6 @@ namespace app
 		VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
-		void set_up_command_pool();
-		void set_up_shaders();
-		void tear_down_shaders();
 		void set_up_descriptor_pool();
 		void tear_down_descriptor_pool();
 		void set_up_pipeline();

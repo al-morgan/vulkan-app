@@ -84,4 +84,14 @@ namespace vk
 		operator VkCommandBuffer() const { return handle; }
 		operator const VkCommandBuffer*() const { return &handle; }
 	};
+
+	class shader_module {
+	private:
+		VkShaderModule handle;
+		vk::device& device;
+	public:
+		shader_module(vk::device& device, std::string filename);
+		~shader_module();
+		operator VkShaderModule() const { return handle; }
+	};
 }

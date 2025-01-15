@@ -265,6 +265,23 @@ vk::command_buffer::~command_buffer()
 	vkFreeCommandBuffers(device, command_pool, 1, &handle);
 }
 
+vk::shader_module::shader_module(vk::device& device, std::string filename) : device(device)
+{
+	std::vector<char> buffer;
+
+	VkShaderModuleCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+
+	buffer = app::read_file(filename);
+	create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
+	create_info.codeSize = buffer.size();
+	vkCreateShaderModule(device, &create_info, nullptr, &handle);
+}
+
+vk::shader_module::~shader_module()
+{
+	vkDestroyShaderModule(device, handle, nullptr);
+}
 
 
 // VkInstance handle;

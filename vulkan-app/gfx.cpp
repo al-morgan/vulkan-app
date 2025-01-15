@@ -126,9 +126,10 @@ namespace app
 		m_present_queue(m_device, m_device.queue_family_index),
 		m_swapchain(m_device, m_surface, WIDTH, HEIGHT),
 		m_command_pool(m_device, m_device.queue_family_index),
-		m_command_buffer(m_device, m_command_pool)
+		m_command_buffer(m_device, m_command_pool),
+		m_fragment_shader_module(m_device, "./shaders/fragment/simple.spv"),
+		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv")
 	{
-		set_up_shaders();
 		set_up_descriptor_pool();
 		set_up_pipeline();
 
@@ -153,7 +154,6 @@ namespace app
 
 		tear_down_pipeline();
 		tear_down_descriptor_pool();
-		tear_down_shaders();
 		}
 
 
@@ -318,30 +318,6 @@ namespace app
 	{
 		vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
 		vkDestroyPipeline(m_device, m_pipeline, nullptr);
-	}
-
-	void app::gfx::set_up_shaders()
-	{
-		std::vector<char> buffer;
-
-		VkShaderModuleCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		
-		buffer = app::read_file("./shaders/vertex/simple.spv");		
-		create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
-		create_info.codeSize = buffer.size();
-		vkCreateShaderModule(m_device, &create_info, nullptr, &m_vertex_shader_module);
-
-		buffer = app::read_file("./shaders/fragment/simple.spv");
-		create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
-		create_info.codeSize = buffer.size();
-		vkCreateShaderModule(m_device, &create_info, nullptr, &m_fragment_shader_module);
-	}
-
-	void app::gfx::tear_down_shaders()
-	{
-		vkDestroyShaderModule(m_device, m_vertex_shader_module, nullptr);
-		vkDestroyShaderModule(m_device, m_fragment_shader_module, nullptr);
 	}
 
 	void app::gfx::update()
