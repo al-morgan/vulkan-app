@@ -25,10 +25,11 @@ namespace vk
 	class surface {
 	private:
 		VkInstance instance_handle;
+		VkSurfaceKHR handle;
 	public:
 		surface(vk::instance& instance, HWND window_handle);
 		~surface();
-		VkSurfaceKHR handle;
+		operator VkSurfaceKHR() const { return handle; }
 	};
 
 	//class device {

@@ -172,7 +172,7 @@ namespace app
 			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
 			VkBool32 surface_support = VK_FALSE;
 			
-			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface.handle, &surface_support));
+			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface, &surface_support));
 			if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
 			{
 				queue_family_index = i;
@@ -233,7 +233,7 @@ namespace app
 		
 		VkSwapchainCreateInfoKHR create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		create_info.surface = m_surface.handle;
+		create_info.surface = m_surface;
 		create_info.minImageCount = 3;
 		create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
 		create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
