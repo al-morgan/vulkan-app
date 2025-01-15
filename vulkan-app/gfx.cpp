@@ -120,9 +120,9 @@ namespace app
 		m_window(),
 		m_instance(),
 		m_physical_device(m_instance),
-		m_surface(m_instance, m_window.handle)
+		m_surface(m_instance, m_window.handle),
+		m_device(m_physical_device, m_surface)
 	{
-		set_up_device();
 		get_queues();
 		set_up_swap_chain();
 		set_up_command_pool();
@@ -154,68 +154,7 @@ namespace app
 		tear_down_shaders();
 		tear_down_command_pool();
 		tear_down_swap_chain();
-		tear_down_device();
-	}
-
-
-	void app::gfx::set_up_device()
-	{
-		uint32_t queue_family_count;
-		std::vector<VkQueueFamilyProperties> queue_families;
-		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, nullptr);
-		queue_families.resize(queue_family_count);
-		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, queue_families.data());
-		std::optional<uint32_t> queue_family_index;
-
-		for(uint32_t i = 0; i < queue_family_count; i++)
-		{
-			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
-			VkBool32 surface_support = VK_FALSE;
-			
-			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface, &surface_support));
-			if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
-			{
-				queue_family_index = i;
-				break;
-			}
 		}
-
-		if (!queue_family_index.has_value())
-		{
-			throw std::runtime_error("Queue selection failed!");
-		}
-		
-		m_queue_family_index = queue_family_index.value();
-
-		float queue_priority = 1.0f;
-
-		VkDeviceQueueCreateInfo device_queue_create_info{};
-		device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		device_queue_create_info.queueCount = 1;
-		device_queue_create_info.queueFamilyIndex = m_queue_family_index;
-		device_queue_create_info.pQueuePriorities = &queue_priority;
-
-		std::vector<const char *> enabled_extensions = {"VK_KHR_swapchain", "VK_KHR_dynamic_rendering"};
-
-		VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_features{};
-		dynamic_rendering_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-		dynamic_rendering_features.dynamicRendering = VK_TRUE;
-		
-		VkDeviceCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		create_info.pNext = &dynamic_rendering_features;
-		create_info.pQueueCreateInfos = &device_queue_create_info;
-		create_info.queueCreateInfoCount = 1;
-		create_info.ppEnabledExtensionNames = enabled_extensions.data();
-		create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
-
-		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
-	}
-
-	void app::gfx::tear_down_device()
-	{
-		vkDestroyDevice(m_device, nullptr);
-	}
 
 	void app::gfx::get_queues()
 	{

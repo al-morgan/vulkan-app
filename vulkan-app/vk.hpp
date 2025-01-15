@@ -32,10 +32,13 @@ namespace vk
 		operator VkSurfaceKHR() const { return handle; }
 	};
 
-	//class device {
-	//public:
-	//	device(vk::physical_device& physical_device);
-	//	~device();
-	//	VkDevice handle;
-	//};
+	class device {
+	private:
+		VkDevice handle;
+	public:
+		device(vk::physical_device& physical_device, vk::surface& surface);
+		~device();
+		operator VkDevice() const { return handle; }
+		uint32_t queue_family_index;
+	};
 }

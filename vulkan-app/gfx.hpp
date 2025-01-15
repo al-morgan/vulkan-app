@@ -32,10 +32,11 @@ namespace app
 		vk::instance m_instance;
 		vk::physical_device m_physical_device;
 		vk::surface m_surface;
+		vk::device m_device;
 
 
 		//VkPhysicalDevice m_physical_device;
-		VkDevice m_device;
+		//VkDevice m_device;
 		//VkSurfaceKHR m_surface;
 		VkQueue m_graphics_queue;
 		VkQueue m_present_queue;
@@ -59,8 +60,6 @@ namespace app
 		VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
-		void set_up_device();
-		void tear_down_device();
 		void get_queues();
 		void set_up_swap_chain();
 		void tear_down_swap_chain();
