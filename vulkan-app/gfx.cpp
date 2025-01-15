@@ -105,8 +105,6 @@ namespace app
 		glfwTerminate();
 
 	}
-
-
 	
 	static void vk_check(VkResult result)
 	{
@@ -123,9 +121,9 @@ namespace app
 		m_surface(m_instance, m_window.handle),
 		m_device(m_physical_device, m_surface),
 		m_graphics_queue(m_device, m_device.queue_family_index),
-		m_present_queue(m_device, m_device.queue_family_index)
+		m_present_queue(m_device, m_device.queue_family_index),
+		m_swapchain(m_device, m_surface, WIDTH, HEIGHT)
 	{
-		set_up_swap_chain();
 		set_up_command_pool();
 		set_up_shaders();
 		set_up_descriptor_pool();
@@ -154,64 +152,8 @@ namespace app
 		tear_down_descriptor_pool();
 		tear_down_shaders();
 		tear_down_command_pool();
-		tear_down_swap_chain();
 		}
 
-	void app::gfx::set_up_swap_chain()
-	{
-		VkExtent2D extent{};
-		extent.width = WIDTH;
-		extent.height = HEIGHT;
-		
-		VkSwapchainCreateInfoKHR create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		create_info.surface = m_surface;
-		create_info.minImageCount = 3;
-		create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-		create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-		create_info.imageExtent = extent;
-		create_info.imageArrayLayers = 1;
-		create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-		create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-		create_info.clipped = VK_TRUE;
-		create_info.oldSwapchain = VK_NULL_HANDLE;
-
-		vkCreateSwapchainKHR(m_device, &create_info, nullptr, &m_swapchain);
-
-		uint32_t swapchain_image_count;
-		vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, nullptr);
-		m_swapchain_images.resize(swapchain_image_count);
-		vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, m_swapchain_images.data());
-
-		m_swapchain_image_views.resize(swapchain_image_count);
-
-		for (uint32_t i = 0; i < swapchain_image_count; i++)
-		{
-			VkImageViewCreateInfo image_view_create_info{};
-			image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			image_view_create_info.image = m_swapchain_images[i];
-			image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
-			image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			image_view_create_info.subresourceRange.layerCount = 1;
-			image_view_create_info.subresourceRange.levelCount = 1;
-
-			vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_swapchain_image_views[i]);
-		}
-	}
-
-	void app::gfx::tear_down_swap_chain()
-	{
-		for (uint32_t i = 0; i < static_cast<uint32_t>(m_swapchain_image_views.size()); i++)
-		{
-			vkDestroyImageView(m_device, m_swapchain_image_views[i], nullptr);
-		}
-		
-		vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
-	}
 
 	void app::gfx::set_up_command_pool()
 	{
@@ -516,7 +458,7 @@ namespace app
 			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			color_attachment_info.clearValue = clear_value;
 			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			color_attachment_info.imageView = m_swapchain_image_views[image_view_index];
+			color_attachment_info.imageView = m_swapchain.image_views[image_view_index];
 			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -537,7 +479,7 @@ namespace app
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier1.image = m_swapchain_images[image_view_index];
+			barrier1.image = m_swapchain.images[image_view_index];
 			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -563,7 +505,7 @@ namespace app
 
 			VkImageMemoryBarrier barrier2{};
 			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier2.image = m_swapchain_images[image_view_index];
+			barrier2.image = m_swapchain.images[image_view_index];
 			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -594,7 +536,7 @@ namespace app
 
 			VkPresentInfoKHR present_info{};
 			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.pSwapchains = &m_swapchain;
+			present_info.pSwapchains = m_swapchain;
 			present_info.swapchainCount = 1;
 			present_info.pWaitSemaphores = &m_render_finished_semaphore;
 			present_info.waitSemaphoreCount = 1;

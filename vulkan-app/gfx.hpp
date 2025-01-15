@@ -35,6 +35,7 @@ namespace app
 		vk::device m_device;
 		vk::queue m_present_queue;
 		vk::queue m_graphics_queue;
+		vk::swapchain m_swapchain;
 
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
@@ -42,9 +43,9 @@ namespace app
 		//VkQueue m_graphics_queue;
 		//VkQueue m_present_queue;
 		uint32_t m_queue_family_index;	// Used for both graphics and present for now.
-		VkSwapchainKHR m_swapchain;
-		std::vector<VkImage> m_swapchain_images;
-		std::vector<VkImageView> m_swapchain_image_views;
+		//VkSwapchainKHR m_swapchain;
+		//std::vector<VkImage> m_swapchain_images;
+		//std::vector<VkImageView> m_swapchain_image_views;
 		VkCommandPool m_command_pool;
 		VkShaderModule m_fragment_shader_module;
 		VkShaderModule m_vertex_shader_module;
@@ -61,8 +62,6 @@ namespace app
 		VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
-		void set_up_swap_chain();
-		void tear_down_swap_chain();
 		void set_up_command_pool();
 		void tear_down_command_pool();
 		void set_up_shaders();

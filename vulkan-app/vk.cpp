@@ -176,6 +176,63 @@ vk::queue::queue(vk::device& device, uint32_t queue_family_index)
 	vkGetDeviceQueue(device, queue_family_index, 0, &handle);
 }
 
+vk::swapchain::swapchain(vk::device& device, vk::surface& surface, uint32_t width, uint32_t height) : m_device(device)
+{
+	VkExtent2D extent{};
+	extent.width = width;
+	extent.height = height;
+
+
+	VkSwapchainCreateInfoKHR create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	create_info.surface = surface;
+	create_info.minImageCount = 3;
+	create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+	create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+	create_info.imageExtent = extent;
+	create_info.imageArrayLayers = 1;
+	create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+	create_info.clipped = VK_TRUE;
+	create_info.oldSwapchain = VK_NULL_HANDLE;
+
+	vkCreateSwapchainKHR(device, &create_info, nullptr, &handle);
+
+	uint32_t swapchain_image_count;
+	vkGetSwapchainImagesKHR(device, handle, &swapchain_image_count, nullptr);
+	images.resize(swapchain_image_count);
+	vkGetSwapchainImagesKHR(device, handle, &swapchain_image_count, images.data());
+
+	image_views.resize(swapchain_image_count);
+
+	for (uint32_t i = 0; i < swapchain_image_count; i++)
+	{
+		VkImageViewCreateInfo image_view_create_info{};
+		image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		image_view_create_info.image = images[i];
+		image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+		image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		image_view_create_info.subresourceRange.layerCount = 1;
+		image_view_create_info.subresourceRange.levelCount = 1;
+
+		vkCreateImageView(device, &image_view_create_info, nullptr, &image_views[i]);
+	}
+}
+
+vk::swapchain::~swapchain()
+{
+	for (uint32_t i = 0; i < static_cast<uint32_t>(image_views.size()); i++)
+	{
+		vkDestroyImageView(m_device, image_views[i], nullptr);
+	}
+
+	vkDestroySwapchainKHR(m_device, handle, nullptr);
+}
+
 
 // VkInstance handle;
 //};

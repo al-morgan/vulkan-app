@@ -49,4 +49,18 @@ namespace vk
 		queue(vk::device& device, uint32_t queue_family_index);
 		operator VkQueue() const { return handle; }
 	};
+
+	class swapchain {
+	private:
+		VkSwapchainKHR handle;
+		vk::device& m_device;
+	public:
+		swapchain(vk::device& device, vk::surface& surface, uint32_t width, uint32_t height);
+		~swapchain();
+		operator VkSwapchainKHR() const { return handle; }
+		operator const VkSwapchainKHR * () const { return &handle; }
+		//operator const VkSwapchainKHR* () const { return &handle; }
+		std::vector<VkImage> images;
+		std::vector<VkImageView> image_views;
+	};
 }
