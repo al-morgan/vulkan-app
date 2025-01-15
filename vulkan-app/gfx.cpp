@@ -162,9 +162,9 @@ namespace app
 	{
 		uint32_t queue_family_count;
 		std::vector<VkQueueFamilyProperties> queue_families;
-		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device.handle, &queue_family_count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, nullptr);
 		queue_families.resize(queue_family_count);
-		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device.handle, &queue_family_count, queue_families.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, queue_families.data());
 		std::optional<uint32_t> queue_family_index;
 
 		for(uint32_t i = 0; i < queue_family_count; i++)
@@ -172,7 +172,7 @@ namespace app
 			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
 			VkBool32 surface_support = VK_FALSE;
 			
-			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device.handle, i, m_surface.handle, &surface_support));
+			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface.handle, &surface_support));
 			if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
 			{
 				queue_family_index = i;
@@ -209,7 +209,7 @@ namespace app
 		create_info.ppEnabledExtensionNames = enabled_extensions.data();
 		create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
 
-		vkCreateDevice(m_physical_device.handle, &create_info, nullptr, &m_device);
+		vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
 	}
 
 	void app::gfx::tear_down_device()
@@ -517,7 +517,7 @@ namespace app
 			vkCreateBuffer(m_device, &buffer_create_info, nullptr, &buffer);
 
 			VkPhysicalDeviceMemoryProperties mem_properties;
-			vkGetPhysicalDeviceMemoryProperties(m_physical_device.handle, &mem_properties);
+			vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
 
 			VkMemoryAllocateInfo memory_allocate_info{};
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;

@@ -15,9 +15,11 @@ namespace vk
 	};
 
 	class physical_device {
+	private:
+		VkPhysicalDevice handle;
 	public:
 		physical_device(vk::instance& instance);
-		VkPhysicalDevice handle;
+		operator VkPhysicalDevice() const { return handle; }
 	};
 
 	class surface {
