@@ -6,10 +6,12 @@
 namespace vk
 {
 	class instance {
+	private:
+		VkInstance handle;
 	public:
 		instance();
 		~instance();
-		VkInstance handle;
+		operator VkInstance() const { return handle; }
 	};
 
 	class physical_device {
@@ -26,4 +28,11 @@ namespace vk
 		~surface();
 		VkSurfaceKHR handle;
 	};
+
+	//class device {
+	//public:
+	//	device(vk::physical_device& physical_device);
+	//	~device();
+	//	VkDevice handle;
+	//};
 }

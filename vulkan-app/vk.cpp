@@ -32,7 +32,6 @@ static void check(VkResult result)
 	}
 }
 
-
 vk::instance::instance()
 {
 	VkApplicationInfo app_info{};
@@ -82,9 +81,9 @@ vk::physical_device::physical_device(vk::instance& instance)
 {
 	uint32_t physical_device_count;
 	std::vector<VkPhysicalDevice> physical_devices;
-	check(vkEnumeratePhysicalDevices(instance.handle, &physical_device_count, nullptr));
+	check(vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr));
 	physical_devices.resize(physical_device_count);
-	check(vkEnumeratePhysicalDevices(instance.handle, &physical_device_count, physical_devices.data()));
+	check(vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices.data()));
 
 	if (physical_device_count != 1)
 	{
@@ -98,7 +97,7 @@ vk::physical_device::physical_device(vk::instance& instance)
 
 vk::surface::surface(vk::instance& instance, HWND window_handle)
 {
-	instance_handle = instance.handle;
+	instance_handle = instance;
 	
 	VkWin32SurfaceCreateInfoKHR create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
