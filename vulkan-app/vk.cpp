@@ -171,6 +171,11 @@ vk::device::~device()
 	vkDestroyDevice(handle, nullptr);
 }
 
+vk::queue::queue(vk::device& device, uint32_t queue_family_index)
+{
+	vkGetDeviceQueue(device, queue_family_index, 0, &handle);
+}
+
 
 // VkInstance handle;
 //};

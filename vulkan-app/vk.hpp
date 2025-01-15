@@ -41,4 +41,12 @@ namespace vk
 		operator VkDevice() const { return handle; }
 		uint32_t queue_family_index;
 	};
+
+	class queue {
+	private:
+		VkQueue handle;
+	public:
+		queue(vk::device& device, uint32_t queue_family_index);
+		operator VkQueue() const { return handle; }
+	};
 }

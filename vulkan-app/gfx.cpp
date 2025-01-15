@@ -121,9 +121,10 @@ namespace app
 		m_instance(),
 		m_physical_device(m_instance),
 		m_surface(m_instance, m_window.handle),
-		m_device(m_physical_device, m_surface)
+		m_device(m_physical_device, m_surface),
+		m_graphics_queue(m_device, m_device.queue_family_index),
+		m_present_queue(m_device, m_device.queue_family_index)
 	{
-		get_queues();
 		set_up_swap_chain();
 		set_up_command_pool();
 		set_up_shaders();
@@ -155,14 +156,6 @@ namespace app
 		tear_down_command_pool();
 		tear_down_swap_chain();
 		}
-
-	void app::gfx::get_queues()
-	{
-		vkGetDeviceQueue(m_device, m_queue_family_index, 0, &m_graphics_queue);
-		
-		// Hack for now, maybe optimize later.
-		m_present_queue = m_graphics_queue;
-	}
 
 	void app::gfx::set_up_swap_chain()
 	{

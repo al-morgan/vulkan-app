@@ -33,13 +33,14 @@ namespace app
 		vk::physical_device m_physical_device;
 		vk::surface m_surface;
 		vk::device m_device;
-
+		vk::queue m_present_queue;
+		vk::queue m_graphics_queue;
 
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
 		//VkSurfaceKHR m_surface;
-		VkQueue m_graphics_queue;
-		VkQueue m_present_queue;
+		//VkQueue m_graphics_queue;
+		//VkQueue m_present_queue;
 		uint32_t m_queue_family_index;	// Used for both graphics and present for now.
 		VkSwapchainKHR m_swapchain;
 		std::vector<VkImage> m_swapchain_images;
@@ -60,7 +61,6 @@ namespace app
 		VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
-		void get_queues();
 		void set_up_swap_chain();
 		void tear_down_swap_chain();
 		void set_up_command_pool();
