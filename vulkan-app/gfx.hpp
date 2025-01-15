@@ -9,18 +9,34 @@
 
 namespace app
 {
+
+
+
+	class window
+	{
+	private:
+	public:
+		window();
+		~window();
+		GLFWwindow* glfw_window;
+		HWND handle;
+	};
+
 	class gfx
 	{
 	private:
-		GLFWwindow* m_window;
+		//GLFWwindow* m_window;
 		// VkInstance m_instance;
 
+		app::window m_window;
 		vk::instance m_instance;
 		vk::physical_device m_physical_device;
+		vk::surface m_surface;
+
 
 		//VkPhysicalDevice m_physical_device;
 		VkDevice m_device;
-		VkSurfaceKHR m_surface;
+		//VkSurfaceKHR m_surface;
 		VkQueue m_graphics_queue;
 		VkQueue m_present_queue;
 		uint32_t m_queue_family_index;	// Used for both graphics and present for now.
@@ -43,10 +59,6 @@ namespace app
 		VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
-		void set_up_glfw();
-		void tear_down_glfw();
-		void set_up_surface();
-		void tear_down_surface();
 		void set_up_device();
 		void tear_down_device();
 		void get_queues();

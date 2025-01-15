@@ -95,6 +95,24 @@ vk::physical_device::physical_device(vk::instance& instance)
 	handle = physical_devices[0];
 }
 
+
+vk::surface::surface(vk::instance& instance, HWND window_handle)
+{
+	instance_handle = instance.handle;
+	
+	VkWin32SurfaceCreateInfoKHR create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	create_info.hwnd = window_handle; // glfwGetWin32Window(m_window);
+	create_info.hinstance = GetModuleHandle(nullptr);
+
+	check(vkCreateWin32SurfaceKHR(instance_handle, &create_info, nullptr, &handle));
+}
+
+vk::surface::~surface()
+{
+	vkDestroySurfaceKHR(instance_handle, handle, nullptr);
+}
+
 // VkInstance handle;
 //};
 //}

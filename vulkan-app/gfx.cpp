@@ -35,6 +35,7 @@ static double zoom = 1.0;
 
 namespace app
 {
+
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
 		mouse_x = xpos;
@@ -56,7 +57,7 @@ namespace app
 		}
 	}
 
-	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		double constexpr factor = 1.1;
 
@@ -70,23 +71,42 @@ namespace app
 		}
 	}
 
-	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
 			is_mouse_down = true;
 			last_update_x = mouse_x;
 			last_update_y = mouse_y;
-		}			
+		}
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 		{
 			is_mouse_down = false;
 			// center_x += (mouse_down_x - mouse_x);
 			// center_y += (mouse_down_y - center_y) / 200.0;
-
-
 		}
 	}
+
+	app::window::window()
+	{
+		glfwInit();
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfw_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+		glfwSetCursorPosCallback(glfw_window, cursor_position_callback);
+		glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
+		glfwSetScrollCallback(glfw_window, scroll_callback);
+		handle = glfwGetWin32Window(glfw_window);
+	}
+
+	app::window::~window()
+	{
+		glfwDestroyWindow(glfw_window);
+		glfwTerminate();
+
+	}
+
+
 	
 	static void vk_check(VkResult result)
 	{
@@ -97,14 +117,11 @@ namespace app
 	}
 
 	app::gfx::gfx() :
+		m_window(),
 		m_instance(),
-		m_physical_device(m_instance)
+		m_physical_device(m_instance),
+		m_surface(m_instance, m_window.handle)
 	{
-		//m_physical_device(m_instance);
-		
-		set_up_glfw();
-		//set_up_instance();
-		set_up_surface();
 		set_up_device();
 		get_queues();
 		set_up_swap_chain();
@@ -138,26 +155,8 @@ namespace app
 		tear_down_command_pool();
 		tear_down_swap_chain();
 		tear_down_device();
-		tear_down_surface();
-		tear_down_glfw();
 	}
 
-	void app::gfx::set_up_glfw()
-	{
-		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-		glfwSetCursorPosCallback(m_window, cursor_position_callback);
-		glfwSetMouseButtonCallback(m_window, mouse_button_callback);
-		glfwSetScrollCallback(m_window, scroll_callback);
-	}
-
-	void app::gfx::tear_down_glfw()
-	{
-		glfwDestroyWindow(m_window);
-		glfwTerminate();
-	}
 
 	void app::gfx::set_up_device()
 	{
@@ -173,7 +172,7 @@ namespace app
 			constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
 			VkBool32 surface_support = VK_FALSE;
 			
-			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device.handle, i, m_surface, &surface_support));
+			vk_check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device.handle, i, m_surface.handle, &surface_support));
 			if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
 			{
 				queue_family_index = i;
@@ -218,21 +217,6 @@ namespace app
 		vkDestroyDevice(m_device, nullptr);
 	}
 
-	void app::gfx::set_up_surface()
-	{
-		VkWin32SurfaceCreateInfoKHR create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		create_info.hwnd = glfwGetWin32Window(m_window);
-		create_info.hinstance = GetModuleHandle(nullptr);
-
-		vk_check(vkCreateWin32SurfaceKHR(m_instance.handle, &create_info, nullptr, &m_surface));
-	}
-
-	void app::gfx::tear_down_surface()
-	{
-		vkDestroySurfaceKHR(m_instance.handle, m_surface, nullptr);
-	}
-
 	void app::gfx::get_queues()
 	{
 		vkGetDeviceQueue(m_device, m_queue_family_index, 0, &m_graphics_queue);
@@ -249,7 +233,7 @@ namespace app
 		
 		VkSwapchainCreateInfoKHR create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		create_info.surface = m_surface;
+		create_info.surface = m_surface.handle;
 		create_info.minImageCount = 3;
 		create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
 		create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
@@ -512,7 +496,7 @@ namespace app
 	{
 		std::srand(std::time(nullptr));
 
-		while (!glfwWindowShouldClose(m_window))
+		while (!glfwWindowShouldClose(m_window.glfw_window))
 		{
 			uint32_t image_view_index = 0; // TODO GET THE INDEX
 			constexpr uint32_t buffer_size = 128 * 4;
