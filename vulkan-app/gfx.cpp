@@ -105,9 +105,8 @@ namespace app
 	{
 		glfwDestroyWindow(glfw_window);
 		glfwTerminate();
-
 	}
-	
+
 	static void vk_check(VkResult result)
 	{
 		if (result != VK_SUCCESS)
@@ -130,9 +129,9 @@ namespace app
 		m_fragment_shader_module(m_device, "./shaders/fragment/simple.spv"),
 		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv"),
 		m_descriptor_pool(m_device),
-		m_layout(m_device)
+		m_layout(m_device),
+		m_descriptor_set(m_device, m_descriptor_pool, m_layout)
 	{
-		set_up_descriptor_pool();
 		set_up_pipeline();
 
 		VkFenceCreateInfo fence_create_info{};
@@ -158,21 +157,7 @@ namespace app
 		}
 
 
-	void app::gfx::set_up_descriptor_pool()
-	{
-		//
-		VkDescriptorSetAllocateInfo alloc_info{};
-		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		alloc_info.descriptorPool = m_descriptor_pool;
-		alloc_info.descriptorSetCount = 1;
-		alloc_info.pSetLayouts = m_layout;
-
-		vk_check(vkAllocateDescriptorSets(m_device, &alloc_info, &m_descriptor_set));
-
-	}
-
-
-	void app::gfx::set_up_pipeline()
+		void app::gfx::set_up_pipeline()
 	{
 		//VkDescriptorSetLayout layout{};
 		////layout.
@@ -402,7 +387,7 @@ namespace app
 
 			vkBeginCommandBuffer(m_command_buffer, &begin_info);
 
-			vkCmdBindDescriptorSets(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &m_descriptor_set, 0, nullptr);
+			vkCmdBindDescriptorSets(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, m_descriptor_set, 0, nullptr);
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

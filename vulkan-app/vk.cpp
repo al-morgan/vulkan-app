@@ -315,12 +315,26 @@ vk::descriptor_set_layout::descriptor_set_layout(vk::device& device) : device(de
 	layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layout_create_info.bindingCount = 1;
 	layout_create_info.pBindings = &binding;
-	vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &handle);
+	check(vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &handle));
 }
 
 vk::descriptor_set_layout::~descriptor_set_layout()
 {
 	vkDestroyDescriptorSetLayout(device, handle, nullptr);
+}
+
+vk::descriptor_set::descriptor_set(vk::device& device, vk::descriptor_pool& pool, vk::descriptor_set_layout& layout) {
+	VkDescriptorSetAllocateInfo alloc_info{};
+	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	alloc_info.descriptorPool = pool;
+	alloc_info.descriptorSetCount = 1;
+	alloc_info.pSetLayouts = layout;
+
+	check(vkAllocateDescriptorSets(device, &alloc_info, &handle));
+}
+
+vk::descriptor_set::~descriptor_set() {
+	// Gets deallocated when pool is destroyed
 }
 
 

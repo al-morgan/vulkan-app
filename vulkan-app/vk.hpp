@@ -115,4 +115,15 @@ namespace vk
 		operator VkDescriptorSetLayout() const { return handle; }
 		operator const VkDescriptorSetLayout* () const { return &handle; }
 	};
+
+	class descriptor_set {
+	private:
+		VkDescriptorSet handle;
+	public:
+		descriptor_set(vk::device& device, vk::descriptor_pool& pool, vk::descriptor_set_layout& layout);
+		~descriptor_set();
+		operator VkDescriptorSet() const { return handle; }
+		operator const VkDescriptorSet*() const { return &handle; }
+
+	};
 }
