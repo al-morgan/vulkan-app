@@ -24,6 +24,7 @@
 
 //namespace vk
 //{
+
 static void check(VkResult result)
 {
 	if (result != VK_SUCCESS)
@@ -301,6 +302,25 @@ vk::descriptor_pool::descriptor_pool(vk::device& device) : device(device)
 vk::descriptor_pool::~descriptor_pool()
 {
 	vkDestroyDescriptorPool(device, handle, nullptr);
+}
+
+vk::descriptor_set_layout::descriptor_set_layout(vk::device& device) : device(device)
+{
+	VkDescriptorSetLayoutBinding binding{};
+	binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	binding.descriptorCount = 1;
+
+	VkDescriptorSetLayoutCreateInfo layout_create_info{};
+	layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layout_create_info.bindingCount = 1;
+	layout_create_info.pBindings = &binding;
+	vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &handle);
+}
+
+vk::descriptor_set_layout::~descriptor_set_layout()
+{
+	vkDestroyDescriptorSetLayout(device, handle, nullptr);
 }
 
 

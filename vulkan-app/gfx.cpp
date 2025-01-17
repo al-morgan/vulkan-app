@@ -129,7 +129,8 @@ namespace app
 		m_command_buffer(m_device, m_command_pool),
 		m_fragment_shader_module(m_device, "./shaders/fragment/simple.spv"),
 		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv"),
-		m_descriptor_pool(m_device)
+		m_descriptor_pool(m_device),
+		m_layout(m_device)
 	{
 		set_up_descriptor_pool();
 		set_up_pipeline();
@@ -154,40 +155,22 @@ namespace app
 		vkDestroyFence(m_device, m_in_flight_fence, nullptr);
 
 		tear_down_pipeline();
-		tear_down_descriptor_pool();
 		}
 
 
 	void app::gfx::set_up_descriptor_pool()
 	{
-
-		VkDescriptorSetLayoutBinding binding{};
-		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		binding.descriptorCount = 1;
-
-		VkDescriptorSetLayoutCreateInfo layout_create_info{};
-		layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layout_create_info.bindingCount = 1;
-		layout_create_info.pBindings = &binding;
-		vkCreateDescriptorSetLayout(m_device, &layout_create_info, nullptr, &m_layout);
-
 		//
 		VkDescriptorSetAllocateInfo alloc_info{};
 		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		alloc_info.descriptorPool = m_descriptor_pool;
 		alloc_info.descriptorSetCount = 1;
-		alloc_info.pSetLayouts = &m_layout;
+		alloc_info.pSetLayouts = m_layout;
 
 		vk_check(vkAllocateDescriptorSets(m_device, &alloc_info, &m_descriptor_set));
 
 	}
 
-	void app::gfx::tear_down_descriptor_pool()
-	{
-		vkDestroyDescriptorSetLayout(m_device, m_layout, nullptr);
-		//vkDestroyDescriptorPool(m_device, m_descriptor_pool, nullptr);
-	}
 
 	void app::gfx::set_up_pipeline()
 	{
@@ -230,7 +213,7 @@ namespace app
 		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		//pipeline_layout_create_info.pPushConstantRanges = &range;
 		//pipeline_layout_create_info.pushConstantRangeCount = 1;
-		pipeline_layout_create_info.pSetLayouts = &m_layout;
+		pipeline_layout_create_info.pSetLayouts = m_layout;
 		pipeline_layout_create_info.setLayoutCount = 1;
 		vk_check(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
 
