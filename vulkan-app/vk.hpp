@@ -126,4 +126,28 @@ namespace vk
 		operator const VkDescriptorSet*() const { return &handle; }
 
 	};
+
+	class pipeline_layout {
+	private:
+		VkPipelineLayout handle;
+		vk::device& device;
+	public:
+		pipeline_layout(vk::device& device, vk::descriptor_set_layout& descriptor_set_layout);
+		~pipeline_layout();
+		operator VkPipelineLayout() const { return handle; }
+		operator const VkPipelineLayout* () const { return &handle; }
+	};
+
+
+	class pipeline {
+	private:
+		VkPipeline handle;
+		vk::device& device;
+	public:
+		pipeline(vk::device& device, vk::pipeline_layout& pipeline_layout, vk::shader_module& vertex_shader, vk::shader_module& fragment_shader, uint32_t width, uint32_t height);
+		~pipeline();
+		operator VkPipeline() const { return handle; }
+		operator const VkPipeline* () const { return &handle; }
+
+	};
 }

@@ -44,7 +44,12 @@ namespace app
 		vk::descriptor_pool m_descriptor_pool;
 		vk::descriptor_set_layout m_layout;
 		vk::descriptor_set m_descriptor_set;
-
+		vk::pipeline_layout m_pipeline_layout;
+		vk::pipeline m_pipeline;
+		
+		
+		//VkPipeline m_pipeline;
+		
 		//VkPhysicalDevice m_physical_device;
 		//VkDevice m_device;
 		//VkSurfaceKHR m_surface;
@@ -58,10 +63,9 @@ namespace app
 		//VkShaderModule m_fragment_shader_module;
 		//VkShaderModule m_vertex_shader_module;
 		//VkDescriptorPool m_descriptor_pool;
-		VkPipeline m_pipeline;
 		//VkCommandBuffer m_command_buffer;
 
-		VkPipelineLayout m_pipeline_layout;
+		//VkPipelineLayout m_pipeline_layout;
 		//VkDescriptorSet m_descriptor_set;
 		//VkDescriptorSetLayout m_layout;
 

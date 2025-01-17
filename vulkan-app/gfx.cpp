@@ -130,9 +130,12 @@ namespace app
 		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv"),
 		m_descriptor_pool(m_device),
 		m_layout(m_device),
-		m_descriptor_set(m_device, m_descriptor_pool, m_layout)
+		m_descriptor_set(m_device, m_descriptor_pool, m_layout),
+		m_pipeline_layout(m_device, m_layout),
+		m_pipeline(m_device, m_pipeline_layout, m_vertex_shader_module, m_fragment_shader_module, WIDTH, HEIGHT)
+
 	{
-		set_up_pipeline();
+		//set_up_pipeline();
 
 		VkFenceCreateInfo fence_create_info{};
 		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -152,131 +155,9 @@ namespace app
 		vkDestroySemaphore(m_device, m_render_finished_semaphore, nullptr);
 		vkDestroySemaphore(m_device, m_image_available_semaphore, nullptr);
 		vkDestroyFence(m_device, m_in_flight_fence, nullptr);
-
-		tear_down_pipeline();
 		}
 
 
-		void app::gfx::set_up_pipeline()
-	{
-		//VkDescriptorSetLayout layout{};
-		////layout.
-
-		//VkDescriptorSetLayoutCreateInfo layout_create_info{};
-		//layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;		
-
-		//vkCreateDescriptorSetLayout(m_device, &layout_create_info, nullptr, &layout);
-
-		//VkDescriptorSetAllocateInfo alloc_info{};
-		//alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		//alloc_info.descriptorPool = m_descriptor_pool;
-		//alloc_info.descriptorSetCount = 1;
-		//alloc_info.pSetLayouts = &layout;
-
-		//vkAllocateDescriptorSets()
-
-		VkPipelineShaderStageCreateInfo vertex_stage_create_info{};
-		vertex_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vertex_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertex_stage_create_info.pName = "main";
-		vertex_stage_create_info.module = m_vertex_shader_module;
-
-		VkPipelineShaderStageCreateInfo fragment_stage_create_info{};
-		fragment_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		fragment_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragment_stage_create_info.pName = "main";
-		fragment_stage_create_info.module = m_fragment_shader_module;
-
-		std::array<VkPipelineShaderStageCreateInfo, 2> stages = { vertex_stage_create_info, fragment_stage_create_info };
-
-		VkPushConstantRange range{};
-		range.size = 12;
-		range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		
-		//VkPipelineLayout pipeline_layout;
-		VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
-		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		//pipeline_layout_create_info.pPushConstantRanges = &range;
-		//pipeline_layout_create_info.pushConstantRangeCount = 1;
-		pipeline_layout_create_info.pSetLayouts = m_layout;
-		pipeline_layout_create_info.setLayoutCount = 1;
-		vk_check(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
-
-		VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
-		vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-		VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
-		input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		input_assembly_state.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-		VkPipelineMultisampleStateCreateInfo multisample_state{};
-		multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-		VkPipelineRasterizationStateCreateInfo rasterization_state{};
-		rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		rasterization_state.lineWidth = 1.0f;
-
-		VkViewport viewport{};
-		viewport.width = static_cast<float>(WIDTH);
-		viewport.height = static_cast<float>(HEIGHT);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-
-		VkRect2D scissor{};
-		scissor.extent.width = WIDTH;
-		scissor.extent.height = HEIGHT;		
-
-		VkPipelineViewportStateCreateInfo viewport_state{};
-		viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewport_state.pViewports = &viewport;
-		viewport_state.viewportCount = 1;
-		viewport_state.pScissors = &scissor;
-		viewport_state.scissorCount = 1;
-
-		VkPipelineColorBlendAttachmentState color_blend_attachment_state{};
-		color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		//color_blend_attachment_state.blendEnable = 
-		//color_blend_attachment_state.alphaBlendOp = 
-
-		VkPipelineColorBlendStateCreateInfo color_blend_state{};
-		color_blend_state.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		color_blend_state.attachmentCount = 1;
-		color_blend_state.pAttachments = &color_blend_attachment_state;
-		color_blend_state.logicOp = VK_LOGIC_OP_SET;
-		//color_blend_state.blendConstants
-
-		VkGraphicsPipelineCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		create_info.stageCount = 2;
-		create_info.pStages = stages.data();		
-		create_info.layout = m_pipeline_layout;
-		create_info.pVertexInputState = &vertex_input_state_create_info;
-		create_info.pInputAssemblyState = &input_assembly_state;
-		create_info.pMultisampleState = &multisample_state;
-		create_info.pRasterizationState = &rasterization_state;
-		create_info.pViewportState = &viewport_state;
-		create_info.pColorBlendState = &color_blend_state;
-		//create_info.layout
-
-		// Tutorial says I need this but it works without it?
-		VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
-		VkPipelineRenderingCreateInfo pipeline_rendering_create_info{};
-		pipeline_rendering_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-		pipeline_rendering_create_info.colorAttachmentCount = 1;
-		pipeline_rendering_create_info.pColorAttachmentFormats = &format;
-		create_info.pNext = &pipeline_rendering_create_info;
-		
-		vkCreateGraphicsPipelines(m_device, nullptr, 1, &create_info, nullptr, &m_pipeline);
-
-		//vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
-	}
-
-	void app::gfx::tear_down_pipeline()
-	{
-		vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
-		vkDestroyPipeline(m_device, m_pipeline, nullptr);
-	}
 
 	void app::gfx::update()
 	{
