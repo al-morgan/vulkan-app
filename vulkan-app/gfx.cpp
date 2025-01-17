@@ -115,7 +115,9 @@ namespace app
 		}
 	}
 
-	app::gfx::gfx() :
+	app::gfx::gfx(vk::device& device) : device(device)
+		
+		/*:
 		m_window(),
 		m_instance(),
 		m_physical_device(m_instance),
@@ -132,7 +134,7 @@ namespace app
 		m_layout(m_device),
 		m_descriptor_set(m_device, m_descriptor_pool, m_layout),
 		m_pipeline_layout(m_device, m_layout),
-		m_pipeline(m_device, m_pipeline_layout, m_vertex_shader_module, m_fragment_shader_module, WIDTH, HEIGHT)
+		m_pipeline(m_device, m_pipeline_layout, m_vertex_shader_module, m_fragment_shader_module, WIDTH, HEIGHT)*/
 
 	{
 		//set_up_pipeline();
@@ -140,39 +142,39 @@ namespace app
 		VkFenceCreateInfo fence_create_info{};
 		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-		vkCreateFence(m_device, &fence_create_info, nullptr, &m_in_flight_fence);
+		vkCreateFence(device, &fence_create_info, nullptr, &m_in_flight_fence);
 
 		VkSemaphoreCreateInfo semaphore_create_info{};
 		semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
-		vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
+		vkCreateSemaphore(device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
+		vkCreateSemaphore(device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
 
 	app::gfx::~gfx()
 	{
-		vkDeviceWaitIdle(m_device);
+		vkDeviceWaitIdle(device);
 
-		vkDestroySemaphore(m_device, m_render_finished_semaphore, nullptr);
-		vkDestroySemaphore(m_device, m_image_available_semaphore, nullptr);
-		vkDestroyFence(m_device, m_in_flight_fence, nullptr);
+		vkDestroySemaphore(device, m_render_finished_semaphore, nullptr);
+		vkDestroySemaphore(device, m_image_available_semaphore, nullptr);
+		vkDestroyFence(device, m_in_flight_fence, nullptr);
 		}
 
 
 
-	void app::gfx::update()
+	void app::gfx::update(app::window& window, vk::device& device, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::swapchain& swapchain, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline, vk::queue& present_queue)
 	{
 		std::srand(std::time(nullptr));
 
-		while (!glfwWindowShouldClose(m_window.glfw_window))
+		while (!glfwWindowShouldClose(window.glfw_window))
 		{
 			uint32_t image_view_index = 0; // TODO GET THE INDEX
 			constexpr uint32_t buffer_size = 128 * 4;
 
 			glfwPollEvents();
 
-			vkWaitForFences(m_device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
-			vkResetCommandBuffer(m_command_buffer, 0);
-			vkResetFences(m_device, 1, &m_in_flight_fence);
+			vkWaitForFences(device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
+			vkResetCommandBuffer(command_buffer, 0);
+			vkResetFences(device, 1, &m_in_flight_fence);
 
 			VkBufferCreateInfo buffer_create_info{};
 			buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -181,10 +183,10 @@ namespace app
 			buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
 
 			VkBuffer buffer;
-			vkCreateBuffer(m_device, &buffer_create_info, nullptr, &buffer);
+			vkCreateBuffer(device, &buffer_create_info, nullptr, &buffer);
 
-			VkPhysicalDeviceMemoryProperties mem_properties;
-			vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
+			//VkPhysicalDeviceMemoryProperties mem_properties;
+			//vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
 
 			VkMemoryAllocateInfo memory_allocate_info{};
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -192,13 +194,13 @@ namespace app
 			memory_allocate_info.memoryTypeIndex = 2; // hard coded host-visible/coherent on my machine.
 
 			VkDeviceMemory device_buffer_memory;
-			vkAllocateMemory(m_device, &memory_allocate_info, nullptr, &device_buffer_memory);
+			vkAllocateMemory(device, &memory_allocate_info, nullptr, &device_buffer_memory);
 
 			VkBindBufferMemoryInfo bind_buffer_memory_info{};
 			bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
 			bind_buffer_memory_info.memory = device_buffer_memory;
 			bind_buffer_memory_info.buffer = buffer;
-			vkBindBufferMemory(m_device, buffer, device_buffer_memory, 0);
+			vkBindBufferMemory(device, buffer, device_buffer_memory, 0);
 			
 			VkBufferViewCreateInfo buffer_view_create_info{};
 			buffer_view_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
@@ -207,12 +209,12 @@ namespace app
 			buffer_view_create_info.buffer = buffer;
 
 			VkBufferView buffer_view;
-			vkCreateBufferView(m_device, &buffer_view_create_info, nullptr, &buffer_view);
+			vkCreateBufferView(device, &buffer_view_create_info, nullptr, &buffer_view);
 
 			//vkBindBufferMemory
 
 			float* mem;
-			vk_check(vkMapMemory(m_device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
+			vk_check(vkMapMemory(device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
 
 			for (uint32_t i = 0; i < 100; i += 1)
 			{
@@ -220,7 +222,7 @@ namespace app
 			}
 
 			// Fill out memory here.
-			vkUnmapMemory(m_device, device_buffer_memory);
+			vkUnmapMemory(device, device_buffer_memory);
 
 			
 			VkDescriptorBufferInfo descriptor_buffer_info{};
@@ -230,16 +232,16 @@ namespace app
 
 			VkWriteDescriptorSet write_descriptor_set{};
 			write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			write_descriptor_set.dstSet = m_descriptor_set;
+			write_descriptor_set.dstSet = descriptor_set;
 			write_descriptor_set.dstBinding = 0;
 			write_descriptor_set.descriptorCount = 1;
 			write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			write_descriptor_set.dstArrayElement = 0;
 			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
-			vkUpdateDescriptorSets(m_device, 1, &write_descriptor_set, 0, nullptr);
+			vkUpdateDescriptorSets(device, 1, &write_descriptor_set, 0, nullptr);
 
-			vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
+			vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
 			VkClearValue clear_value{};
 
@@ -251,7 +253,7 @@ namespace app
 			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			color_attachment_info.clearValue = clear_value;
 			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			color_attachment_info.imageView = m_swapchain.image_views[image_view_index];
+			color_attachment_info.imageView = swapchain.image_views[image_view_index];
 			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -266,13 +268,13 @@ namespace app
 			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			//begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-			vkBeginCommandBuffer(m_command_buffer, &begin_info);
+			vkBeginCommandBuffer(command_buffer, &begin_info);
 
-			vkCmdBindDescriptorSets(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, m_descriptor_set, 0, nullptr);
+			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, descriptor_set, 0, nullptr);
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier1.image = m_swapchain.images[image_view_index];
+			barrier1.image = swapchain.images[image_view_index];
 			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -281,16 +283,16 @@ namespace app
 			barrier1.subresourceRange.baseMipLevel = 0;
 			barrier1.subresourceRange.layerCount = 1;
 			barrier1.subresourceRange.levelCount = 1;
-			vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
+			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
 
-			vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
-			vkCmdBeginRendering(m_command_buffer, &rendering_info);
-			vkCmdDraw(m_command_buffer, 6, 1, 0, 0);
-			vkCmdEndRendering(m_command_buffer);
+			vkCmdBeginRendering(command_buffer, &rendering_info);
+			vkCmdDraw(command_buffer, 6, 1, 0, 0);
+			vkCmdEndRendering(command_buffer);
 			
 			//VkSemaphoreWaitInfo 
 
@@ -298,7 +300,7 @@ namespace app
 
 			VkImageMemoryBarrier barrier2{};
 			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier2.image = m_swapchain.images[image_view_index];
+			barrier2.image = swapchain.images[image_view_index];
 			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -307,16 +309,16 @@ namespace app
 			barrier2.subresourceRange.baseMipLevel = 0;
 			barrier2.subresourceRange.layerCount = 1;
 			barrier2.subresourceRange.levelCount = 1;
-			vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier2);
+			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier2);
 
-			vkEndCommandBuffer(m_command_buffer);
+			vkEndCommandBuffer(command_buffer);
 
 			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 			
 			VkSubmitInfo submit_info{};
 			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			submit_info.commandBufferCount = 1;
-			submit_info.pCommandBuffers = m_command_buffer;
+			submit_info.pCommandBuffers = command_buffer;
 			submit_info.pWaitSemaphores = &m_image_available_semaphore;
 			submit_info.waitSemaphoreCount = 1;
 			submit_info.pWaitDstStageMask = &wait_stage;
@@ -325,24 +327,24 @@ namespace app
 
 			//submit_info.
 			
-			vkQueueSubmit(m_present_queue, 1, &submit_info, m_in_flight_fence);
+			vkQueueSubmit(present_queue, 1, &submit_info, m_in_flight_fence);
 
 			VkPresentInfoKHR present_info{};
 			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.pSwapchains = m_swapchain;
+			present_info.pSwapchains = swapchain;
 			present_info.swapchainCount = 1;
 			present_info.pWaitSemaphores = &m_render_finished_semaphore;
 			present_info.waitSemaphoreCount = 1;
 			present_info.pImageIndices = &image_view_index;
 
-			vkQueuePresentKHR(m_present_queue, &present_info);
+			vkQueuePresentKHR(present_queue, &present_info);
 
 			// NO NO NO
-			vkDeviceWaitIdle(m_device);
+			vkDeviceWaitIdle(device);
 
-			vkDestroyBufferView(m_device, buffer_view, nullptr);
-			vkDestroyBuffer(m_device, buffer, nullptr);
-			vkFreeMemory(m_device, device_buffer_memory, nullptr);
+			vkDestroyBufferView(device, buffer_view, nullptr);
+			vkDestroyBuffer(device, buffer, nullptr);
+			vkFreeMemory(device, device_buffer_memory, nullptr);
 
 		}
 	}

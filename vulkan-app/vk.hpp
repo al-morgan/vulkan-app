@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <vulkan/vulkan.h>
 
+#include <vector>
+
 namespace vk
 {
 	class instance {
