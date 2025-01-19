@@ -1,6 +1,4 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 
@@ -12,14 +10,11 @@
 #include <GLFW/glfw3native.h>
 
 #include <vector>
-#include <limits>
 #include <optional>
-#include <fstream>
-#include <array>
 
 #include "file.hpp"
 #include "vk.hpp"
-#include "gfx_core.hpp"
+#include "gfx_context.hpp"
 
 static void check(VkResult result)
 {
@@ -29,10 +24,10 @@ static void check(VkResult result)
 	}
 }
 
-
-
-
-void gfx::core::create_instance()
+/// <summary>
+/// Set up the Vulkan instance
+/// </summary>
+void gfx::context::create_instance()
 {
 	VkApplicationInfo app_info{};
 	app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -73,7 +68,10 @@ void gfx::core::create_instance()
 	check(vkCreateInstance(&create_info, nullptr, &instance));
 }
 
-void gfx::core::get_physical_device()
+/// <summary>
+/// Get the Vulkan physical device
+/// </summary>
+void gfx::context::get_physical_device()
 {
 	uint32_t physical_device_count;
 	std::vector<VkPhysicalDevice> physical_devices;
@@ -90,7 +88,11 @@ void gfx::core::get_physical_device()
 	physical_device = physical_devices[0];
 }
 
-void gfx::core::create_surface(HWND window_handle)
+/// <summary>
+/// Create the surface
+/// </summary>
+/// <param name="window_handle"></param>
+void gfx::context::create_surface(HWND window_handle)
 {
 	VkWin32SurfaceCreateInfoKHR create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -100,7 +102,10 @@ void gfx::core::create_surface(HWND window_handle)
 	check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));	
 }
 
-void gfx::core::create_device()
+/// <summary>
+/// Create the logical device.
+/// </summary>
+void gfx::context::create_device()
 {
 	uint32_t queue_family_count;
 	std::vector<VkQueueFamilyProperties> queue_families;
@@ -127,14 +132,14 @@ void gfx::core::create_device()
 		throw std::runtime_error("Queue selection failed!");
 	}
 
-	queue_family_index = queue_family_index_o.value();
+	graphics_queue.family_index = queue_family_index_o.value();
 
 	float queue_priority = 1.0f;
 
 	VkDeviceQueueCreateInfo device_queue_create_info{};
 	device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 	device_queue_create_info.queueCount = 1;
-	device_queue_create_info.queueFamilyIndex = queue_family_index;
+	device_queue_create_info.queueFamilyIndex = graphics_queue.family_index;
 	device_queue_create_info.pQueuePriorities = &queue_priority;
 
 	std::vector<const char*> enabled_extensions = { "VK_KHR_swapchain", "VK_KHR_dynamic_rendering" };
@@ -154,8 +159,12 @@ void gfx::core::create_device()
 	vkCreateDevice(physical_device, &create_info, nullptr, &device);
 }
 
-
-void gfx::core::create_swapchain(uint32_t width, uint32_t height)
+/// <summary>
+/// Create the swapchain
+/// </summary>
+/// <param name="width"></param>
+/// <param name="height"></param>
+void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 {
 	VkExtent2D extent{};
 	extent.width = width;
@@ -202,17 +211,26 @@ void gfx::core::create_swapchain(uint32_t width, uint32_t height)
 	}
 }
 
-gfx::core::core(HWND window_handle, uint32_t width, uint32_t height)
+/// <summary>
+/// Initialize the context
+/// </summary>
+/// <param name="window_handle"></param>
+/// <param name="width"></param>
+/// <param name="height"></param>
+gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 {
 	create_instance();
 	create_surface(window_handle);
 	get_physical_device();
 	create_device();
-	vkGetDeviceQueue(device, queue_family_index, 0, &queue);
+	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
 	create_swapchain(width, height);
 }
 
-gfx::core::~core()
+/// <summary>
+/// Destroy the context
+/// </summary>
+gfx::context::~context()
 {
 	for (uint32_t i = 0; i < static_cast<uint32_t>(image_views.size()); i++)
 	{

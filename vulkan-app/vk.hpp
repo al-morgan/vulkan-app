@@ -5,75 +5,13 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include "gfx_context.hpp"
 
 namespace vk
 {
 	struct Vertex
 	{
 		glm::vec2 pos;
-	};
-
-	class instance {
-	private:
-		VkInstance handle;
-	public:
-		instance();
-		~instance();
-		operator VkInstance() const { return handle; }
-	};
-
-	class physical_device {
-	private:
-		VkPhysicalDevice handle;
-	public:
-		physical_device(vk::instance& instance);
-		physical_device() = delete;
-		operator VkPhysicalDevice() const { return handle; }
-	};
-
-	class surface {
-	private:
-		VkInstance instance_handle;
-		VkSurfaceKHR handle;
-	public:
-		surface(vk::instance& instance, HWND window_handle);
-		surface() = delete;
-		~surface();
-		operator VkSurfaceKHR() const { return handle; }
-	};
-
-	class device {
-	private:
-		VkDevice handle;
-	public:
-		device(vk::physical_device& physical_device, vk::surface& surface);
-		device() = delete;
-		~device();
-		operator VkDevice() const { return handle; }
-		uint32_t queue_family_index;
-	};
-
-	class queue {
-	private:
-		VkQueue handle;
-	public:
-		queue(vk::device& device, uint32_t queue_family_index);
-		queue() = delete;
-		operator VkQueue() const { return handle; }
-	};
-
-	class swapchain {
-	private:
-		VkSwapchainKHR handle;
-		vk::device& m_device;
-	public:
-		swapchain(vk::device& device, vk::surface& surface, uint32_t width, uint32_t height);
-		swapchain() = delete;
-		~swapchain();
-		operator VkSwapchainKHR() const { return handle; }
-		operator const VkSwapchainKHR * () const { return &handle; }
-		std::vector<VkImage> images;
-		std::vector<VkImageView> image_views;
 	};
 
 	class command_pool {

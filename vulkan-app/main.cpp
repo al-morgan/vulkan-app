@@ -8,6 +8,7 @@
 
 #include "vk.hpp"
 #include "gfx.hpp"
+#include "gfx_context.hpp"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -15,13 +16,8 @@
 int main()
 {
 	app::window window;
-	vk::instance instance;
-	vk::physical_device physical_device(instance);
-	vk::surface surface(instance, window.handle);
-	vk::device device(physical_device, surface);
-	vk::queue present_queue(device, device.queue_family_index);
-	vk::queue graphics_queue(device, device.queue_family_index);
-	vk::swapchain swapchain(device, surface, WIDTH, HEIGHT);
+	
+	gfx::context context(window.handle, WIDTH, HEIGHT);
 
 	vk::command_pool command_pool(device, device.queue_family_index);
 	vk::command_buffer command_buffer(device, command_pool);
