@@ -23,6 +23,7 @@ int main()
 	vk::queue present_queue(device, device.queue_family_index);
 	vk::queue graphics_queue(device, device.queue_family_index);
 	vk::swapchain swapchain(device, surface, WIDTH, HEIGHT);
+
 	vk::command_pool command_pool(device, device.queue_family_index);
 	vk::command_buffer command_buffer(device, command_pool);
 	vk::shader_module fragment_shader_module(device, "./shaders/fragment/simple.spv");

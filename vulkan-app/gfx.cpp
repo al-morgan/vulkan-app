@@ -223,7 +223,6 @@ namespace app
 
 			// Fill out memory here.
 			vkUnmapMemory(device, device_buffer_memory);
-
 			
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = buffer;
