@@ -2,11 +2,17 @@
 
 #include <windows.h>
 #include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
 
 #include <vector>
 
 namespace vk
 {
+	struct Vertex
+	{
+		glm::vec2 pos;
+	};
+
 	class instance {
 	private:
 		VkInstance handle;

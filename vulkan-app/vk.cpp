@@ -377,8 +377,23 @@ vk::pipeline::pipeline(vk::device& device, vk::pipeline_layout &pipeline_layout,
 
 	std::array<VkPipelineShaderStageCreateInfo, 2> stages = { vertex_stage_create_info, fragment_stage_create_info };
 
+	VkVertexInputAttributeDescription vertex_input_attribute_description{};
+	vertex_input_attribute_description.binding = 0;
+	vertex_input_attribute_description.location = 0;
+	vertex_input_attribute_description.format = VK_FORMAT_R32G32_SFLOAT;
+	vertex_input_attribute_description.offset = 0;
+
+	VkVertexInputBindingDescription vertex_input_binding_description{};
+	vertex_input_binding_description.binding = 0;
+	vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	vertex_input_binding_description.stride = sizeof(vk::Vertex);
+	
 	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
 	vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertex_input_state_create_info.pVertexAttributeDescriptions = &vertex_input_attribute_description;
+	vertex_input_state_create_info.vertexAttributeDescriptionCount = 1;
+	vertex_input_state_create_info.pVertexBindingDescriptions = &vertex_input_binding_description;
+	vertex_input_state_create_info.vertexBindingDescriptionCount = 1;
 
 	VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
 	input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

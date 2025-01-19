@@ -14,7 +14,6 @@
 
 int main()
 {
-
 	app::window window;
 	vk::instance instance;
 	vk::physical_device physical_device(instance);

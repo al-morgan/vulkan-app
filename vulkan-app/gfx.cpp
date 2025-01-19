@@ -13,6 +13,7 @@
 #include <optional>
 #include <fstream>
 #include <array>
+#include <glm/glm.hpp>
 
 #include "file.hpp"
 #include "vk.hpp"
@@ -116,29 +117,7 @@ namespace app
 	}
 
 	app::gfx::gfx(vk::device& device) : device(device)
-		
-		/*:
-		m_window(),
-		m_instance(),
-		m_physical_device(m_instance),
-		m_surface(m_instance, m_window.handle),
-		m_device(m_physical_device, m_surface),
-		m_graphics_queue(m_device, m_device.queue_family_index),
-		m_present_queue(m_device, m_device.queue_family_index),
-		m_swapchain(m_device, m_surface, WIDTH, HEIGHT),
-		m_command_pool(m_device, m_device.queue_family_index),
-		m_command_buffer(m_device, m_command_pool),
-		m_fragment_shader_module(m_device, "./shaders/fragment/simple.spv"),
-		m_vertex_shader_module(m_device, "./shaders/vertex/simple.spv"),
-		m_descriptor_pool(m_device),
-		m_layout(m_device),
-		m_descriptor_set(m_device, m_descriptor_pool, m_layout),
-		m_pipeline_layout(m_device, m_layout),
-		m_pipeline(m_device, m_pipeline_layout, m_vertex_shader_module, m_fragment_shader_module, WIDTH, HEIGHT)*/
-
 	{
-		//set_up_pipeline();
-
 		VkFenceCreateInfo fence_create_info{};
 		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
@@ -157,9 +136,7 @@ namespace app
 		vkDestroySemaphore(device, m_render_finished_semaphore, nullptr);
 		vkDestroySemaphore(device, m_image_available_semaphore, nullptr);
 		vkDestroyFence(device, m_in_flight_fence, nullptr);
-		}
-
-
+	}
 
 	void app::gfx::update(app::window& window, vk::device& device, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::swapchain& swapchain, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline, vk::queue& present_queue)
 	{
@@ -169,6 +146,19 @@ namespace app
 		{
 			uint32_t image_view_index = 0; // TODO GET THE INDEX
 			constexpr uint32_t buffer_size = 128 * 4;
+
+			#define MIN -1.0
+			#define MAX 1.0
+
+			vk::Vertex positions[6] =
+			{
+				glm::vec2(MIN, MIN),
+				glm::vec2(MAX, MIN),
+				glm::vec2(MIN, MAX),
+				glm::vec2(MAX, MIN),
+				glm::vec2(MAX, MAX),
+				glm::vec2(MIN, MAX)
+			};
 
 			glfwPollEvents();
 
@@ -194,7 +184,11 @@ namespace app
 			memory_allocate_info.memoryTypeIndex = 2; // hard coded host-visible/coherent on my machine.
 
 			VkDeviceMemory device_buffer_memory;
+			VkDeviceMemory vertex_buffer_memory;
 			vkAllocateMemory(device, &memory_allocate_info, nullptr, &device_buffer_memory);
+			
+			memory_allocate_info.allocationSize = sizeof(positions);
+			vkAllocateMemory(device, &memory_allocate_info, nullptr, &vertex_buffer_memory);
 
 			VkBindBufferMemoryInfo bind_buffer_memory_info{};
 			bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
@@ -223,6 +217,17 @@ namespace app
 
 			// Fill out memory here.
 			vkUnmapMemory(device, device_buffer_memory);
+
+			vk_check(vkMapMemory(device, vertex_buffer_memory, 0, sizeof(positions), 0, reinterpret_cast<void**>(&mem)));
+
+			memcpy(mem, positions, sizeof(positions));
+			vkUnmapMemory(device, vertex_buffer_memory);
+
+			VkBuffer vertex_buffer;
+			buffer_create_info.size = sizeof(positions);
+			buffer_create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			vkCreateBuffer(device, &buffer_create_info, nullptr, &vertex_buffer);
+			vkBindBufferMemory(device, vertex_buffer, vertex_buffer_memory, 0);
 			
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = buffer;
@@ -284,7 +289,11 @@ namespace app
 			barrier1.subresourceRange.levelCount = 1;
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
 
+
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+			VkDeviceSize offset = 0;
+			vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer, &offset);
 
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
@@ -343,7 +352,9 @@ namespace app
 
 			vkDestroyBufferView(device, buffer_view, nullptr);
 			vkDestroyBuffer(device, buffer, nullptr);
+			vkDestroyBuffer(device, vertex_buffer, nullptr);
 			vkFreeMemory(device, device_buffer_memory, nullptr);
+			vkFreeMemory(device, vertex_buffer_memory, nullptr);
 
 		}
 	}
