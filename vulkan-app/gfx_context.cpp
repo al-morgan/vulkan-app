@@ -170,7 +170,6 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 	extent.width = width;
 	extent.height = height;
 
-
 	VkSwapchainCreateInfoKHR create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	create_info.surface = surface;

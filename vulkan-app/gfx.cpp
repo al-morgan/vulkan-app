@@ -23,6 +23,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include "gfx_context.hpp"
+
 
 //#include <vulkan/vulkan_win32.h>
 
@@ -36,8 +38,8 @@ static double center_x, center_y;
 static double last_update_x, last_update_y;
 static double zoom = 1.0;
 
-namespace app
-{
+//namespace app
+//{
 
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
@@ -116,29 +118,29 @@ namespace app
 		}
 	}
 
-	app::gfx::gfx(vk::device& device) : device(device)
+	app::engine::engine(gfx::context& context) : context(context)
 	{
 		VkFenceCreateInfo fence_create_info{};
 		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-		vkCreateFence(device, &fence_create_info, nullptr, &m_in_flight_fence);
+		vkCreateFence(context.device, &fence_create_info, nullptr, &m_in_flight_fence);
 
 		VkSemaphoreCreateInfo semaphore_create_info{};
 		semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		vkCreateSemaphore(device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
-		vkCreateSemaphore(device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
+		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
+		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
 
-	app::gfx::~gfx()
+	app::engine::~engine()
 	{
-		vkDeviceWaitIdle(device);
+		vkDeviceWaitIdle(context.device);
 
-		vkDestroySemaphore(device, m_render_finished_semaphore, nullptr);
-		vkDestroySemaphore(device, m_image_available_semaphore, nullptr);
-		vkDestroyFence(device, m_in_flight_fence, nullptr);
+		vkDestroySemaphore(context.device, m_render_finished_semaphore, nullptr);
+		vkDestroySemaphore(context.device, m_image_available_semaphore, nullptr);
+		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
-	void app::gfx::update(app::window& window, vk::device& device, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::swapchain& swapchain, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline, vk::queue& present_queue)
+	void app::engine::update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline)
 	{
 		std::srand(std::time(nullptr));
 
@@ -162,9 +164,9 @@ namespace app
 
 			glfwPollEvents();
 
-			vkWaitForFences(device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
+			vkWaitForFences(context.device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
 			vkResetCommandBuffer(command_buffer, 0);
-			vkResetFences(device, 1, &m_in_flight_fence);
+			vkResetFences(context.device, 1, &m_in_flight_fence);
 
 			VkBufferCreateInfo buffer_create_info{};
 			buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -173,7 +175,7 @@ namespace app
 			buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
 
 			VkBuffer buffer;
-			vkCreateBuffer(device, &buffer_create_info, nullptr, &buffer);
+			vkCreateBuffer(context.device, &buffer_create_info, nullptr, &buffer);
 
 			//VkPhysicalDeviceMemoryProperties mem_properties;
 			//vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
@@ -185,16 +187,16 @@ namespace app
 
 			VkDeviceMemory device_buffer_memory;
 			VkDeviceMemory vertex_buffer_memory;
-			vkAllocateMemory(device, &memory_allocate_info, nullptr, &device_buffer_memory);
+			vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &device_buffer_memory);
 			
 			memory_allocate_info.allocationSize = sizeof(positions);
-			vkAllocateMemory(device, &memory_allocate_info, nullptr, &vertex_buffer_memory);
+			vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &vertex_buffer_memory);
 
 			VkBindBufferMemoryInfo bind_buffer_memory_info{};
 			bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
 			bind_buffer_memory_info.memory = device_buffer_memory;
 			bind_buffer_memory_info.buffer = buffer;
-			vkBindBufferMemory(device, buffer, device_buffer_memory, 0);
+			vkBindBufferMemory(context.device, buffer, device_buffer_memory, 0);
 			
 			VkBufferViewCreateInfo buffer_view_create_info{};
 			buffer_view_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
@@ -203,12 +205,12 @@ namespace app
 			buffer_view_create_info.buffer = buffer;
 
 			VkBufferView buffer_view;
-			vkCreateBufferView(device, &buffer_view_create_info, nullptr, &buffer_view);
+			vkCreateBufferView(context.device, &buffer_view_create_info, nullptr, &buffer_view);
 
 			//vkBindBufferMemory
 
 			float* mem;
-			vk_check(vkMapMemory(device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
+			vk_check(vkMapMemory(context.device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
 
 			for (uint32_t i = 0; i < 100; i += 1)
 			{
@@ -216,18 +218,18 @@ namespace app
 			}
 
 			// Fill out memory here.
-			vkUnmapMemory(device, device_buffer_memory);
+			vkUnmapMemory(context.device, device_buffer_memory);
 
-			vk_check(vkMapMemory(device, vertex_buffer_memory, 0, sizeof(positions), 0, reinterpret_cast<void**>(&mem)));
+			vk_check(vkMapMemory(context.device, vertex_buffer_memory, 0, sizeof(positions), 0, reinterpret_cast<void**>(&mem)));
 
 			memcpy(mem, positions, sizeof(positions));
-			vkUnmapMemory(device, vertex_buffer_memory);
+			vkUnmapMemory(context.device, vertex_buffer_memory);
 
 			VkBuffer vertex_buffer;
 			buffer_create_info.size = sizeof(positions);
 			buffer_create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			vkCreateBuffer(device, &buffer_create_info, nullptr, &vertex_buffer);
-			vkBindBufferMemory(device, vertex_buffer, vertex_buffer_memory, 0);
+			vkCreateBuffer(context.device, &buffer_create_info, nullptr, &vertex_buffer);
+			vkBindBufferMemory(context.device, vertex_buffer, vertex_buffer_memory, 0);
 			
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = buffer;
@@ -243,9 +245,9 @@ namespace app
 			write_descriptor_set.dstArrayElement = 0;
 			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
-			vkUpdateDescriptorSets(device, 1, &write_descriptor_set, 0, nullptr);
+			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
+			vkAcquireNextImageKHR(context.device, context.swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
 			VkClearValue clear_value{};
 
@@ -257,7 +259,7 @@ namespace app
 			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			color_attachment_info.clearValue = clear_value;
 			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			color_attachment_info.imageView = swapchain.image_views[image_view_index];
+			color_attachment_info.imageView = context.image_views[image_view_index];
 			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -278,7 +280,7 @@ namespace app
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier1.image = swapchain.images[image_view_index];
+			barrier1.image = context.images[image_view_index];
 			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -308,7 +310,7 @@ namespace app
 
 			VkImageMemoryBarrier barrier2{};
 			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier2.image = swapchain.images[image_view_index];
+			barrier2.image = context.images[image_view_index];
 			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -335,27 +337,27 @@ namespace app
 
 			//submit_info.
 			
-			vkQueueSubmit(present_queue, 1, &submit_info, m_in_flight_fence);
+			vkQueueSubmit(context.graphics_queue.handle, 1, &submit_info, m_in_flight_fence);
 
 			VkPresentInfoKHR present_info{};
 			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.pSwapchains = swapchain;
+			present_info.pSwapchains = &context.swapchain;
 			present_info.swapchainCount = 1;
 			present_info.pWaitSemaphores = &m_render_finished_semaphore;
 			present_info.waitSemaphoreCount = 1;
 			present_info.pImageIndices = &image_view_index;
 
-			vkQueuePresentKHR(present_queue, &present_info);
+			vkQueuePresentKHR(context.graphics_queue.handle, &present_info);
 
 			// NO NO NO
-			vkDeviceWaitIdle(device);
+			vkDeviceWaitIdle(context.device);
 
-			vkDestroyBufferView(device, buffer_view, nullptr);
-			vkDestroyBuffer(device, buffer, nullptr);
-			vkDestroyBuffer(device, vertex_buffer, nullptr);
-			vkFreeMemory(device, device_buffer_memory, nullptr);
-			vkFreeMemory(device, vertex_buffer_memory, nullptr);
+			vkDestroyBufferView(context.device, buffer_view, nullptr);
+			vkDestroyBuffer(context.device, buffer, nullptr);
+			vkDestroyBuffer(context.device, vertex_buffer, nullptr);
+			vkFreeMemory(context.device, device_buffer_memory, nullptr);
+			vkFreeMemory(context.device, vertex_buffer_memory, nullptr);
 
 		}
 	}
-}
+//}

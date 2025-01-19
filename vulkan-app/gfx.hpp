@@ -1,17 +1,16 @@
 #pragma once
 
 #include <vector>
+#include "gfx_context.hpp"
 
 #include "vk.hpp"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
 
+
 namespace app
 {
-
-
-
 	class window
 	{
 	private:
@@ -22,17 +21,17 @@ namespace app
 		HWND handle;
 	};
 
-	class gfx
+	class engine
 	{
 	private:
-		vk::device& device;
+		gfx::context& context;
 		VkFence m_in_flight_fence;
 		VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
 	public:
-		gfx(vk::device& device);
-		~gfx();
-		void update(app::window& window, vk::device& device, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::swapchain& swapchain, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline, vk::queue& present_queue);
+		engine(gfx::context& context);
+		~engine();
+		void update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline);
 	};
 }

@@ -19,21 +19,21 @@ int main()
 	
 	gfx::context context(window.handle, WIDTH, HEIGHT);
 
-	vk::command_pool command_pool(device, device.queue_family_index);
-	vk::command_buffer command_buffer(device, command_pool);
-	vk::shader_module fragment_shader_module(device, "./shaders/fragment/simple.spv");
-	vk::shader_module vertex_shader_module(device, "./shaders/vertex/simple.spv");
-	vk::descriptor_pool descriptor_pool(device);
-	vk::descriptor_set_layout layout(device);
-	vk::descriptor_set descriptor_set(device, descriptor_pool, layout);
-	vk::pipeline_layout pipeline_layout(device, layout);
-	vk::pipeline pipeline(device, pipeline_layout, vertex_shader_module, fragment_shader_module, WIDTH, HEIGHT);
+	vk::command_pool command_pool(context.device, context.graphics_queue.family_index);
+	vk::command_buffer command_buffer(context.device, command_pool);
+	vk::shader_module fragment_shader_module(context.device, "./shaders/fragment/simple.spv");
+	vk::shader_module vertex_shader_module(context.device, "./shaders/vertex/simple.spv");
+	vk::descriptor_pool descriptor_pool(context.device);
+	vk::descriptor_set_layout layout(context.device);
+	vk::descriptor_set descriptor_set(context.device, descriptor_pool, layout);
+	vk::pipeline_layout pipeline_layout(context.device, layout);
+	vk::pipeline pipeline(context.device, pipeline_layout, vertex_shader_module, fragment_shader_module, WIDTH, HEIGHT);
 
-	app::gfx gfx(device);
+	app::engine gfx(context);
 
     try
     {
-        gfx.update(window, device, command_buffer, descriptor_set, swapchain, pipeline_layout, pipeline, present_queue);
+		gfx.update(context, window, command_buffer, descriptor_set, pipeline_layout, pipeline);
     }
     catch (const std::exception& e)
     {

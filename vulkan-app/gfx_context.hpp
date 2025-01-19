@@ -8,11 +8,29 @@
 
 namespace gfx
 {
+	/// <summary>
+	/// A device queue.
+	/// </summary>
 	class queue
 	{
 	public:
 		VkQueue handle;
 		uint32_t family_index;
+	};
+
+
+	class framebuffer
+	{
+	public:
+		VkImage image;
+		VkImageView view;
+	};
+
+	class swapchain
+	{
+	public:
+		VkSwapchainKHR handle;
+		std::vector<framebuffer> framebuffers;
 	};
 	
 	/// <summary>
@@ -24,7 +42,7 @@ namespace gfx
 		VkInstance	instance;
 		VkSurfaceKHR surface;
 		VkPhysicalDevice physical_device;
-		VkDevice device;		
+		VkDevice device;
 		VkSwapchainKHR swapchain;
 		
 		gfx::queue transfer_queue;
@@ -33,7 +51,6 @@ namespace gfx
 		
 		//VkQueue queue;
 		//uint32_t queue_family_index;
-
 
 		std::vector<VkImage> images;
 		std::vector<VkImageView> image_views;

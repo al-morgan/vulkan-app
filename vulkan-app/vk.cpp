@@ -33,7 +33,7 @@ static void check(VkResult result)
 	}
 }
 
-vk::command_pool::command_pool(vk::device& device, uint32_t queue_family_index) : device(device)
+vk::command_pool::command_pool(VkDevice device, uint32_t queue_family_index) : device(device)
 {
 	VkCommandPoolCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -48,7 +48,7 @@ vk::command_pool::~command_pool()
 	vkDestroyCommandPool(device, handle, nullptr);
 }
 
-vk::command_buffer::command_buffer(vk::device& device, vk::command_pool& command_pool) : device(device), command_pool(command_pool)
+vk::command_buffer::command_buffer(VkDevice device, vk::command_pool& command_pool) : device(device), command_pool(command_pool)
 {
 	VkCommandBufferAllocateInfo alloc_info{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -64,7 +64,7 @@ vk::command_buffer::~command_buffer()
 	vkFreeCommandBuffers(device, command_pool, 1, &handle);
 }
 
-vk::shader_module::shader_module(vk::device& device, std::string filename) : device(device)
+vk::shader_module::shader_module(VkDevice device, std::string filename) : device(device)
 {
 	std::vector<char> buffer;
 
@@ -82,7 +82,7 @@ vk::shader_module::~shader_module()
 	vkDestroyShaderModule(device, handle, nullptr);
 }
 
-vk::descriptor_pool::descriptor_pool(vk::device& device) : device(device)
+vk::descriptor_pool::descriptor_pool(VkDevice device) : device(device)
 {
 	VkDescriptorPoolSize types;
 	types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
@@ -102,7 +102,7 @@ vk::descriptor_pool::~descriptor_pool()
 	vkDestroyDescriptorPool(device, handle, nullptr);
 }
 
-vk::descriptor_set_layout::descriptor_set_layout(vk::device& device) : device(device)
+vk::descriptor_set_layout::descriptor_set_layout(VkDevice device) : device(device)
 {
 	VkDescriptorSetLayoutBinding binding{};
 	binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -121,7 +121,7 @@ vk::descriptor_set_layout::~descriptor_set_layout()
 	vkDestroyDescriptorSetLayout(device, handle, nullptr);
 }
 
-vk::descriptor_set::descriptor_set(vk::device& device, vk::descriptor_pool& pool, vk::descriptor_set_layout& layout) {
+vk::descriptor_set::descriptor_set(VkDevice device, vk::descriptor_pool& pool, vk::descriptor_set_layout& layout) {
 	VkDescriptorSetAllocateInfo alloc_info{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.descriptorPool = pool;
@@ -135,7 +135,7 @@ vk::descriptor_set::~descriptor_set() {
 	// Gets deallocated when pool is destroyed
 }
 
-vk::pipeline_layout::pipeline_layout(vk::device& device, vk::descriptor_set_layout& descriptor_set_layout) : device(device)
+vk::pipeline_layout::pipeline_layout(VkDevice device, vk::descriptor_set_layout& descriptor_set_layout) : device(device)
 {
 
 
@@ -158,8 +158,7 @@ vk::pipeline_layout::~pipeline_layout()
 	vkDestroyPipelineLayout(device, handle, nullptr);
 }
 
-
-vk::pipeline::pipeline(vk::device& device, vk::pipeline_layout &pipeline_layout, vk::shader_module& vertex_shader, vk::shader_module& fragment_shader, uint32_t width, uint32_t height) : device(device)
+vk::pipeline::pipeline(VkDevice device, vk::pipeline_layout &pipeline_layout, vk::shader_module& vertex_shader, vk::shader_module& fragment_shader, uint32_t width, uint32_t height) : device(device)
 {
 	VkPipelineShaderStageCreateInfo vertex_stage_create_info{};
 	vertex_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
