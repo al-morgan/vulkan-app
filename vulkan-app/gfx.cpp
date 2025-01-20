@@ -359,7 +359,6 @@ static double zoom = 1.0;
 			vkDestroyBuffer(context.device, vertex_buffer, nullptr);
 			vkFreeMemory(context.device, device_buffer_memory, nullptr);
 			vkFreeMemory(context.device, vertex_buffer_memory, nullptr);
-
 		}
 	}
 //}

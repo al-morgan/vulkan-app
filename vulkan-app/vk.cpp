@@ -137,8 +137,6 @@ vk::descriptor_set::~descriptor_set() {
 
 vk::pipeline_layout::pipeline_layout(VkDevice device, vk::descriptor_set_layout& descriptor_set_layout) : device(device)
 {
-
-
 	VkPushConstantRange range{};
 	range.size = 12;
 	range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;

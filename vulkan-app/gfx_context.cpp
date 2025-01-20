@@ -25,6 +25,27 @@ static void check(VkResult result)
 }
 
 /// <summary>
+/// Initialize the context
+/// </summary>
+/// <param name="window_handle"></param>
+/// <param name="width"></param>
+/// <param name="height"></param>
+gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
+{
+	create_instance();
+	create_surface(window_handle);
+	get_physical_device();
+	create_device();
+	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
+	create_swapchain(width, height);
+
+	VkSemaphoreCreateInfo semaphore_create_info{};
+	semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	check(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &get_next_framebuffer_semaphore));
+}
+
+/// <summary>
 /// Set up the Vulkan instance
 /// </summary>
 void gfx::context::create_instance()
@@ -36,10 +57,6 @@ void gfx::context::create_instance()
 	app_info.pEngineName = "Unknown Engine.";
 	app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	app_info.apiVersion = VK_API_VERSION_1_3;
-
-	//uint32_t glfw_extension_count;
-	//const char** glfw_extensions;
-	//glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
 	std::vector<const char*> enabled_extensions = { "VK_KHR_surface", "VK_KHR_win32_surface" };
 
@@ -216,31 +233,12 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 }
 
 /// <summary>
-/// Initialize the context
-/// </summary>
-/// <param name="window_handle"></param>
-/// <param name="width"></param>
-/// <param name="height"></param>
-gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
-{
-	create_instance();
-	create_surface(window_handle);
-	get_physical_device();
-	create_device();
-	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
-	create_swapchain(width, height);
-
-	VkSemaphoreCreateInfo semaphore_create_info{};
-	semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-	vkCreateSemaphore(device, &semaphore_create_info, nullptr, &get_next_framebuffer_semaphore);
-}
-
-/// <summary>
 /// Destroy the context
 /// </summary>
 gfx::context::~context()
 {
+	vkDeviceWaitIdle(device);
+
 	vkDestroySemaphore(device, get_next_framebuffer_semaphore, nullptr);
 
 	for (uint32_t i = 0; i < static_cast<uint32_t>(framebuffers.size()); i++)
@@ -254,6 +252,11 @@ gfx::context::~context()
 	vkDestroyInstance(instance, nullptr);
 }
 
+/// <summary>
+/// Gets the next framebuffer in the swapchain.
+/// Sets the get_next_framebuffer_semaphore semaphore.
+/// </summary>
+/// <returns></returns>
 gfx::framebuffer& gfx::context::get_next_framebuffer()
 {
 	uint32_t image_index;
