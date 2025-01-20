@@ -247,7 +247,7 @@ static double zoom = 1.0;
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			vkAcquireNextImageKHR(context.device, context.swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
+			vkAcquireNextImageKHR(context.device, context.swapchain.handle, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
 			
 			VkClearValue clear_value{};
 
@@ -259,7 +259,7 @@ static double zoom = 1.0;
 			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			color_attachment_info.clearValue = clear_value;
 			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			color_attachment_info.imageView = context.image_views[image_view_index];
+			color_attachment_info.imageView = context.swapchain.framebuffers[image_view_index].view;
 			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -280,7 +280,7 @@ static double zoom = 1.0;
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier1.image = context.images[image_view_index];
+			barrier1.image = context.swapchain.framebuffers[image_view_index].image;
 			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -310,7 +310,7 @@ static double zoom = 1.0;
 
 			VkImageMemoryBarrier barrier2{};
 			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier2.image = context.images[image_view_index];
+			barrier2.image = context.swapchain.framebuffers[image_view_index].image;
 			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -341,7 +341,7 @@ static double zoom = 1.0;
 
 			VkPresentInfoKHR present_info{};
 			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.pSwapchains = &context.swapchain;
+			present_info.pSwapchains = &context.swapchain.handle;
 			present_info.swapchainCount = 1;
 			present_info.pWaitSemaphores = &m_render_finished_semaphore;
 			present_info.waitSemaphoreCount = 1;

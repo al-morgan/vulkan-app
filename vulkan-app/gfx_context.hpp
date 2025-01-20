@@ -43,17 +43,19 @@ namespace gfx
 		VkSurfaceKHR surface;
 		VkPhysicalDevice physical_device;
 		VkDevice device;
-		VkSwapchainKHR swapchain;
+		//VkSwapchainKHR swapchain;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
 		gfx::queue present_queue;
+
+		gfx::swapchain swapchain;
 		
 		//VkQueue queue;
 		//uint32_t queue_family_index;
 
-		std::vector<VkImage> images;
-		std::vector<VkImageView> image_views;
+
+		//std::vector<VkImageView> image_views;
 		context(HWND window_handle, uint32_t width, uint32_t height);
 		context() = delete;
 		context(context&&) = delete;

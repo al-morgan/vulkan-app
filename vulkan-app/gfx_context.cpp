@@ -186,27 +186,30 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 	create_info.clipped = VK_TRUE;
 	create_info.oldSwapchain = VK_NULL_HANDLE;
 
-	vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
+	vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain.handle);
 
 	uint32_t swapchain_image_count;
-	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, nullptr);
+	std::vector<VkImage> images;
+	vkGetSwapchainImagesKHR(device, swapchain.handle, &swapchain_image_count, nullptr);
 	images.resize(swapchain_image_count);
-	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, images.data());
+	vkGetSwapchainImagesKHR(device, swapchain.handle, &swapchain_image_count, images.data());
 
-	image_views.resize(swapchain_image_count);
+	swapchain.framebuffers.resize(swapchain_image_count);
 
 	for (uint32_t i = 0; i < swapchain_image_count; i++)
 	{
+		swapchain.framebuffers[i].image = images[i];
+
 		VkImageViewCreateInfo image_view_create_info{};
 		image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		image_view_create_info.image = images[i];
+		image_view_create_info.image = swapchain.framebuffers[i].image;
 		image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
 		image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		image_view_create_info.subresourceRange.layerCount = 1;
 		image_view_create_info.subresourceRange.levelCount = 1;
 
-		vkCreateImageView(device, &image_view_create_info, nullptr, &image_views[i]);
+		vkCreateImageView(device, &image_view_create_info, nullptr, &swapchain.framebuffers[i].view);
 	}
 }
 
@@ -231,12 +234,12 @@ gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 /// </summary>
 gfx::context::~context()
 {
-	for (uint32_t i = 0; i < static_cast<uint32_t>(image_views.size()); i++)
+	for (uint32_t i = 0; i < static_cast<uint32_t>(swapchain.framebuffers.size()); i++)
 	{
-		vkDestroyImageView(device, image_views[i], nullptr);
+		vkDestroyImageView(device, swapchain.framebuffers[i].view, nullptr);
 	}
 
-	vkDestroySwapchainKHR(device, swapchain, nullptr);
+	vkDestroySwapchainKHR(device, swapchain.handle, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
