@@ -55,6 +55,8 @@ namespace gfx
 		~context();
 
 		gfx::framebuffer& get_next_framebuffer();
+		void begin_command_buffer(VkCommandBuffer command_buffer);
+		void begin_rendering(VkCommandBuffer command_buffer, VkImageView image_view);
 	private:
 		std::vector<framebuffer> framebuffers;
 		void create_instance();

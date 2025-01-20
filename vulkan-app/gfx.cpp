@@ -247,36 +247,9 @@ static double zoom = 1.0;
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			//vkAcquireNextImageKHR(context.device, context.swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
-
 			gfx::framebuffer &framebuffer = context.get_next_framebuffer();
 			
-			VkClearValue clear_value{};
-
-			VkRect2D render_area{};
-			render_area.extent.width = WIDTH;
-			render_area.extent.height = HEIGHT;
-
-			VkRenderingAttachmentInfo color_attachment_info{};
-			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			color_attachment_info.clearValue = clear_value;
-			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			color_attachment_info.imageView = framebuffer.view;
-			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-			VkRenderingInfo rendering_info{};
-			rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-			rendering_info.pColorAttachments = &color_attachment_info;
-			rendering_info.colorAttachmentCount = 1;
-			rendering_info.layerCount = 1;
-			rendering_info.renderArea = render_area;
-
-			VkCommandBufferBeginInfo begin_info{};
-			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			//begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-			vkBeginCommandBuffer(command_buffer, &begin_info);
+			context.begin_command_buffer(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
@@ -302,7 +275,9 @@ static double zoom = 1.0;
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
-			vkCmdBeginRendering(command_buffer, &rendering_info);
+			
+			context.begin_rendering(command_buffer, framebuffer.view);
+			
 			vkCmdDraw(command_buffer, 6, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			

@@ -462,3 +462,37 @@ void gfx::context::create_descriptor_set_layout()
 	layout_create_info.pBindings = &binding;
 	check(vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &descriptor_set_layout));
 }
+
+void gfx::context::begin_command_buffer(VkCommandBuffer command_buffer)
+{
+	VkCommandBufferBeginInfo begin_info{};
+	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	vkBeginCommandBuffer(command_buffer, &begin_info);
+}
+
+void gfx::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView image_view)
+{
+	VkClearValue clear_value{};
+
+	VkRect2D render_area{};
+	render_area.extent.width = 800;
+	render_area.extent.height = 800;
+
+	VkRenderingAttachmentInfo color_attachment_info{};
+	color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+	color_attachment_info.clearValue = clear_value;
+	color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+	color_attachment_info.imageView = image_view;
+	color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+	VkRenderingInfo rendering_info{};
+	rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+	rendering_info.pColorAttachments = &color_attachment_info;
+	rendering_info.colorAttachmentCount = 1;
+	rendering_info.layerCount = 1;
+	rendering_info.renderArea = render_area;
+
+	vkCmdBeginRendering(command_buffer, &rendering_info);
+}
+
