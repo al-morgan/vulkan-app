@@ -244,3 +244,10 @@ gfx::context::~context()
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
 }
+
+gfx::framebuffer& gfx::context::get_next_framebuffer()
+{
+	uint32_t image_index;
+	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, image_available_semaphore, nullptr, &image_index);
+	return framebuffers[image_index];
+}

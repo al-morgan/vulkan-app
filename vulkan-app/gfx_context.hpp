@@ -29,7 +29,6 @@ namespace gfx
 	/// </summary>
 	class context
 	{
-	private:
 	public:
 		std::vector<framebuffer> framebuffers;
 		VkInstance	instance;
@@ -37,20 +36,19 @@ namespace gfx
 		VkPhysicalDevice physical_device;
 		VkDevice device;
 		VkSwapchainKHR swapchain;
+		VkSemaphore image_available_semaphore;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
 		gfx::queue present_queue;
 
-		//VkQueue queue;
-		//uint32_t queue_family_index;
 
-
-		//std::vector<VkImageView> image_views;
 		context(HWND window_handle, uint32_t width, uint32_t height);
 		context() = delete;
 		context(context&&) = delete;
 		~context();
+
+		gfx::framebuffer& get_next_framebuffer();
 	private:
 		void create_instance();
 		void get_physical_device();
