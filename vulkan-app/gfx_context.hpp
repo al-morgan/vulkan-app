@@ -40,6 +40,10 @@ namespace gfx
 		VkDescriptorPool descriptor_pool;
 		VkDescriptorSetLayout descriptor_set_layout;
 		VkDescriptorSet descriptor_set;
+		VkPipelineLayout pipeline_layout;
+		VkPipeline pipeline;
+		VkShaderModule vertex_shader;
+		VkShaderModule fragment_shader;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
@@ -61,6 +65,10 @@ namespace gfx
 		void create_swapchain(uint32_t width, uint32_t height);
 		void create_descriptor_set_layout();
 		void create_descriptor_set();
+		void create_pipeline_layout();
+		void create_fragment_shader();
+		void create_vertex_shader();
+		void create_pipeline();
 	};
 }
 

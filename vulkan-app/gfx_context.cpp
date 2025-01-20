@@ -1,4 +1,5 @@
 #include <iostream>
+#include <array>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 
@@ -41,6 +42,10 @@ gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	create_descriptor_pool();
 	create_descriptor_set_layout();
 	create_descriptor_set();
+	create_fragment_shader();
+	create_vertex_shader();
+	create_pipeline_layout();
+	create_pipeline();
 
 	VkSemaphoreCreateInfo semaphore_create_info{};
 	semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -261,6 +266,149 @@ void gfx::context::create_descriptor_set()
 	check(vkAllocateDescriptorSets(device, &alloc_info, &descriptor_set));
 }
 
+void gfx::context::create_pipeline_layout()
+{
+	VkPushConstantRange range{};
+	range.size = 12;
+	range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	//VkPipelineLayout pipeline_layout;
+	VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
+	pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	//pipeline_layout_create_info.pPushConstantRanges = &range;
+	//pipeline_layout_create_info.pushConstantRangeCount = 1;
+	pipeline_layout_create_info.pSetLayouts = &descriptor_set_layout;
+	pipeline_layout_create_info.setLayoutCount = 1;
+	check(vkCreatePipelineLayout(device, &pipeline_layout_create_info, nullptr, &pipeline_layout));
+}
+
+void gfx::context::create_fragment_shader()
+{
+	std::vector<char> buffer;
+
+	VkShaderModuleCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+
+	buffer = app::read_file("./shaders/fragment/simple.spv");
+	create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
+	create_info.codeSize = buffer.size();
+	vkCreateShaderModule(device, &create_info, nullptr, &fragment_shader);
+
+}
+
+void gfx::context::create_vertex_shader()
+{
+	std::vector<char> buffer;
+
+	VkShaderModuleCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+
+	buffer = app::read_file("./shaders/vertex/simple.spv");
+	create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
+	create_info.codeSize = buffer.size();
+	vkCreateShaderModule(device, &create_info, nullptr, &vertex_shader);
+
+}
+
+void gfx::context::create_pipeline()
+{
+	VkPipelineShaderStageCreateInfo vertex_stage_create_info{};
+	vertex_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertex_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vertex_stage_create_info.pName = "main";
+	vertex_stage_create_info.module = vertex_shader;
+
+	VkPipelineShaderStageCreateInfo fragment_stage_create_info{};
+	fragment_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragment_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragment_stage_create_info.pName = "main";
+	fragment_stage_create_info.module = fragment_shader;
+
+	std::array<VkPipelineShaderStageCreateInfo, 2> stages = { vertex_stage_create_info, fragment_stage_create_info };
+
+	VkVertexInputAttributeDescription vertex_input_attribute_description{};
+	vertex_input_attribute_description.binding = 0;
+	vertex_input_attribute_description.location = 0;
+	vertex_input_attribute_description.format = VK_FORMAT_R32G32_SFLOAT;
+	vertex_input_attribute_description.offset = 0;
+
+	VkVertexInputBindingDescription vertex_input_binding_description{};
+	vertex_input_binding_description.binding = 0;
+	vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	vertex_input_binding_description.stride = sizeof(vk::Vertex);
+
+	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
+	vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertex_input_state_create_info.pVertexAttributeDescriptions = &vertex_input_attribute_description;
+	vertex_input_state_create_info.vertexAttributeDescriptionCount = 1;
+	vertex_input_state_create_info.pVertexBindingDescriptions = &vertex_input_binding_description;
+	vertex_input_state_create_info.vertexBindingDescriptionCount = 1;
+
+	VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
+	input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	input_assembly_state.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+	VkPipelineMultisampleStateCreateInfo multisample_state{};
+	multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	VkPipelineRasterizationStateCreateInfo rasterization_state{};
+	rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterization_state.lineWidth = 1.0f;
+
+	VkViewport viewport{};
+	viewport.width = static_cast<float>(800);
+	viewport.height = static_cast<float>(800);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	VkRect2D scissor{};
+	scissor.extent.width = 800;
+	scissor.extent.height = 800;
+
+	VkPipelineViewportStateCreateInfo viewport_state{};
+	viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewport_state.pViewports = &viewport;
+	viewport_state.viewportCount = 1;
+	viewport_state.pScissors = &scissor;
+	viewport_state.scissorCount = 1;
+
+	VkPipelineColorBlendAttachmentState color_blend_attachment_state{};
+	color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	//color_blend_attachment_state.blendEnable = 
+	//color_blend_attachment_state.alphaBlendOp = 
+
+	VkPipelineColorBlendStateCreateInfo color_blend_state{};
+	color_blend_state.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	color_blend_state.attachmentCount = 1;
+	color_blend_state.pAttachments = &color_blend_attachment_state;
+	color_blend_state.logicOp = VK_LOGIC_OP_SET;
+	//color_blend_state.blendConstants
+
+	VkGraphicsPipelineCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	create_info.stageCount = 2;
+	create_info.pStages = stages.data();
+	create_info.layout = pipeline_layout;
+	create_info.pVertexInputState = &vertex_input_state_create_info;
+	create_info.pInputAssemblyState = &input_assembly_state;
+	create_info.pMultisampleState = &multisample_state;
+	create_info.pRasterizationState = &rasterization_state;
+	create_info.pViewportState = &viewport_state;
+	create_info.pColorBlendState = &color_blend_state;
+	//create_info.layout
+
+	// Tutorial says I need this but it works without it?
+	VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
+	VkPipelineRenderingCreateInfo pipeline_rendering_create_info{};
+	pipeline_rendering_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+	pipeline_rendering_create_info.colorAttachmentCount = 1;
+	pipeline_rendering_create_info.pColorAttachmentFormats = &format;
+	create_info.pNext = &pipeline_rendering_create_info;
+
+	vkCreateGraphicsPipelines(device, nullptr, 1, &create_info, nullptr, &pipeline);
+}
+ 
 
 /// <summary>
 /// Destroy the context
@@ -268,6 +416,11 @@ void gfx::context::create_descriptor_set()
 gfx::context::~context()
 {
 	vkDeviceWaitIdle(device);
+
+	vkDestroyPipeline(device, pipeline, nullptr);
+	vkDestroyPipelineLayout(device, pipeline_layout, nullptr);
+	vkDestroyShaderModule(device, fragment_shader, nullptr);
+	vkDestroyShaderModule(device, vertex_shader, nullptr);
 
 	vkDestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
 	vkDestroyDescriptorPool(device, descriptor_pool, nullptr);

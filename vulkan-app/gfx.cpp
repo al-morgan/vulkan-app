@@ -140,7 +140,7 @@ static double zoom = 1.0;
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
-	void app::engine::update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline)
+	void app::engine::update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer)
 	{
 		std::srand(std::time(nullptr));
 
@@ -278,7 +278,7 @@ static double zoom = 1.0;
 
 			vkBeginCommandBuffer(command_buffer, &begin_info);
 
-			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
+			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -294,7 +294,7 @@ static double zoom = 1.0;
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
 
 
-			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
 			VkDeviceSize offset = 0;
 			vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer, &offset);
