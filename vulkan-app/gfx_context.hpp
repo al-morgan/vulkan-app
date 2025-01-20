@@ -11,46 +11,37 @@ namespace gfx
 	/// <summary>
 	/// A device queue.
 	/// </summary>
-	class queue
+	struct queue
 	{
 	public:
 		VkQueue handle;
 		uint32_t family_index;
 	};
 
-
-	class framebuffer
+	struct framebuffer
 	{
-	public:
 		VkImage image;
 		VkImageView view;
 	};
 
-	class swapchain
-	{
-	public:
-		VkSwapchainKHR handle;
-		std::vector<framebuffer> framebuffers;
-	};
-	
 	/// <summary>
 	/// Holds everything that gets set up once per application.
 	/// </summary>
 	class context
 	{
+	private:
 	public:
+		std::vector<framebuffer> framebuffers;
 		VkInstance	instance;
 		VkSurfaceKHR surface;
 		VkPhysicalDevice physical_device;
 		VkDevice device;
-		//VkSwapchainKHR swapchain;
+		VkSwapchainKHR swapchain;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
 		gfx::queue present_queue;
 
-		gfx::swapchain swapchain;
-		
 		//VkQueue queue;
 		//uint32_t queue_family_index;
 
