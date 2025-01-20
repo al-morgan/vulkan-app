@@ -17,12 +17,12 @@ int main()
 {
 	app::window window;
 	gfx::context context(window.handle, WIDTH, HEIGHT);
-	
+
 	// This stuff could be moved into context
-	vk::descriptor_pool descriptor_pool(context.device);
-	vk::descriptor_set_layout layout(context.device);
-	vk::descriptor_set descriptor_set(context.device, descriptor_pool, layout);
-	vk::pipeline_layout pipeline_layout(context.device, layout);
+	//vk::descriptor_pool descriptor_pool(context.device);
+	//vk::descriptor_set_layout layout(context.device);
+	//vk::descriptor_set descriptor_set(context.device, context.descriptor_pool, layout);
+	vk::pipeline_layout pipeline_layout(context.device, context.descriptor_set_layout);
 	vk::shader_module fragment_shader_module(context.device, "./shaders/fragment/simple.spv");
 	vk::shader_module vertex_shader_module(context.device, "./shaders/vertex/simple.spv");
 	vk::pipeline pipeline(context.device, pipeline_layout, vertex_shader_module, fragment_shader_module, WIDTH, HEIGHT);
@@ -36,7 +36,7 @@ int main()
 
     try
     {
-		gfx.update(context, window, command_buffer, descriptor_set, pipeline_layout, pipeline);
+		gfx.update(context, window, command_buffer, pipeline_layout, pipeline);
     }
     catch (const std::exception& e)
     {

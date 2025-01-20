@@ -32,6 +32,6 @@ namespace app
 	public:
 		engine(gfx::context& context);
 		~engine();
-		void update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline);
+		void update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline);
 	};
 }

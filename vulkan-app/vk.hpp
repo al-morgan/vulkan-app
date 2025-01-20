@@ -76,7 +76,7 @@ namespace vk
 	private:
 		VkDescriptorSet handle;
 	public:
-		descriptor_set(VkDevice device, vk::descriptor_pool& pool, vk::descriptor_set_layout& layout);
+		descriptor_set(VkDevice device, VkDescriptorPool descriptor_pool, vk::descriptor_set_layout& layout);
 		descriptor_set() = delete;
 		~descriptor_set();
 		operator VkDescriptorSet() const { return handle; }
@@ -89,7 +89,7 @@ namespace vk
 		VkPipelineLayout handle;
 		VkDevice device;
 	public:
-		pipeline_layout(VkDevice device, vk::descriptor_set_layout& descriptor_set_layout);
+		pipeline_layout(VkDevice device, VkDescriptorSetLayout descriptor_set_layout);
 		pipeline_layout() = delete;
 		~pipeline_layout();
 		operator VkPipelineLayout() const { return handle; }

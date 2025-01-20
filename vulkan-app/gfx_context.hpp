@@ -37,6 +37,9 @@ namespace gfx
 		VkDevice device;
 		VkSwapchainKHR swapchain;
 		VkSemaphore get_next_framebuffer_semaphore;
+		VkDescriptorPool descriptor_pool;
+		VkDescriptorSetLayout descriptor_set_layout;
+		VkDescriptorSet descriptor_set;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
@@ -54,7 +57,10 @@ namespace gfx
 		void get_physical_device();
 		void create_surface(HWND window_handle);
 		void create_device();
+		void create_descriptor_pool();
 		void create_swapchain(uint32_t width, uint32_t height);
+		void create_descriptor_set_layout();
+		void create_descriptor_set();
 	};
 }
 

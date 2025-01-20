@@ -140,7 +140,7 @@ static double zoom = 1.0;
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
-	void app::engine::update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::descriptor_set& descriptor_set, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline)
+	void app::engine::update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer, vk::pipeline_layout& pipeline_layout, vk::pipeline& pipeline)
 	{
 		std::srand(std::time(nullptr));
 
@@ -238,7 +238,7 @@ static double zoom = 1.0;
 
 			VkWriteDescriptorSet write_descriptor_set{};
 			write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			write_descriptor_set.dstSet = descriptor_set;
+			write_descriptor_set.dstSet = context.descriptor_set;
 			write_descriptor_set.dstBinding = 0;
 			write_descriptor_set.descriptorCount = 1;
 			write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -278,7 +278,7 @@ static double zoom = 1.0;
 
 			vkBeginCommandBuffer(command_buffer, &begin_info);
 
-			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, descriptor_set, 0, nullptr);
+			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

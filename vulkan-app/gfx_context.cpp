@@ -38,6 +38,9 @@ gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	create_device();
 	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
 	create_swapchain(width, height);
+	create_descriptor_pool();
+	create_descriptor_set_layout();
+	create_descriptor_set();
 
 	VkSemaphoreCreateInfo semaphore_create_info{};
 	semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -232,6 +235,33 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 	}
 }
 
+void gfx::context::create_descriptor_pool()
+{
+	VkDescriptorPoolSize types;
+	types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+	types.descriptorCount = 1;
+
+	VkDescriptorPoolCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	create_info.poolSizeCount = 0;
+	create_info.pPoolSizes = &types;
+	create_info.maxSets = 10; // TODO real value here.
+
+	vkCreateDescriptorPool(device, &create_info, nullptr, &descriptor_pool);
+}
+
+void gfx::context::create_descriptor_set()
+{
+	VkDescriptorSetAllocateInfo alloc_info{};
+	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	alloc_info.descriptorPool = descriptor_pool;
+	alloc_info.descriptorSetCount = 1;
+	alloc_info.pSetLayouts = &descriptor_set_layout;
+
+	check(vkAllocateDescriptorSets(device, &alloc_info, &descriptor_set));
+}
+
+
 /// <summary>
 /// Destroy the context
 /// </summary>
@@ -239,6 +269,8 @@ gfx::context::~context()
 {
 	vkDeviceWaitIdle(device);
 
+	vkDestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
+	vkDestroyDescriptorPool(device, descriptor_pool, nullptr);
 	vkDestroySemaphore(device, get_next_framebuffer_semaphore, nullptr);
 
 	for (uint32_t i = 0; i < static_cast<uint32_t>(framebuffers.size()); i++)
@@ -262,4 +294,18 @@ gfx::framebuffer& gfx::context::get_next_framebuffer()
 	uint32_t image_index;
 	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, get_next_framebuffer_semaphore, nullptr, &image_index);
 	return framebuffers[image_index];
+}
+
+void gfx::context::create_descriptor_set_layout()
+{
+	VkDescriptorSetLayoutBinding binding{};
+	binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	binding.descriptorCount = 1;
+
+	VkDescriptorSetLayoutCreateInfo layout_create_info{};
+	layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layout_create_info.bindingCount = 1;
+	layout_create_info.pBindings = &binding;
+	check(vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &descriptor_set_layout));
 }

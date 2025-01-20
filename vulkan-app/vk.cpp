@@ -121,7 +121,7 @@ vk::descriptor_set_layout::~descriptor_set_layout()
 	vkDestroyDescriptorSetLayout(device, handle, nullptr);
 }
 
-vk::descriptor_set::descriptor_set(VkDevice device, vk::descriptor_pool& pool, vk::descriptor_set_layout& layout) {
+vk::descriptor_set::descriptor_set(VkDevice device, VkDescriptorPool pool, vk::descriptor_set_layout& layout) {
 	VkDescriptorSetAllocateInfo alloc_info{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.descriptorPool = pool;
@@ -135,7 +135,7 @@ vk::descriptor_set::~descriptor_set() {
 	// Gets deallocated when pool is destroyed
 }
 
-vk::pipeline_layout::pipeline_layout(VkDevice device, vk::descriptor_set_layout& descriptor_set_layout) : device(device)
+vk::pipeline_layout::pipeline_layout(VkDevice device, VkDescriptorSetLayout descriptor_set_layout) : device(device)
 {
 	VkPushConstantRange range{};
 	range.size = 12;
@@ -146,7 +146,7 @@ vk::pipeline_layout::pipeline_layout(VkDevice device, vk::descriptor_set_layout&
 	pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	//pipeline_layout_create_info.pPushConstantRanges = &range;
 	//pipeline_layout_create_info.pushConstantRangeCount = 1;
-	pipeline_layout_create_info.pSetLayouts = descriptor_set_layout;
+	pipeline_layout_create_info.pSetLayouts = &descriptor_set_layout;
 	pipeline_layout_create_info.setLayoutCount = 1;
 	check(vkCreatePipelineLayout(device, &pipeline_layout_create_info, nullptr, &handle));
 }
