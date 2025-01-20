@@ -198,6 +198,8 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 
 	for (uint32_t i = 0; i < swapchain_image_count; i++)
 	{
+		framebuffers[i].index = i;
+		
 		framebuffers[i].image = images[i];
 
 		VkImageViewCreateInfo image_view_create_info{};
@@ -227,6 +229,11 @@ gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	create_device();
 	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
 	create_swapchain(width, height);
+
+	VkSemaphoreCreateInfo semaphore_create_info{};
+	semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	vkCreateSemaphore(device, &semaphore_create_info, nullptr, &get_next_framebuffer_semaphore);
 }
 
 /// <summary>
@@ -234,6 +241,8 @@ gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 /// </summary>
 gfx::context::~context()
 {
+	vkDestroySemaphore(device, get_next_framebuffer_semaphore, nullptr);
+
 	for (uint32_t i = 0; i < static_cast<uint32_t>(framebuffers.size()); i++)
 	{
 		vkDestroyImageView(device, framebuffers[i].view, nullptr);
@@ -248,6 +257,6 @@ gfx::context::~context()
 gfx::framebuffer& gfx::context::get_next_framebuffer()
 {
 	uint32_t image_index;
-	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, image_available_semaphore, nullptr, &image_index);
+	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, get_next_framebuffer_semaphore, nullptr, &image_index);
 	return framebuffers[image_index];
 }

@@ -128,7 +128,7 @@ static double zoom = 1.0;
 		VkSemaphoreCreateInfo semaphore_create_info{};
 		semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
+		//vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
 		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
 
 	app::engine::~engine()
@@ -136,7 +136,7 @@ static double zoom = 1.0;
 		vkDeviceWaitIdle(context.device);
 
 		vkDestroySemaphore(context.device, m_render_finished_semaphore, nullptr);
-		vkDestroySemaphore(context.device, m_image_available_semaphore, nullptr);
+		//vkDestroySemaphore(context.device, m_image_available_semaphore, nullptr);
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
@@ -146,7 +146,7 @@ static double zoom = 1.0;
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
-			uint32_t image_view_index = 0; // TODO GET THE INDEX
+			//uint32_t image_view_index = 0; // TODO GET THE INDEX
 			constexpr uint32_t buffer_size = 128 * 4;
 
 			#define MIN -1.0
@@ -247,7 +247,9 @@ static double zoom = 1.0;
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			vkAcquireNextImageKHR(context.device, context.swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
+			//vkAcquireNextImageKHR(context.device, context.swapchain, UINT64_MAX, m_image_available_semaphore, nullptr, &image_view_index);
+
+			gfx::framebuffer &framebuffer = context.get_next_framebuffer();
 			
 			VkClearValue clear_value{};
 
@@ -259,7 +261,7 @@ static double zoom = 1.0;
 			color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			color_attachment_info.clearValue = clear_value;
 			color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			color_attachment_info.imageView = context.framebuffers[image_view_index].view;
+			color_attachment_info.imageView = framebuffer.view;
 			color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -280,7 +282,7 @@ static double zoom = 1.0;
 
 			VkImageMemoryBarrier barrier1{};
 			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier1.image = context.framebuffers[image_view_index].image;
+			barrier1.image = framebuffer.image;
 			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -310,7 +312,7 @@ static double zoom = 1.0;
 
 			VkImageMemoryBarrier barrier2{};
 			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier2.image = context.framebuffers[image_view_index].image;
+			barrier2.image = framebuffer.image;
 			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -329,7 +331,7 @@ static double zoom = 1.0;
 			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			submit_info.commandBufferCount = 1;
 			submit_info.pCommandBuffers = command_buffer;
-			submit_info.pWaitSemaphores = &m_image_available_semaphore;
+			submit_info.pWaitSemaphores = &context.get_next_framebuffer_semaphore;
 			submit_info.waitSemaphoreCount = 1;
 			submit_info.pWaitDstStageMask = &wait_stage;
 			submit_info.pSignalSemaphores = &m_render_finished_semaphore;
@@ -345,7 +347,7 @@ static double zoom = 1.0;
 			present_info.swapchainCount = 1;
 			present_info.pWaitSemaphores = &m_render_finished_semaphore;
 			present_info.waitSemaphoreCount = 1;
-			present_info.pImageIndices = &image_view_index;
+			present_info.pImageIndices = &framebuffer.index;
 
 			vkQueuePresentKHR(context.graphics_queue.handle, &present_info);
 

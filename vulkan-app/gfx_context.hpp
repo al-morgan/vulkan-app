@@ -22,6 +22,7 @@ namespace gfx
 	{
 		VkImage image;
 		VkImageView view;
+		uint32_t index;
 	};
 
 	/// <summary>
@@ -30,18 +31,16 @@ namespace gfx
 	class context
 	{
 	public:
-		std::vector<framebuffer> framebuffers;
-		VkInstance	instance;
+		VkInstance instance;
 		VkSurfaceKHR surface;
 		VkPhysicalDevice physical_device;
 		VkDevice device;
 		VkSwapchainKHR swapchain;
-		VkSemaphore image_available_semaphore;
+		VkSemaphore get_next_framebuffer_semaphore;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
 		gfx::queue present_queue;
-
 
 		context(HWND window_handle, uint32_t width, uint32_t height);
 		context() = delete;
@@ -50,6 +49,7 @@ namespace gfx
 
 		gfx::framebuffer& get_next_framebuffer();
 	private:
+		std::vector<framebuffer> framebuffers;
 		void create_instance();
 		void get_physical_device();
 		void create_surface(HWND window_handle);
