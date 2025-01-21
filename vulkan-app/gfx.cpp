@@ -247,8 +247,7 @@ static double zoom = 1.0;
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			gfx::framebuffer &framebuffer = context.get_next_framebuffer();
-			
+			gfx::framebuffer &framebuffer = context.get_next_framebuffer();			
 			context.begin_command_buffer(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
@@ -266,7 +265,6 @@ static double zoom = 1.0;
 			barrier1.subresourceRange.levelCount = 1;
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
 
-
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
 			VkDeviceSize offset = 0;
@@ -277,7 +275,6 @@ static double zoom = 1.0;
 			
 			
 			context.begin_rendering(command_buffer, framebuffer.view);
-			
 			vkCmdDraw(command_buffer, 6, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
