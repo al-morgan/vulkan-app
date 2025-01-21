@@ -290,17 +290,12 @@ static double zoom = 1.0;
 
 			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 			
-			VkSubmitInfo submit_info{};
-			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submit_info.commandBufferCount = 1;
-			submit_info.pCommandBuffers = command_buffer;
-			submit_info.pWaitSemaphores = &context.get_next_framebuffer_semaphore;
-			submit_info.waitSemaphoreCount = 1;
-			submit_info.pWaitDstStageMask = &wait_stage;
-			submit_info.pSignalSemaphores = &m_render_finished_semaphore;
-			submit_info.signalSemaphoreCount = 1;
-
-			vkQueueSubmit(context.graphics_queue.handle, 1, &submit_info, m_in_flight_fence);
+			context.submit(
+				command_buffer,
+				context.get_next_framebuffer_semaphore,
+				wait_stage,
+				m_render_finished_semaphore,
+				m_in_flight_fence);
 
 			context.present(command_buffer, m_render_finished_semaphore, framebuffer.index);
 

@@ -532,3 +532,18 @@ void gfx::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_sema
 	present_info.pImageIndices = &image_index;
 	vkQueuePresentKHR(graphics_queue.handle, &present_info);
 }
+
+
+void gfx::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
+{
+	VkSubmitInfo submit_info{};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &command_buffer;
+	submit_info.pWaitSemaphores = &wait_semaphore;
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitDstStageMask = &wait_stage;
+	submit_info.pSignalSemaphores = &signal_semaphore;
+	submit_info.signalSemaphoreCount = 1;
+	vkQueueSubmit(graphics_queue.handle, 1, &submit_info, fence);
+}
