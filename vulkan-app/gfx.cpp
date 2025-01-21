@@ -252,18 +252,16 @@ static double zoom = 1.0;
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
-			VkImageMemoryBarrier barrier1{};
-			barrier1.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier1.image = framebuffer.image;
-			barrier1.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			barrier1.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			barrier1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-			barrier1.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			barrier1.subresourceRange.baseArrayLayer = 0;
-			barrier1.subresourceRange.baseMipLevel = 0;
-			barrier1.subresourceRange.layerCount = 1;
-			barrier1.subresourceRange.levelCount = 1;
-			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier1);
+			context.transition_image(
+				command_buffer,
+				framebuffer.image,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+				VK_ACCESS_NONE,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+				VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			);
 
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
@@ -273,27 +271,20 @@ static double zoom = 1.0;
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
-			
 			context.begin_rendering(command_buffer, framebuffer.view);
 			vkCmdDraw(command_buffer, 6, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
-			//VkSemaphoreWaitInfo 
-
-			//VkSemaphoreWait()
-
-			VkImageMemoryBarrier barrier2{};
-			barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier2.image = framebuffer.image;
-			barrier2.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			barrier2.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-			barrier2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-			barrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			barrier2.subresourceRange.baseArrayLayer = 0;
-			barrier2.subresourceRange.baseMipLevel = 0;
-			barrier2.subresourceRange.layerCount = 1;
-			barrier2.subresourceRange.levelCount = 1;
-			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier2);
+			context.transition_image(
+				command_buffer,
+				framebuffer.image,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+				VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+				VK_ACCESS_NONE,
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+			);
 
 			vkEndCommandBuffer(command_buffer);
 

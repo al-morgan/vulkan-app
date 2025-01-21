@@ -496,3 +496,28 @@ void gfx::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView i
 	vkCmdBeginRendering(command_buffer, &rendering_info);
 }
 
+void gfx::context::transition_image(VkCommandBuffer command_buffer,
+	                                VkImage image,
+	                                VkShaderStageFlags source_stage,
+	                                VkAccessFlags source_access_mask,
+	                                VkShaderStageFlags desintation_stage,
+	                                VkAccessFlags destination_access_mask,
+	                                VkImageLayout old_layout,
+	                                VkImageLayout new_layout)
+{
+	VkImageMemoryBarrier barrier{};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.image = image;
+	barrier.oldLayout = old_layout;
+	barrier.newLayout = new_layout;
+	barrier.srcAccessMask = source_access_mask;
+	barrier.dstAccessMask = destination_access_mask;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.subresourceRange.levelCount = 1;
+	vkCmdPipelineBarrier(command_buffer, source_stage, desintation_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+}
+

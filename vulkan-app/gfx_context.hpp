@@ -57,6 +57,7 @@ namespace gfx
 		gfx::framebuffer& get_next_framebuffer();
 		void begin_command_buffer(VkCommandBuffer command_buffer);
 		void begin_rendering(VkCommandBuffer command_buffer, VkImageView image_view);
+		void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout);
 	private:
 		std::vector<framebuffer> framebuffers;
 		void create_instance();
