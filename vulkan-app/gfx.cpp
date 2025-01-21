@@ -300,19 +300,9 @@ static double zoom = 1.0;
 			submit_info.pSignalSemaphores = &m_render_finished_semaphore;
 			submit_info.signalSemaphoreCount = 1;
 
-			//submit_info.
-			
 			vkQueueSubmit(context.graphics_queue.handle, 1, &submit_info, m_in_flight_fence);
 
-			VkPresentInfoKHR present_info{};
-			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.pSwapchains = &context.swapchain;
-			present_info.swapchainCount = 1;
-			present_info.pWaitSemaphores = &m_render_finished_semaphore;
-			present_info.waitSemaphoreCount = 1;
-			present_info.pImageIndices = &framebuffer.index;
-
-			vkQueuePresentKHR(context.graphics_queue.handle, &present_info);
+			context.present(command_buffer, m_render_finished_semaphore, framebuffer.index);
 
 			// NO NO NO
 			vkDeviceWaitIdle(context.device);
