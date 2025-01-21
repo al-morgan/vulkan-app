@@ -111,6 +111,32 @@ void gfx::context::get_physical_device()
 
 	// I only have one physical device right now so I'm going to cheat
 	physical_device = physical_devices[0];
+
+	VkPhysicalDeviceMemoryProperties memory_properties{};
+	vkGetPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
+
+	constexpr VkMemoryPropertyFlags device_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+	constexpr VkMemoryPropertyFlags host_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+	uint32_t found = 0;
+	
+	for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++)
+	{
+		if (memory_properties.memoryTypes[i].propertyFlags == device_flags)
+		{
+			memory_type_device_local = i;
+			found++;
+		}
+		else if (memory_properties.memoryTypes[i].propertyFlags == host_flags)
+		{
+			memory_type_host_coherent = i;
+			found++;
+		}
+	}
+
+	if (found != 2)
+	{
+		throw std::runtime_error("Could not find memory types!");
+	}
 }
 
 /// <summary>

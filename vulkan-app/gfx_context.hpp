@@ -44,6 +44,9 @@ namespace gfx
 		VkPipeline pipeline;
 		VkShaderModule vertex_shader;
 		VkShaderModule fragment_shader;
+
+		uint32_t memory_type_device_local;
+		uint32_t memory_type_host_coherent;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
