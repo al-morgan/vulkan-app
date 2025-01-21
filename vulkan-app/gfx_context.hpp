@@ -47,6 +47,8 @@ namespace gfx
 
 		uint32_t memory_type_device_local;
 		uint32_t memory_type_host_coherent;
+
+		std::vector<VkDeviceMemory> allocated_device_memory;
 		
 		gfx::queue transfer_queue;
 		gfx::queue graphics_queue;
@@ -63,6 +65,7 @@ namespace gfx
 		void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout);
 		void present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, uint32_t image_index);
 		void submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence);
+		void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 	private:
 		std::vector<framebuffer> framebuffers;
 		void create_instance();

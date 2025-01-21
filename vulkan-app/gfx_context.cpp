@@ -443,6 +443,11 @@ gfx::context::~context()
 {
 	vkDeviceWaitIdle(device);
 
+	for (auto device_memory : allocated_device_memory)
+	{
+		vkFreeMemory(device, device_memory, nullptr);
+	}
+
 	vkDestroyPipeline(device, pipeline, nullptr);
 	vkDestroyPipelineLayout(device, pipeline_layout, nullptr);
 	vkDestroyShaderModule(device, fragment_shader, nullptr);
@@ -572,4 +577,31 @@ void gfx::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semap
 	submit_info.pSignalSemaphores = &signal_semaphore;
 	submit_info.signalSemaphoreCount = 1;
 	vkQueueSubmit(graphics_queue.handle, 1, &submit_info, fence);
+}
+
+
+void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
+{
+	VkDeviceMemory device_memory;
+
+	VkMemoryAllocateInfo memory_allocate_info{};
+	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memory_allocate_info.allocationSize = buffer_size;
+	memory_allocate_info.memoryTypeIndex = memory_type_host_coherent;
+	check(vkAllocateMemory(device, &memory_allocate_info, nullptr, &device_memory));
+
+	VkBindBufferMemoryInfo bind_buffer_memory_info{};
+	bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+	bind_buffer_memory_info.memory = device_memory;
+	bind_buffer_memory_info.buffer = buffer;
+	check(vkBindBufferMemory(device, buffer, device_memory, 0));
+
+	void* mem;
+	check(vkMapMemory(device, device_memory, 0, buffer_size, 0, &mem));
+	memcpy(mem, source, buffer_size);
+	vkUnmapMemory(device, device_memory);
+
+	allocated_device_memory.push_back(device_memory);
+
+	// TODO: free memory at end of app.
 }

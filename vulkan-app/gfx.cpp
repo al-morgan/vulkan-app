@@ -144,31 +144,39 @@ static double zoom = 1.0;
 	{
 		std::srand(std::time(nullptr));
 
+		#define MIN -1.0
+		#define MAX 1.0
+
+		vk::Vertex positions[6] =
+		{
+			glm::vec2(MIN, MIN),
+			glm::vec2(MAX, MIN),
+			glm::vec2(MIN, MAX),
+			glm::vec2(MAX, MIN),
+			glm::vec2(MAX, MAX),
+			glm::vec2(MIN, MAX)
+		};
+
+		VkBuffer vertex_buffer;
+		VkBufferCreateInfo buffer_create_info{};
+		buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		buffer_create_info.size = sizeof(positions);
+		buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		buffer_create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		vk_check(vkCreateBuffer(context.device, &buffer_create_info, nullptr, &vertex_buffer));
+
+		context.upload_buffer(vertex_buffer, positions, sizeof(positions));
+
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
 			//uint32_t image_view_index = 0; // TODO GET THE INDEX
 			constexpr uint32_t buffer_size = 128 * 4;
 
-			#define MIN -1.0
-			#define MAX 1.0
-
-			vk::Vertex positions[6] =
-			{
-				glm::vec2(MIN, MIN),
-				glm::vec2(MAX, MIN),
-				glm::vec2(MIN, MAX),
-				glm::vec2(MAX, MIN),
-				glm::vec2(MAX, MAX),
-				glm::vec2(MIN, MAX)
-			};
-
 			glfwPollEvents();
-
 			vkWaitForFences(context.device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
 			vkResetCommandBuffer(command_buffer, 0);
 			vkResetFences(context.device, 1, &m_in_flight_fence);
 
-			VkBufferCreateInfo buffer_create_info{};
 			buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 			buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			buffer_create_info.size = buffer_size;
@@ -177,21 +185,14 @@ static double zoom = 1.0;
 			VkBuffer buffer;
 			vkCreateBuffer(context.device, &buffer_create_info, nullptr, &buffer);
 
-			//VkPhysicalDeviceMemoryProperties mem_properties;
-			//vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
-
 			VkMemoryAllocateInfo memory_allocate_info{};
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			memory_allocate_info.allocationSize = buffer_size;
-			memory_allocate_info.memoryTypeIndex = 2; // hard coded host-visible/coherent on my machine.
+			memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
 
 			VkDeviceMemory device_buffer_memory;
-			VkDeviceMemory vertex_buffer_memory;
 			vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &device_buffer_memory);
 			
-			memory_allocate_info.allocationSize = sizeof(positions);
-			vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &vertex_buffer_memory);
-
 			VkBindBufferMemoryInfo bind_buffer_memory_info{};
 			bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
 			bind_buffer_memory_info.memory = device_buffer_memory;
@@ -220,16 +221,13 @@ static double zoom = 1.0;
 			// Fill out memory here.
 			vkUnmapMemory(context.device, device_buffer_memory);
 
-			vk_check(vkMapMemory(context.device, vertex_buffer_memory, 0, sizeof(positions), 0, reinterpret_cast<void**>(&mem)));
+			//vk_check(vkMapMemory(context.device, vertex_buffer_memory, 0, sizeof(positions), 0, reinterpret_cast<void**>(&mem)));
 
-			memcpy(mem, positions, sizeof(positions));
-			vkUnmapMemory(context.device, vertex_buffer_memory);
+			//memcpy(mem, positions, sizeof(positions));
+			//vkUnmapMemory(context.device, vertex_buffer_memory);
 
-			VkBuffer vertex_buffer;
-			buffer_create_info.size = sizeof(positions);
-			buffer_create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			vkCreateBuffer(context.device, &buffer_create_info, nullptr, &vertex_buffer);
-			vkBindBufferMemory(context.device, vertex_buffer, vertex_buffer_memory, 0);
+
+			//vkBindBufferMemory(context.device, vertex_buffer, vertex_buffer_memory, 0);
 			
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = buffer;
@@ -304,9 +302,10 @@ static double zoom = 1.0;
 
 			vkDestroyBufferView(context.device, buffer_view, nullptr);
 			vkDestroyBuffer(context.device, buffer, nullptr);
-			vkDestroyBuffer(context.device, vertex_buffer, nullptr);
 			vkFreeMemory(context.device, device_buffer_memory, nullptr);
-			vkFreeMemory(context.device, vertex_buffer_memory, nullptr);
+			//vkFreeMemory(context.device, vertex_buffer_memory, nullptr);
 		}
+		
+		vkDestroyBuffer(context.device, vertex_buffer, nullptr);
 	}
 //}
