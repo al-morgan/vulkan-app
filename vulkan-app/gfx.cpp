@@ -14,6 +14,7 @@
 #include <fstream>
 #include <array>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "file.hpp"
 #include "vk.hpp"
@@ -40,6 +41,13 @@ static double zoom = 1.0;
 
 //namespace app
 //{
+
+struct mvp
+{
+	glm::mat4 mode;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
 
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
@@ -182,8 +190,10 @@ static double zoom = 1.0;
 			buffer_create_info.size = buffer_size;
 			buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
 
+			
 			VkBuffer buffer;
 			vkCreateBuffer(context.device, &buffer_create_info, nullptr, &buffer);
+
 
 			VkMemoryAllocateInfo memory_allocate_info{};
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -244,6 +254,22 @@ static double zoom = 1.0;
 			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
+
+			//mvp ubo{};
+			//ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		
+			//descriptor_buffer_info.buffer = buffer;
+			//descriptor_buffer_info.offset = 0;
+			//descriptor_buffer_info.range = buffer_size;
+
+			//write_descriptor_set.dstBinding = 1;
+			//write_descriptor_set.descriptorCount = 1;
+			//write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			//write_descriptor_set.dstArrayElement = 0;
+			//write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+
+			//vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
 			gfx::framebuffer &framebuffer = context.get_next_framebuffer();			
 			context.begin_command_buffer(command_buffer);

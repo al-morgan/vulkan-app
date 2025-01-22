@@ -482,8 +482,7 @@ gfx::framebuffer& gfx::context::get_next_framebuffer()
 
 void gfx::context::create_descriptor_set_layout()
 {
-
-	std::array<VkDescriptorSetLayoutBinding, 1> bindings{};
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
 
 	bindings[0].binding = 0;
 	bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -491,10 +490,10 @@ void gfx::context::create_descriptor_set_layout()
 	bindings[0].descriptorCount = 1;
 	bindings[0].pImmutableSamplers = nullptr;
 
-	//bindings[1].binding = 1;
-	//bindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	//bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	//bindings[1].descriptorCount = 1;
+	bindings[1].binding = 1;
+	bindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	bindings[1].descriptorCount = 1;
 
 	VkDescriptorSetLayoutCreateInfo layout_create_info{};
 	layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -588,7 +587,6 @@ void gfx::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semap
 	vkQueueSubmit(graphics_queue.handle, 1, &submit_info, fence);
 }
 
-
 void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
 {
 	VkDeviceMemory device_memory;
@@ -615,3 +613,36 @@ void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buf
 	// TODO: free memory at end of app.
 	// There's no validation error on this so maybe I don't need to.
 }
+
+gfx::buffer::buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
+{
+	m_size = size;
+
+	VkBufferCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	create_info.size = size;
+	create_info.usage = usage;
+	create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	
+	vkCreateBuffer(context.device, &create_info, nullptr, &m_handle);
+		
+	VkDeviceMemory device_memory;
+	VkMemoryAllocateInfo memory_allocate_info{};
+	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memory_allocate_info.allocationSize = size;
+	memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
+	check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &device_memory));
+
+	VkBindBufferMemoryInfo bind_buffer_memory_info{};
+	bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+	bind_buffer_memory_info.memory = device_memory;
+	bind_buffer_memory_info.buffer = m_handle;
+	check(vkBindBufferMemory(context.device, m_handle, device_memory, 0));
+
+	//void* mem;
+	//check(vkMapMemory(context.device, device_memory, 0, size, 0, &mem));
+	//memcpy(mem, source, buffer_size);
+	//vkUnmapMemory(context.device, device_memory);
+}
+
+//gfx::buffer::update(const gfx::context& context)

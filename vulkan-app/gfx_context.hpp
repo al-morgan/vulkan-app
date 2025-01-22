@@ -56,7 +56,7 @@ namespace gfx
 
 		context(HWND window_handle, uint32_t width, uint32_t height);
 		context() = delete;
-		context(context&&) = delete;
+		//context(context&&) = delete;
 		~context();
 
 		gfx::framebuffer& get_next_framebuffer();
@@ -82,38 +82,20 @@ namespace gfx
 		void create_pipeline();
 	};
 
-	//class buffer
-	//{
-	//private:
-	//	VkBuffer handle;
-	//	std::vector<std::byte> memory;
-	//	size_t size;
-	//public:
-	//	void* data()
-	//	{
-	//		return memory.data();
-	//	}
+	class buffer
+	{
+	private:
+		VkBuffer m_handle;
+		std::vector<std::byte> m_memory;
+		size_t m_size;
+		const gfx::context& m_context;
+	public:
+		void* data()
+		{
+			return m_memory.data();
+		}
 
-	//	buffer(const gfx::context& context, size_t size)
-	//	{
-	//		VkDeviceMemory device_memory;
+		buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage);
+	};
 
-	//		VkMemoryAllocateInfo memory_allocate_info{};
-	//		memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	//		memory_allocate_info.allocationSize = size;
-	//		memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
-	//		check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &device_memory));
-
-	//		VkBindBufferMemoryInfo bind_buffer_memory_info{};
-	//		bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
-	//		bind_buffer_memory_info.memory = device_memory;
-	//		bind_buffer_memory_info.buffer = handle;
-	//		check(vkBindBufferMemory(context.device, handle, device_memory, 0));
-
-	//		void* mem;
-	//		check(vkMapMemory(context.device, device_memory, 0, size, 0, &mem));
-	//		memcpy(mem, source, buffer_size);
-	//		vkUnmapMemory(device, device_memory);
-	//	}
-	//};
 }
