@@ -5,7 +5,13 @@ layout(location = 0) in vec2 inPosition;
 
 layout(location = 0) out vec3 fragColor;
 
-
+//layout(binding = 0) uniform uniformBufferObject
+//{
+//	mat4 model;
+//	mat4 view;
+//	mat4 proj;
+//} ubo;
+//
 // vec2 positions[3] = vec2[]
 // (
 // 	vec2(0.0,-0.5),

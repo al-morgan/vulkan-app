@@ -482,15 +482,24 @@ gfx::framebuffer& gfx::context::get_next_framebuffer()
 
 void gfx::context::create_descriptor_set_layout()
 {
-	VkDescriptorSetLayoutBinding binding{};
-	binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	binding.descriptorCount = 1;
+
+	std::array<VkDescriptorSetLayoutBinding, 1> bindings{};
+
+	bindings[0].binding = 0;
+	bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	bindings[0].descriptorCount = 1;
+	bindings[0].pImmutableSamplers = nullptr;
+
+	//bindings[1].binding = 1;
+	//bindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	//bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//bindings[1].descriptorCount = 1;
 
 	VkDescriptorSetLayoutCreateInfo layout_create_info{};
 	layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layout_create_info.bindingCount = 1;
-	layout_create_info.pBindings = &binding;
+	layout_create_info.bindingCount = bindings.size();
+	layout_create_info.pBindings = bindings.data();
 	check(vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &descriptor_set_layout));
 }
 
