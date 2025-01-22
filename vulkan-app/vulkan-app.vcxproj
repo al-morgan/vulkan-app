@@ -139,6 +139,7 @@
     <ClCompile Include="gfx.cpp" />
     <ClCompile Include="gfx_context.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="perlin.cpp" />
     <ClCompile Include="vk.cpp" />
   </ItemGroup>
   <ItemGroup>

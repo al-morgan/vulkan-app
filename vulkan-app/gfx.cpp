@@ -249,7 +249,7 @@ static double zoom = 1.0;
 			context.begin_command_buffer(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
-
+						
 			context.transition_image(
 				command_buffer,
 				framebuffer.image,
