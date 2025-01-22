@@ -604,4 +604,5 @@ void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buf
 	allocated_device_memory.push_back(device_memory);
 
 	// TODO: free memory at end of app.
+	// There's no validation error on this so maybe I don't need to.
 }
