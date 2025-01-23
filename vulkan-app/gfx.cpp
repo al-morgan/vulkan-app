@@ -175,6 +175,8 @@ struct mvp
 
 		context.upload_buffer(vertex_buffer, positions, sizeof(positions));
 
+		gfx::buffer vbuffer(context, 112, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
 			//uint32_t image_view_index = 0; // TODO GET THE INDEX

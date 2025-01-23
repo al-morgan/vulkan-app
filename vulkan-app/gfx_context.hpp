@@ -85,17 +85,23 @@ namespace gfx
 	class buffer
 	{
 	private:
-		VkBuffer m_handle;
-		std::vector<std::byte> m_memory;
+		VkBuffer source;
+		VkBuffer destination;
+		VkDeviceMemory source_memory;
+		VkDeviceMemory destination_memory;
+		//std::vector<std::byte> m_memory;
 		size_t m_size;
 		const gfx::context& m_context;
+		void* memory;
 	public:
 		void* data()
 		{
-			return m_memory.data();
+			return memory;
 		}
 
 		buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage);
+		~buffer();
+		//void update();
 	};
 
 }
