@@ -2,8 +2,8 @@
 #extension GL_KHR_vulkan_glsl: enable
 
 layout(location = 0) in vec2 inPosition;
-
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out vec2 coords;
 
 layout(binding = 1) uniform uniformBufferObject
 {
@@ -45,6 +45,7 @@ void main()
 	vec4 foo = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 0.0, 1.0);
 	fragColor = vec4(foo.x, foo.y, foo.z, 1.0);
 	gl_Position = foo;
+	coords = inPosition;
 
 	//gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);	
 	

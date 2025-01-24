@@ -1,7 +1,8 @@
 #version 450
 
 layout(location = 0) out vec4 outColor;
-layout(location = 0) in vec4 inColor;
+layout(location = 1) in vec2 coords;
+
 
 struct ObjectData
 {
@@ -42,8 +43,14 @@ void main()
 	//return;
 
 	// grid coordinates
-	float gx = gl_FragCoord.x / 80.0f;
-	float gy = gl_FragCoord.y / 80.0f;
+	
+	float gx = coords.x * 5.0f + 5.0f;
+	float gy = coords.y * 5.0f + 5.0f;
+
+	
+	// OLD GOOD WAY
+	//float gx = gl_FragCoord.x / 80.0f;
+	//float gy = gl_FragCoord.y / 80.0f;
 
 	// center of sample
 	// float sx = floor(gx + 0.5f);
