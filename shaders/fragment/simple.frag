@@ -1,6 +1,7 @@
 #version 450
 
 layout(location = 0) out vec4 outColor;
+layout(location = 0) in vec4 inColor;
 
 struct ObjectData
 {
@@ -10,6 +11,13 @@ struct ObjectData
 layout(set = 0, binding = 0) readonly buffer ObjectBuffer{
 	float foo[];
 } objectBuffer;
+
+layout(binding = 1) uniform uniformBufferObject
+{
+	mat4 model;
+	mat4 view;
+	mat4 proj;
+} ubo;
 
 #define FACTOR 80.0f
 
@@ -30,6 +38,9 @@ float sample_noise(int ax, int ay, float gx, float gy)
 
 void main()
 {
+	//outColor = inColor;
+	//return;
+
 	// grid coordinates
 	float gx = gl_FragCoord.x / 80.0f;
 	float gy = gl_FragCoord.y / 80.0f;

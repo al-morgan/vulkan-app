@@ -86,14 +86,13 @@ namespace gfx
 	{
 	private:
 		VkBuffer source;
-		VkBuffer destination;
 		VkDeviceMemory source_memory;
 		VkDeviceMemory destination_memory;
-		//std::vector<std::byte> m_memory;
-		size_t m_size;
 		const gfx::context& m_context;
 		void* memory;
 	public:
+		size_t m_size;
+		VkBuffer destination;
 		void* data()
 		{
 			return memory;
@@ -101,7 +100,7 @@ namespace gfx
 
 		buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage);
 		~buffer();
-		//void update();
+		void update(gfx::context& context, VkCommandBuffer command_buffer);
 	};
 
 }

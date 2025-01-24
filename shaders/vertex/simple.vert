@@ -3,9 +3,9 @@
 
 layout(location = 0) in vec2 inPosition;
 
-layout(location = 0) out vec3 fragColor;
+layout(location = 0) out vec4 fragColor;
 
-layout(binding = 0) uniform uniformBufferObject
+layout(binding = 1) uniform uniformBufferObject
 {
 	mat4 model;
 	mat4 view;
@@ -42,7 +42,12 @@ vec3 colors[3] = vec3[]
 
 void main()
 {
-	//gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
-	gl_Position = vec4(inPosition, 0.0, 1.0);
-	fragColor = colors[gl_VertexIndex];
+	vec4 foo = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 0.0, 1.0);
+	fragColor = vec4(foo.x, foo.y, foo.z, 1.0);
+	gl_Position = foo;
+
+	//gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);	
+	
+	//gl_Position = vec4(inPosition, 0.0, 1.0);
+	//fragColor = colors[gl_VertexIndex];
 }

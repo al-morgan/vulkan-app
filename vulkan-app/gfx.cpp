@@ -42,9 +42,14 @@ static double zoom = 1.0;
 //namespace app
 //{
 
+struct vertex
+{
+	glm::mat3 pos;
+};
+
 struct mvp
 {
-	glm::mat4 mode;
+	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
 };
@@ -175,7 +180,9 @@ struct mvp
 
 		context.upload_buffer(vertex_buffer, positions, sizeof(positions));
 
-		gfx::buffer vbuffer(context, 112, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		gfx::buffer vbuffer(context, 112 * 12, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		gfx::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -257,24 +264,31 @@ struct mvp
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			//mvp ubo{};
-			//ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			mvp* ubo = static_cast<mvp*>(ubuffer.data());
+			ubo->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
+				glm::vec3(0.0f, 0.0f, 1.0f));
+			ubo->proj = glm::perspective(glm::radians(45.0f),
+				800.0f / 800.0f, 0.1f,
+				10.0f);
 
-		
-			//descriptor_buffer_info.buffer = buffer;
-			//descriptor_buffer_info.offset = 0;
-			//descriptor_buffer_info.range = buffer_size;
+			descriptor_buffer_info.buffer = ubuffer.destination;
+			descriptor_buffer_info.offset = 0;
+			descriptor_buffer_info.range = ubuffer.m_size;
 
-			//write_descriptor_set.dstBinding = 1;
-			//write_descriptor_set.descriptorCount = 1;
-			//write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			//write_descriptor_set.dstArrayElement = 0;
-			//write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+			write_descriptor_set.dstBinding = 1;
+			write_descriptor_set.descriptorCount = 1;
+			write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			write_descriptor_set.dstArrayElement = 0;
+			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
-			//vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
+			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
 			gfx::framebuffer &framebuffer = context.get_next_framebuffer();			
 			context.begin_command_buffer(command_buffer);
+
+			ubuffer.update(context, command_buffer);
+			vbuffer.update(context, command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 						

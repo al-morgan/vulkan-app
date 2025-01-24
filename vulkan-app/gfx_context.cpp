@@ -381,6 +381,7 @@ void gfx::context::create_pipeline()
 	VkPipelineRasterizationStateCreateInfo rasterization_state{};
 	rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterization_state.lineWidth = 1.0f;
+	rasterization_state.cullMode = VK_CULL_MODE_NONE;
 
 	VkViewport viewport{};
 	viewport.width = static_cast<float>(800);
@@ -647,16 +648,53 @@ gfx::buffer::buffer(const gfx::context& context, size_t size, VkBufferUsageFlags
 
 gfx::buffer::~buffer()
 {
-	//vkDestroyMemory()
 	vkFreeMemory(m_context.device, destination_memory, nullptr);
 	vkFreeMemory(m_context.device, source_memory, nullptr);
 	vkDestroyBuffer(m_context.device, source, nullptr);
 	vkDestroyBuffer(m_context.device, destination, nullptr);
 }
 
-//void gfx::buffer::update(VkCommandBuffer command_buffer)
-//{
-//	VkBufferCopy buffer_copy{};
-//	buffer_copy.size = m_size;
-//	vkCmdCopyBuffer(command_buffer, source, destination, 1, &buffer_copy);
-//}
+void gfx::buffer::update(gfx::context &context, VkCommandBuffer command_buffer)
+{
+	// TODO: use transfer queue
+
+	VkBufferCopy buffer_copy{};
+	buffer_copy.size = m_size;
+
+	//VkCommandBufferBeginInfo begin_info{};
+	//begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	//vkBeginCommandBuffer(command_buffer, &begin_info);
+	vkCmdCopyBuffer(command_buffer, source, destination, 1, &buffer_copy);
+	//vkEndCommandBuffer(command_buffer);
+
+	//VkImageMemoryBarrier barrier{};
+	//barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	//barrier.image = image;
+	//barrier.oldLayout = old_layout;
+	//barrier.newLayout = new_layout;
+	//barrier.srcAccessMask = source_access_mask;
+	//barrier.dstAccessMask = destination_access_mask;
+	//barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	//barrier.subresourceRange.baseArrayLayer = 0;
+	//barrier.subresourceRange.baseMipLevel = 0;
+	//barrier.subresourceRange.layerCount = 1;
+	//barrier.subresourceRange.levelCount = 1;
+
+	VkMemoryBarrier barrier{};
+	barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+	vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+
+
+
+	// Do I want to submit here or do I just want to add a barrier?
+	
+	// VkSubmitInfo submit_info{};
+	// submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	// submit_info.pCommandBuffers = &command_buffer;
+	// vkQueueSubmit(context.graphics_queue.handle, 1, &submit_info, nullptr);
+}
