@@ -241,6 +241,8 @@ struct mvp
 
 				float z = static_cast<float>(std::rand()) * .1f / static_cast<float>(RAND_MAX);
 				
+				z = mem[i] / 60.f;
+
 				if (x != 10 && y != 10)
 				{
 					glm::vec3* foo = static_cast<glm::vec3*>(vbuffer.data());
