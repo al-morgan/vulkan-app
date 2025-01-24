@@ -180,7 +180,7 @@ struct mvp
 
 		context.upload_buffer(vertex_buffer, positions, sizeof(positions));
 
-		gfx::buffer vbuffer(context, 112 * 12, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		gfx::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
 		gfx::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
@@ -232,10 +232,59 @@ struct mvp
 			float* mem;
 			vk_check(vkMapMemory(context.device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
 
+			int x = 0;
+			int y = 0;
+			int j = 0;
 			for (uint32_t i = 0; i < 100; i += 1)
 			{
 				mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
+
+				float z = static_cast<float>(std::rand()) * .1f / static_cast<float>(RAND_MAX);
+				
+				if (x != 10 && y != 10)
+				{
+					glm::vec3* foo = static_cast<glm::vec3*>(vbuffer.data());
+					foo[j][0] = static_cast<float>(x * .2f - 1.f);
+					foo[j][1] = static_cast<float>(y * .2f - 1.f);
+					foo[j][2] = z;
+					j++;
+
+					foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
+					foo[j][1] = static_cast<float>(y) * .2f - 1.f;
+					foo[j][2] = z;
+					j++;
+
+					foo[j][0] = static_cast<float>(x) * .2f - 1.f;
+					foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
+					foo[j][2] = z;
+					j++;
+
+					foo[j][0] = static_cast<float>((x + 1) * .2f - 1.f);
+					foo[j][1] = static_cast<float>(y) * .2f - 1.f;
+					foo[j][2] = z;
+					j++;
+
+					foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
+					foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
+					foo[j][2] = z;
+					j++;
+
+					foo[j][0] = static_cast<float>(x * .2f - 1.f);
+					foo[j][1] = static_cast<float>((y + 1) * .2f - 1.f);
+					foo[j][2] = z;
+					j++;
+				}
+				
+				x += 1;
+				if (x == 10)
+				{
+					x = 0;
+					y++;
+				}
+
 			}
+
+			//vbuffer.update(context, command_buffer);
 
 			// Fill out memory here.
 			vkUnmapMemory(context.device, device_buffer_memory);
@@ -306,13 +355,13 @@ struct mvp
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
 			VkDeviceSize offset = 0;
-			vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer, &offset);
+			vkCmdBindVertexBuffers(command_buffer, 0, 1, &vbuffer.destination, &offset);
 
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
 			context.begin_rendering(command_buffer, framebuffer.view);
-			vkCmdDraw(command_buffer, 6, 1, 0, 0);
+			vkCmdDraw(command_buffer, 600, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
 			context.transition_image(

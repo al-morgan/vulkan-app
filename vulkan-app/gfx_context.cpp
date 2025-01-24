@@ -355,13 +355,13 @@ void gfx::context::create_pipeline()
 	VkVertexInputAttributeDescription vertex_input_attribute_description{};
 	vertex_input_attribute_description.binding = 0;
 	vertex_input_attribute_description.location = 0;
-	vertex_input_attribute_description.format = VK_FORMAT_R32G32_SFLOAT;
+	vertex_input_attribute_description.format = VK_FORMAT_R32G32B32_SFLOAT;
 	vertex_input_attribute_description.offset = 0;
 
 	VkVertexInputBindingDescription vertex_input_binding_description{};
 	vertex_input_binding_description.binding = 0;
 	vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-	vertex_input_binding_description.stride = sizeof(vk::Vertex);
+	vertex_input_binding_description.stride = sizeof(glm::vec3);
 
 	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
 	vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -486,7 +486,7 @@ void gfx::context::create_descriptor_set_layout()
 	std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
 
 	bindings[0].binding = 0;
-	bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
 	bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	bindings[0].descriptorCount = 1;
 	bindings[0].pImmutableSamplers = nullptr;
