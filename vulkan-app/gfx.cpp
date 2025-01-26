@@ -24,8 +24,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "gfx_context.hpp"
-
+#include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
 
 
@@ -133,7 +132,7 @@ struct mvp
 		}
 	}
 
-	app::engine::engine(gfx::context& context) : context(context)
+	app::engine::engine(graphics::context& context) : context(context)
 	{
 		VkFenceCreateInfo fence_create_info{};
 		fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -153,7 +152,7 @@ struct mvp
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
-	void app::engine::update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer)
+	void app::engine::update(graphics::context& context, app::window& window, vk::command_buffer& command_buffer)
 	{
 		std::srand(std::time(nullptr));
 

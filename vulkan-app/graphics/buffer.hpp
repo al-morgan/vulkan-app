@@ -1,4 +1,5 @@
 #include <vulkan/vulkan.h>
+#include "graphics/context.hpp"
 
 namespace graphics
 {
@@ -8,7 +9,7 @@ namespace graphics
 	class buffer
 	{
 	private:
-		const gfx::context& m_context;
+		const graphics::context& m_context;
 		VkBuffer m_destination;
 		VkBuffer m_source;
 		VkDeviceSize m_size;
@@ -16,7 +17,7 @@ namespace graphics
 		VkDeviceMemory m_destination_memory;
 		void* m_mapped_memory;
 	public:
-		buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage);
+		buffer(const graphics::context& context, size_t size, VkBufferUsageFlags usage);
 		~buffer();
 		
 		/// <summary>

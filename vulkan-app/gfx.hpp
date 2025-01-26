@@ -1,12 +1,13 @@
 #pragma once
 
 #include <vector>
-#include "gfx_context.hpp"
+
 
 #include "vk.hpp"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
+#include "graphics/context.hpp"
 
 
 namespace app
@@ -24,14 +25,14 @@ namespace app
 	class engine
 	{
 	private:
-		gfx::context& context;
+		graphics::context& context;
 		VkFence m_in_flight_fence;
 		//VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
 	public:
-		engine(gfx::context& context);
+		engine(graphics::context& context);
 		~engine();
-		void update(gfx::context& context, app::window& window, vk::command_buffer& command_buffer);
+		void update(graphics::context& context, app::window& window, vk::command_buffer& command_buffer);
 	};
 }

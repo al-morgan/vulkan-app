@@ -1,7 +1,7 @@
 #include <stdexcept>
 
 #include <vulkan/vulkan.h>
-#include "gfx_context.hpp"
+#include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
 
 static void check(VkResult result)
@@ -29,7 +29,7 @@ namespace graphics
 		return m_size;
 	}
 
-	graphics::buffer::buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
+	graphics::buffer::buffer(const graphics::context& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
 	{
 		m_size = size;
 

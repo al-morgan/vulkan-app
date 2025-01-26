@@ -8,7 +8,7 @@
 
 #include "vk.hpp"
 #include "gfx.hpp"
-#include "gfx_context.hpp"
+#include "graphics/context.hpp"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -16,7 +16,7 @@
 int main()
 {
 	app::window window;
-	gfx::context context(window.handle, WIDTH, HEIGHT);
+	graphics::context context(window.handle, WIDTH, HEIGHT);
 
 	//vk::pipeline_layout pipeline_layout(context.device, context.descriptor_set_layout);
 	//vk::shader_module fragment_shader_module(context.device, "./shaders/fragment/simple.spv");
