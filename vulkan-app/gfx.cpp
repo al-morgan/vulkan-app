@@ -278,7 +278,8 @@ struct mvp
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			gfx::framebuffer &framebuffer = context.get_next_framebuffer();			
+			context.advance_swapchain();
+
 			context.begin_command_buffer(command_buffer);
 
 			ubuffer.copy(command_buffer);
@@ -286,17 +287,8 @@ struct mvp
 			rbuffer.copy(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
-						
-			context.transition_image(
-				command_buffer,
-				framebuffer.image,
-				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-				VK_ACCESS_NONE,
-				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-				VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			);
+
+			context.prepare_swapchain_for_writing(command_buffer);
 
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
@@ -311,20 +303,11 @@ struct mvp
 
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-			context.begin_rendering(command_buffer, framebuffer.view);
+			context.begin_rendering(command_buffer);
 			vkCmdDraw(command_buffer, 600, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
-			context.transition_image(
-				command_buffer,
-				framebuffer.image,
-				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-				VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-				VK_ACCESS_NONE,
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-			);
+			context.prepare_swapchain_for_presentation(command_buffer);
 
 			vkEndCommandBuffer(command_buffer);
 
@@ -337,7 +320,7 @@ struct mvp
 				m_render_finished_semaphore,
 				m_in_flight_fence);
 
-			context.present(command_buffer, m_render_finished_semaphore, framebuffer.index);
+			context.present(command_buffer, m_render_finished_semaphore);
 
 			// NO NO NO
 			vkDeviceWaitIdle(context.device);

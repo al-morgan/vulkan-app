@@ -510,7 +510,7 @@ void gfx::context::begin_command_buffer(VkCommandBuffer command_buffer)
 	vkBeginCommandBuffer(command_buffer, &begin_info);
 }
 
-void gfx::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView image_view)
+void gfx::context::begin_rendering(VkCommandBuffer command_buffer)
 {
 	VkClearValue clear_value{};
 
@@ -522,7 +522,7 @@ void gfx::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView i
 	color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 	color_attachment_info.clearValue = clear_value;
 	color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-	color_attachment_info.imageView = image_view;
+	color_attachment_info.imageView = current_framebuffer.view;
 	color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -561,7 +561,7 @@ void gfx::context::transition_image(VkCommandBuffer command_buffer,
 
 }
 
-void gfx::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, uint32_t image_index)
+void gfx::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore)
 {
 	VkPresentInfoKHR present_info{};
 	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -569,7 +569,7 @@ void gfx::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_sema
 	present_info.swapchainCount = 1;
 	present_info.pWaitSemaphores = &wait_semaphore;
 	present_info.waitSemaphoreCount = 1;
-	present_info.pImageIndices = &image_index;
+	present_info.pImageIndices = &current_framebuffer.index;
 	vkQueuePresentKHR(graphics_queue.handle, &present_info);
 }
 
@@ -613,4 +613,38 @@ void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buf
 
 	// TODO: free memory at end of app.
 	// There's no validation error on this so maybe I don't need to.
+}
+
+
+void gfx::context::advance_swapchain()
+{
+	current_framebuffer = get_next_framebuffer();
+}
+
+void gfx::context::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
+{
+	transition_image(
+		command_buffer,
+		current_framebuffer.image,
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		VK_ACCESS_NONE,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	);
+}
+
+void gfx::context::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
+{
+	transition_image(
+		command_buffer,
+		current_framebuffer.image,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+		VK_ACCESS_NONE,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+	);
 }
