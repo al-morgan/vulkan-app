@@ -82,25 +82,4 @@ namespace gfx
 		void create_pipeline();
 	};
 
-	class buffer
-	{
-	private:
-		VkBuffer source;
-		VkDeviceMemory source_memory;
-		VkDeviceMemory destination_memory;
-		const gfx::context& m_context;
-		void* memory;
-	public:
-		size_t m_size;
-		VkBuffer destination;
-		void* data()
-		{
-			return memory;
-		}
-
-		buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage);
-		~buffer();
-		void update(gfx::context& context, VkCommandBuffer command_buffer);
-	};
-
 }
