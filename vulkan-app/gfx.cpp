@@ -26,6 +26,8 @@
 
 #include "gfx_context.hpp"
 
+#include "transfer/buffer.hpp"
+
 
 //#include <vulkan/vulkan_win32.h>
 
@@ -182,7 +184,7 @@ struct mvp
 
 		gfx::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-		gfx::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+		transfer::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -286,19 +288,9 @@ struct mvp
 
 			}
 
-			//vbuffer.update(context, command_buffer);
-
 			// Fill out memory here.
 			vkUnmapMemory(context.device, device_buffer_memory);
 
-			//vk_check(vkMapMemory(context.device, vertex_buffer_memory, 0, sizeof(positions), 0, reinterpret_cast<void**>(&mem)));
-
-			//memcpy(mem, positions, sizeof(positions));
-			//vkUnmapMemory(context.device, vertex_buffer_memory);
-
-
-			//vkBindBufferMemory(context.device, vertex_buffer, vertex_buffer_memory, 0);
-			
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = buffer;
 			descriptor_buffer_info.offset = 0;
@@ -323,9 +315,9 @@ struct mvp
 				800.0f / 800.0f, 0.1f,
 				10.0f);
 
-			descriptor_buffer_info.buffer = ubuffer.destination;
+			descriptor_buffer_info.buffer = ubuffer.handle();
 			descriptor_buffer_info.offset = 0;
-			descriptor_buffer_info.range = ubuffer.m_size;
+			descriptor_buffer_info.range = ubuffer.size();
 
 			write_descriptor_set.dstBinding = 1;
 			write_descriptor_set.descriptorCount = 1;
@@ -338,7 +330,7 @@ struct mvp
 			gfx::framebuffer &framebuffer = context.get_next_framebuffer();			
 			context.begin_command_buffer(command_buffer);
 
-			ubuffer.update(context, command_buffer);
+			ubuffer.copy(command_buffer);
 			vbuffer.update(context, command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
@@ -362,6 +354,14 @@ struct mvp
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
 			
+			VkMemoryBarrier barrier{};
+			barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+
+
 			context.begin_rendering(command_buffer, framebuffer.view);
 			vkCmdDraw(command_buffer, 600, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
