@@ -6,7 +6,7 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
-namespace gfx
+namespace graphics
 {
 	/// <summary>
 	/// A device queue.
@@ -49,17 +49,17 @@ namespace gfx
 		uint32_t memory_type_host_coherent;
 
 		std::vector<VkDeviceMemory> allocated_device_memory;
-		
-		gfx::queue transfer_queue;
-		gfx::queue graphics_queue;
-		gfx::queue present_queue;
+
+		graphics::queue transfer_queue;
+		graphics::queue graphics_queue;
+		graphics::queue present_queue;
 
 		context(HWND window_handle, uint32_t width, uint32_t height);
 		context() = delete;
 		//context(context&&) = delete;
 		~context();
 
-		gfx::framebuffer& get_next_framebuffer();
+		graphics::framebuffer& get_next_framebuffer();
 		void begin_command_buffer(VkCommandBuffer command_buffer);
 		void begin_rendering(VkCommandBuffer command_buffer);
 		void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout);

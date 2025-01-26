@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 #include <vector>
-#include "gfx_context.hpp"
 
 namespace vk
 {

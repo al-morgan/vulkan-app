@@ -15,7 +15,7 @@
 
 #include "file.hpp"
 #include "vk.hpp"
-#include "gfx_context.hpp"
+#include "graphics/context.hpp"
 
 static void check(VkResult result)
 {
@@ -31,7 +31,7 @@ static void check(VkResult result)
 /// <param name="window_handle"></param>
 /// <param name="width"></param>
 /// <param name="height"></param>
-gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
+graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
 {
 	create_instance();
 	create_surface(window_handle);
@@ -56,7 +56,7 @@ gfx::context::context(HWND window_handle, uint32_t width, uint32_t height)
 /// <summary>
 /// Set up the Vulkan instance
 /// </summary>
-void gfx::context::create_instance()
+void graphics::context::create_instance()
 {
 	VkApplicationInfo app_info{};
 	app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -89,14 +89,14 @@ void gfx::context::create_instance()
 	create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
 	create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
 	create_info.ppEnabledLayerNames = enabled_layers.data();
-		
+
 	check(vkCreateInstance(&create_info, nullptr, &instance));
 }
 
 /// <summary>
 /// Get the Vulkan physical device
 /// </summary>
-void gfx::context::get_physical_device()
+void graphics::context::get_physical_device()
 {
 	uint32_t physical_device_count;
 	std::vector<VkPhysicalDevice> physical_devices;
@@ -118,7 +118,7 @@ void gfx::context::get_physical_device()
 	constexpr VkMemoryPropertyFlags device_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 	constexpr VkMemoryPropertyFlags host_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 	uint32_t found = 0;
-	
+
 	for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++)
 	{
 		if (memory_properties.memoryTypes[i].propertyFlags == device_flags)
@@ -143,20 +143,20 @@ void gfx::context::get_physical_device()
 /// Create the surface
 /// </summary>
 /// <param name="window_handle"></param>
-void gfx::context::create_surface(HWND window_handle)
+void graphics::context::create_surface(HWND window_handle)
 {
 	VkWin32SurfaceCreateInfoKHR create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	create_info.hwnd = window_handle;
 	create_info.hinstance = GetModuleHandle(nullptr);
 
-	check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));	
+	check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));
 }
 
 /// <summary>
 /// Create the logical device.
 /// </summary>
-void gfx::context::create_device()
+void graphics::context::create_device()
 {
 	uint32_t queue_family_count;
 	std::vector<VkQueueFamilyProperties> queue_families;
@@ -215,7 +215,7 @@ void gfx::context::create_device()
 /// </summary>
 /// <param name="width"></param>
 /// <param name="height"></param>
-void gfx::context::create_swapchain(uint32_t width, uint32_t height)
+void graphics::context::create_swapchain(uint32_t width, uint32_t height)
 {
 	VkExtent2D extent{};
 	extent.width = width;
@@ -250,7 +250,7 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 	for (uint32_t i = 0; i < swapchain_image_count; i++)
 	{
 		framebuffers[i].index = i;
-		
+
 		framebuffers[i].image = images[i];
 
 		VkImageViewCreateInfo image_view_create_info{};
@@ -266,7 +266,7 @@ void gfx::context::create_swapchain(uint32_t width, uint32_t height)
 	}
 }
 
-void gfx::context::create_descriptor_pool()
+void graphics::context::create_descriptor_pool()
 {
 	VkDescriptorPoolSize types;
 	types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
@@ -281,7 +281,7 @@ void gfx::context::create_descriptor_pool()
 	vkCreateDescriptorPool(device, &create_info, nullptr, &descriptor_pool);
 }
 
-void gfx::context::create_descriptor_set()
+void graphics::context::create_descriptor_set()
 {
 	VkDescriptorSetAllocateInfo alloc_info{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -292,7 +292,7 @@ void gfx::context::create_descriptor_set()
 	check(vkAllocateDescriptorSets(device, &alloc_info, &descriptor_set));
 }
 
-void gfx::context::create_pipeline_layout()
+void graphics::context::create_pipeline_layout()
 {
 	VkPushConstantRange range{};
 	range.size = 12;
@@ -308,7 +308,7 @@ void gfx::context::create_pipeline_layout()
 	check(vkCreatePipelineLayout(device, &pipeline_layout_create_info, nullptr, &pipeline_layout));
 }
 
-void gfx::context::create_fragment_shader()
+void graphics::context::create_fragment_shader()
 {
 	std::vector<char> buffer;
 
@@ -322,7 +322,7 @@ void gfx::context::create_fragment_shader()
 
 }
 
-void gfx::context::create_vertex_shader()
+void graphics::context::create_vertex_shader()
 {
 	std::vector<char> buffer;
 
@@ -336,7 +336,7 @@ void gfx::context::create_vertex_shader()
 
 }
 
-void gfx::context::create_pipeline()
+void graphics::context::create_pipeline()
 {
 	VkPipelineShaderStageCreateInfo vertex_stage_create_info{};
 	vertex_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -435,12 +435,12 @@ void gfx::context::create_pipeline()
 
 	vkCreateGraphicsPipelines(device, nullptr, 1, &create_info, nullptr, &pipeline);
 }
- 
+
 
 /// <summary>
 /// Destroy the context
 /// </summary>
-gfx::context::~context()
+graphics::context::~context()
 {
 	vkDeviceWaitIdle(device);
 
@@ -474,14 +474,14 @@ gfx::context::~context()
 /// Sets the get_next_framebuffer_semaphore semaphore.
 /// </summary>
 /// <returns></returns>
-gfx::framebuffer& gfx::context::get_next_framebuffer()
+graphics::framebuffer& graphics::context::get_next_framebuffer()
 {
 	uint32_t image_index;
 	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, get_next_framebuffer_semaphore, nullptr, &image_index);
 	return framebuffers[image_index];
 }
 
-void gfx::context::create_descriptor_set_layout()
+void graphics::context::create_descriptor_set_layout()
 {
 	std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
 
@@ -503,14 +503,14 @@ void gfx::context::create_descriptor_set_layout()
 	check(vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &descriptor_set_layout));
 }
 
-void gfx::context::begin_command_buffer(VkCommandBuffer command_buffer)
+void graphics::context::begin_command_buffer(VkCommandBuffer command_buffer)
 {
 	VkCommandBufferBeginInfo begin_info{};
 	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	vkBeginCommandBuffer(command_buffer, &begin_info);
 }
 
-void gfx::context::begin_rendering(VkCommandBuffer command_buffer)
+void graphics::context::begin_rendering(VkCommandBuffer command_buffer)
 {
 	VkClearValue clear_value{};
 
@@ -536,14 +536,14 @@ void gfx::context::begin_rendering(VkCommandBuffer command_buffer)
 	vkCmdBeginRendering(command_buffer, &rendering_info);
 }
 
-void gfx::context::transition_image(VkCommandBuffer command_buffer,
-	                                VkImage image,
-	                                VkShaderStageFlags source_stage,
-	                                VkAccessFlags source_access_mask,
-	                                VkShaderStageFlags desintation_stage,
-	                                VkAccessFlags destination_access_mask,
-	                                VkImageLayout old_layout,
-	                                VkImageLayout new_layout)
+void graphics::context::transition_image(VkCommandBuffer command_buffer,
+	VkImage image,
+	VkShaderStageFlags source_stage,
+	VkAccessFlags source_access_mask,
+	VkShaderStageFlags desintation_stage,
+	VkAccessFlags destination_access_mask,
+	VkImageLayout old_layout,
+	VkImageLayout new_layout)
 {
 	VkImageMemoryBarrier barrier{};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -561,7 +561,7 @@ void gfx::context::transition_image(VkCommandBuffer command_buffer,
 
 }
 
-void gfx::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore)
+void graphics::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore)
 {
 	VkPresentInfoKHR present_info{};
 	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -574,7 +574,7 @@ void gfx::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_sema
 }
 
 
-void gfx::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
+void graphics::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
 {
 	VkSubmitInfo submit_info{};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -588,7 +588,7 @@ void gfx::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semap
 	vkQueueSubmit(graphics_queue.handle, 1, &submit_info, fence);
 }
 
-void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
+void graphics::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
 {
 	VkDeviceMemory device_memory;
 
@@ -616,12 +616,12 @@ void gfx::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buf
 }
 
 
-void gfx::context::advance_swapchain()
+void graphics::context::advance_swapchain()
 {
 	current_framebuffer = get_next_framebuffer();
 }
 
-void gfx::context::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
+void graphics::context::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
 {
 	transition_image(
 		command_buffer,
@@ -635,7 +635,7 @@ void gfx::context::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
 	);
 }
 
-void gfx::context::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
+void graphics::context::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
 {
 	transition_image(
 		command_buffer,
