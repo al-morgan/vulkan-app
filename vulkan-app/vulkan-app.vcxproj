@@ -141,8 +141,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="perlin.cpp" />
     <ClCompile Include="transfer\buffer.cpp" />
-    <ClCompile Include="transfer_buffer.cpp" />
-    <ClCompile Include="transfer_one_time_buffer.cpp" />
     <ClCompile Include="vk.cpp" />
   </ItemGroup>
   <ItemGroup>
