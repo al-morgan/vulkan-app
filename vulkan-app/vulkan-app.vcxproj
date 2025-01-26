@@ -148,6 +148,8 @@
     <ClInclude Include="gfx.hpp" />
     <ClInclude Include="graphics\buffer.hpp" />
     <ClInclude Include="graphics\context.hpp" />
+    <ClInclude Include="graphics\graphics.hpp" />
+    <ClInclude Include="perlin.hpp" />
     <ClInclude Include="vk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

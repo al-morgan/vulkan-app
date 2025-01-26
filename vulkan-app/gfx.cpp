@@ -24,8 +24,11 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
+
+#include "perlin.hpp"
 
 
 //#include <vulkan/vulkan_win32.h>
@@ -159,7 +162,7 @@ struct mvp
 		#define MIN -1.0
 		#define MAX 1.0
 
-		vk::Vertex positions[6] =
+		graphics::vertex2d positions[6] =
 		{
 			glm::vec2(MIN, MIN),
 			glm::vec2(MAX, MIN),
@@ -168,6 +171,8 @@ struct mvp
 			glm::vec2(MAX, MAX),
 			glm::vec2(MIN, MAX)
 		};
+
+		app::perlin noise(10, 10);
 
 		graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		graphics::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
