@@ -177,6 +177,20 @@ struct mvp
 		graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		graphics::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
+		constexpr int axis_size = 1000;
+		graphics::buffer new_vertex_buffer(context, axis_size * axis_size * sizeof(graphics::vertex2d) * 6, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		for (int x = 0; x < axis_size; x++)
+		{
+			for (int y = 0; y < axis_size; y++)
+			{
+				double sample_x = static_cast<double>(x) / static_cast<double>(axis_size);
+				double sample_y = static_cast<double>(y) / static_cast<double>(axis_size);
+
+				double sample = noise.get(sample_x, sample_y);
+			}
+		}
+
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
 			//uint32_t image_view_index = 0; // TODO GET THE INDEX
