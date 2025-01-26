@@ -21,7 +21,7 @@ namespace transfer
 
 	void* transfer::buffer::data()
 	{
-		return m_memory;
+		return m_mapped_memory;
 	}
 
 	VkDeviceSize transfer::buffer::size()
@@ -59,7 +59,7 @@ namespace transfer
 		check(vkBindBufferMemory(context.device, m_destination, m_destination_memory, 0));
 
 		// Map the host memory so we can read it
-		check(vkMapMemory(context.device, m_source_memory, 0, size, 0, &m_memory));
+		check(vkMapMemory(context.device, m_source_memory, 0, size, 0, &m_mapped_memory));
 	}
 
 	transfer::buffer::~buffer()
