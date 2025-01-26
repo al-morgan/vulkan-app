@@ -189,43 +189,11 @@ struct mvp
 			vkResetCommandBuffer(command_buffer, 0);
 			vkResetFences(context.device, 1, &m_in_flight_fence);
 
-			buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-			buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			buffer_create_info.size = buffer_size;
-			buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+			transfer::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
 
-			
-			VkBuffer buffer;
-			vkCreateBuffer(context.device, &buffer_create_info, nullptr, &buffer);
-
-
-			VkMemoryAllocateInfo memory_allocate_info{};
-			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-			memory_allocate_info.allocationSize = buffer_size;
-			memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
-
-			VkDeviceMemory device_buffer_memory;
-			vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &device_buffer_memory);
-			
-			VkBindBufferMemoryInfo bind_buffer_memory_info{};
-			bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
-			bind_buffer_memory_info.memory = device_buffer_memory;
-			bind_buffer_memory_info.buffer = buffer;
-			vkBindBufferMemory(context.device, buffer, device_buffer_memory, 0);
-			
-			VkBufferViewCreateInfo buffer_view_create_info{};
-			buffer_view_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
-			buffer_view_create_info.format = VK_FORMAT_R32_UINT;
-			buffer_view_create_info.range = buffer_size;
-			buffer_view_create_info.buffer = buffer;
-
-			VkBufferView buffer_view;
-			vkCreateBufferView(context.device, &buffer_view_create_info, nullptr, &buffer_view);
+			float* mem = static_cast<float*>(rbuffer.data());
 
 			//vkBindBufferMemory
-
-			float* mem;
-			vk_check(vkMapMemory(context.device, device_buffer_memory, 0, buffer_size, 0, reinterpret_cast<void**>(&mem)));
 
 			int x = 0;
 			int y = 0;
@@ -281,11 +249,8 @@ struct mvp
 
 			}
 
-			// Fill out memory here.
-			vkUnmapMemory(context.device, device_buffer_memory);
-
 			VkDescriptorBufferInfo descriptor_buffer_info{};
-			descriptor_buffer_info.buffer = buffer;
+			descriptor_buffer_info.buffer = rbuffer.handle();
 			descriptor_buffer_info.offset = 0;
 			descriptor_buffer_info.range = buffer_size;
 
@@ -325,6 +290,7 @@ struct mvp
 
 			ubuffer.copy(command_buffer);
 			vbuffer.copy(command_buffer);
+			rbuffer.copy(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 						
@@ -385,10 +351,6 @@ struct mvp
 
 			// NO NO NO
 			vkDeviceWaitIdle(context.device);
-
-			vkDestroyBufferView(context.device, buffer_view, nullptr);
-			vkDestroyBuffer(context.device, buffer, nullptr);
-			vkFreeMemory(context.device, device_buffer_memory, nullptr);
 		}
 		
 	}
