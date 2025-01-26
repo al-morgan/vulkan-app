@@ -17,7 +17,7 @@ VkImage graphics::device_image::handle()
 	return m_image;
 }
 
-graphics::device_image::device_image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkBufferUsageFlags usage) : m_context(context)
+graphics::device_image::device_image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage) : m_context(context)
 {
 	VkImageCreateInfo create_info{};
 
@@ -31,6 +31,7 @@ graphics::device_image::device_image(const graphics::context& context, uint32_t 
 	create_info.imageType = VK_IMAGE_TYPE_2D;
 	create_info.mipLevels = 1;
 	create_info.usage = usage;
+	create_info.samples = VK_SAMPLE_COUNT_1_BIT;
 
 	vkCreateImage(context.device, &create_info, nullptr, &m_image);
 

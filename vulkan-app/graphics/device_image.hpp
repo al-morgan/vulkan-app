@@ -13,7 +13,8 @@ namespace graphics
 		VkImage m_image;
 		VkDeviceMemory m_memory;
 	public:
-		device_image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkBufferUsageFlags usage);
+		device_image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage);
+		device_image() = delete;
 		~device_image();
 
 		/// <summary>

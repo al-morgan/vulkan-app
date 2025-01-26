@@ -247,6 +247,8 @@ struct mvp
 		graphics::buffer new_vertex_buffer(context, points.size() * sizeof(graphics::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		memcpy(new_vertex_buffer.data(), points.data(), points.size() * sizeof(graphics::vertex3d));
 
+		graphics::device_image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
 			//uint32_t image_view_index = 0; // TODO GET THE INDEX
