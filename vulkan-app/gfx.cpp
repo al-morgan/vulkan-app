@@ -170,18 +170,13 @@ struct mvp
 			glm::vec2(MIN, MAX)
 		};
 
-		VkBuffer vertex_buffer;
 		VkBufferCreateInfo buffer_create_info{};
 		buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		buffer_create_info.size = sizeof(positions);
 		buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		buffer_create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		vk_check(vkCreateBuffer(context.device, &buffer_create_info, nullptr, &vertex_buffer));
-
-		context.upload_buffer(vertex_buffer, positions, sizeof(positions));
 
 		transfer::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-
 		transfer::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
 		while (!glfwWindowShouldClose(window.glfw_window))
@@ -396,6 +391,5 @@ struct mvp
 			vkFreeMemory(context.device, device_buffer_memory, nullptr);
 		}
 		
-		vkDestroyBuffer(context.device, vertex_buffer, nullptr);
 	}
 //}
