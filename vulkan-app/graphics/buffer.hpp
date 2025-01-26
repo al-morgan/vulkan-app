@@ -1,6 +1,6 @@
 #include <vulkan/vulkan.h>
 
-namespace transfer
+namespace graphics
 {
 	/// <summary>
 	/// Handles transfering buffer data to the GPU

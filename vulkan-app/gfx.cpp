@@ -26,7 +26,7 @@
 
 #include "gfx_context.hpp"
 
-#include "transfer/buffer.hpp"
+#include "graphics/buffer.hpp"
 
 
 //#include <vulkan/vulkan_win32.h>
@@ -170,8 +170,8 @@ struct mvp
 			glm::vec2(MIN, MAX)
 		};
 
-		transfer::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-		transfer::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+		graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		graphics::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -183,7 +183,7 @@ struct mvp
 			vkResetCommandBuffer(command_buffer, 0);
 			vkResetFences(context.device, 1, &m_in_flight_fence);
 
-			transfer::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
+			graphics::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
 
 			float* mem = static_cast<float*>(rbuffer.data());
 
@@ -240,7 +240,6 @@ struct mvp
 					x = 0;
 					y++;
 				}
-
 			}
 
 			VkDescriptorBufferInfo descriptor_buffer_info{};
@@ -305,9 +304,6 @@ struct mvp
 			VkBuffer buffers[] = { vbuffer.handle() };
 			vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
 
-			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
-			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
-			
 			VkMemoryBarrier barrier{};
 			barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;

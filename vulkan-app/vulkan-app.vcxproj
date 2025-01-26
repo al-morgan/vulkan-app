@@ -140,14 +140,14 @@
     <ClCompile Include="gfx_context.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="perlin.cpp" />
-    <ClCompile Include="transfer\buffer.cpp" />
+    <ClCompile Include="graphics\buffer.cpp" />
     <ClCompile Include="vk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file.hpp" />
     <ClInclude Include="gfx.hpp" />
     <ClInclude Include="gfx_context.hpp" />
-    <ClInclude Include="transfer\buffer.hpp" />
+    <ClInclude Include="graphics\buffer.hpp" />
     <ClInclude Include="vk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

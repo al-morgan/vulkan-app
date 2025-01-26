@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 #include "gfx_context.hpp"
-#include "transfer/buffer.hpp"
+#include "graphics/buffer.hpp"
 
 static void check(VkResult result)
 {
@@ -12,24 +12,24 @@ static void check(VkResult result)
 	}
 }
 
-namespace transfer
+namespace graphics
 {
-	VkBuffer transfer::buffer::handle()
+	VkBuffer graphics::buffer::handle()
 	{
 		return m_destination;
 	}
 
-	void* transfer::buffer::data()
+	void* graphics::buffer::data()
 	{
 		return m_mapped_memory;
 	}
 
-	VkDeviceSize transfer::buffer::size()
+	VkDeviceSize graphics::buffer::size()
 	{
 		return m_size;
 	}
 
-	transfer::buffer::buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
+	graphics::buffer::buffer(const gfx::context& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
 	{
 		m_size = size;
 
@@ -62,7 +62,7 @@ namespace transfer
 		check(vkMapMemory(context.device, m_source_memory, 0, size, 0, &m_mapped_memory));
 	}
 
-	transfer::buffer::~buffer()
+	graphics::buffer::~buffer()
 	{
 		vkFreeMemory(m_context.device, m_destination_memory, nullptr);
 		vkFreeMemory(m_context.device, m_source_memory, nullptr);
@@ -70,7 +70,7 @@ namespace transfer
 		vkDestroyBuffer(m_context.device, m_destination, nullptr);
 	}
 
-	void transfer::buffer::copy(VkCommandBuffer command_buffer)
+	void graphics::buffer::copy(VkCommandBuffer command_buffer)
 	{
 		VkBufferCopy buffer_copy{};
 		buffer_copy.size = m_size;
