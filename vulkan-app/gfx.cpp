@@ -143,7 +143,6 @@ struct mvp
 		VkSemaphoreCreateInfo semaphore_create_info{};
 		semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		//vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_image_available_semaphore);
 		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
 
 	app::engine::~engine()
@@ -151,7 +150,6 @@ struct mvp
 		vkDeviceWaitIdle(context.device);
 
 		vkDestroySemaphore(context.device, m_render_finished_semaphore, nullptr);
-		//vkDestroySemaphore(context.device, m_image_available_semaphore, nullptr);
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
@@ -182,7 +180,7 @@ struct mvp
 
 		context.upload_buffer(vertex_buffer, positions, sizeof(positions));
 
-		gfx::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		transfer::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
 		transfer::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
@@ -331,7 +329,7 @@ struct mvp
 			context.begin_command_buffer(command_buffer);
 
 			ubuffer.copy(command_buffer);
-			vbuffer.update(context, command_buffer);
+			vbuffer.copy(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 						
@@ -349,7 +347,8 @@ struct mvp
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
 			VkDeviceSize offset = 0;
-			vkCmdBindVertexBuffers(command_buffer, 0, 1, &vbuffer.destination, &offset);
+			VkBuffer buffers[] = { vbuffer.handle() };
+			vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
 
 			//float values[3] = { static_cast<float>(center_x), static_cast<float>(center_y), static_cast<float>(zoom)};
 			//vkCmdPushConstants(m_command_buffer, m_pipeline_layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 12, values);
@@ -360,7 +359,6 @@ struct mvp
 			barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
-
 
 			context.begin_rendering(command_buffer, framebuffer.view);
 			vkCmdDraw(command_buffer, 600, 1, 0, 0);
@@ -396,7 +394,6 @@ struct mvp
 			vkDestroyBufferView(context.device, buffer_view, nullptr);
 			vkDestroyBuffer(context.device, buffer, nullptr);
 			vkFreeMemory(context.device, device_buffer_memory, nullptr);
-			//vkFreeMemory(context.device, vertex_buffer_memory, nullptr);
 		}
 		
 		vkDestroyBuffer(context.device, vertex_buffer, nullptr);

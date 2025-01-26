@@ -75,7 +75,5 @@ namespace transfer
 		VkBufferCopy buffer_copy{};
 		buffer_copy.size = m_size;
 		vkCmdCopyBuffer(command_buffer, m_source, m_destination, 1, &buffer_copy);
-
-		// TODO should probably just have one memory barrier
 	}
 }
