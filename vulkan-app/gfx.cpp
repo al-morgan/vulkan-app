@@ -155,6 +155,37 @@ struct mvp
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
+	//static void push_quad(std::vector<graphics::vertex3d> vector, double x, double y, double size_x, double size_y)
+	//{
+	//	graphics::vertex3d vertex;
+	//	vertex.pos[2] = 0.0f;
+
+	//	vertex.pos[0] = x - size_x;
+	//	vertex.pos[1] = y - size_y;
+	//	vector.push_back(vertex);
+
+	//	vertex.pos[0] = x + size_x;
+	//	vertex.pos[1] = y - size_y;
+	//	vector.push_back(vertex);
+
+	//	vertex.pos[0] = x - size_x;
+	//	vertex.pos[1] = y + size_y;
+	//	vector.push_back(vertex);
+
+	//	vertex.pos[0] = x + size_x;
+	//	vertex.pos[1] = y - size_y;
+	//	vector.push_back(vertex);
+
+	//	vertex.pos[0] = x + size_x;
+	//	vertex.pos[1] = y + size_y;
+	//	vector.push_back(vertex);
+
+	//	vertex.pos[0] = x - size_x;
+	//	vertex.pos[1] = y + size_y;
+	//	vector.push_back(vertex);
+
+	//}
+
 	void app::engine::update(graphics::context& context, app::window& window, vk::command_buffer& command_buffer)
 	{
 		std::srand(std::time(nullptr));
@@ -178,18 +209,37 @@ struct mvp
 		graphics::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
 		constexpr int axis_size = 1000;
-		graphics::buffer new_vertex_buffer(context, axis_size * axis_size * sizeof(graphics::vertex2d) * 6, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		static graphics::vertex3d mesh[axis_size + 1][axis_size + 1];
+
+		for (int x = 0; x <= axis_size; x++)
+		{
+			for (int y = 0; y <= axis_size; y++)
+			{
+				mesh[y][x].pos[0] = static_cast<double>(x) / static_cast<double>(axis_size);
+				mesh[y][x].pos[1] = static_cast<double>(y) / static_cast<double>(axis_size);
+				mesh[y][x].pos[2] = 0.0f;
+			}
+		}
+
+		std::vector<graphics::vertex3d> points;
 
 		for (int x = 0; x < axis_size; x++)
 		{
 			for (int y = 0; y < axis_size; y++)
 			{
-				double sample_x = static_cast<double>(x) / static_cast<double>(axis_size);
-				double sample_y = static_cast<double>(y) / static_cast<double>(axis_size);
-
-				double sample = noise.get(sample_x, sample_y);
+				points.push_back(mesh[y][x]);
+				points.push_back(mesh[y][x + 1]);
+				points.push_back(mesh[y + 1][x]);
+				points.push_back(mesh[y][x + 1]);
+				points.push_back(mesh[y + 1][x + 1]);
+				points.push_back(mesh[y + 1][x]);
 			}
 		}
+
+		//graphics::buffer new_vertex_buffer(context, axis_size * axis_size * sizeof(graphics::vertex3d) * 6, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		graphics::buffer new_vertex_buffer(context, points.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		memcpy(new_vertex_buffer.data(), points.data(), points.size());
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -303,6 +353,7 @@ struct mvp
 			ubuffer.copy(command_buffer);
 			vbuffer.copy(command_buffer);
 			rbuffer.copy(command_buffer);
+			new_vertex_buffer.copy(command_buffer);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
