@@ -96,6 +96,8 @@ void main()
 	// float s = sample_noise(gl_FragCoord.x, gl_FragCoord.y);
 	//s = (s + 1.0f) / 2.0f;
 	
+	
+	// GOOD ONE HERE
 	outColor = vec4(max(v, 0.0f), 0.0f, max(-v, 0.0f), 1.0f);
 
 	//v = (v + .707f) / 2.0f;

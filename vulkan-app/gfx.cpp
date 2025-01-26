@@ -27,6 +27,7 @@
 #include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
+#include "graphics/device_image.hpp"
 
 #include "perlin.hpp"
 
@@ -145,7 +146,8 @@ struct mvp
 		VkSemaphoreCreateInfo semaphore_create_info{};
 		semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);	}
+		vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
+	}
 
 	app::engine::~engine()
 	{
@@ -216,9 +218,9 @@ struct mvp
 		{
 			for (int y = 0; y <= axis_size; y++)
 			{
-				mesh[y][x].pos[0] = static_cast<double>(x) / static_cast<double>(axis_size);
-				mesh[y][x].pos[1] = static_cast<double>(y) / static_cast<double>(axis_size);
-				mesh[y][x].pos[2] = 0.0f;
+				mesh[y][x].pos[0] = static_cast<float>(x) / static_cast<float>(axis_size);
+				mesh[y][x].pos[1] = static_cast<float>(y) / static_cast<float>(axis_size);
+				mesh[y][x].pos[2] = static_cast<float>(std::rand()) * .05f / static_cast<float>(RAND_MAX);
 			}
 		}
 
@@ -237,9 +239,13 @@ struct mvp
 			}
 		}
 
+		int foo = points.size();
+
+		graphics::vertex3d bar = mesh[900][900];
+
 		//graphics::buffer new_vertex_buffer(context, axis_size * axis_size * sizeof(graphics::vertex3d) * 6, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-		graphics::buffer new_vertex_buffer(context, points.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-		memcpy(new_vertex_buffer.data(), points.data(), points.size());
+		graphics::buffer new_vertex_buffer(context, points.size() * sizeof(graphics::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		memcpy(new_vertex_buffer.data(), points.data(), points.size() * sizeof(graphics::vertex3d));
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -327,7 +333,7 @@ struct mvp
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
-			ubo->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+			ubo->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 			ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
 				glm::vec3(0.0f, 0.0f, 1.0f));
 			ubo->proj = glm::perspective(glm::radians(45.0f),
@@ -362,7 +368,7 @@ struct mvp
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
 			VkDeviceSize offset = 0;
-			VkBuffer buffers[] = { vbuffer.handle() };
+			VkBuffer buffers[] = { new_vertex_buffer.handle() };
 			vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
 
 			VkMemoryBarrier barrier{};
@@ -373,7 +379,7 @@ struct mvp
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
 			context.begin_rendering(command_buffer);
-			vkCmdDraw(command_buffer, 600, 1, 0, 0);
+			vkCmdDraw(command_buffer, 6000000, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
 			context.prepare_swapchain_for_presentation(command_buffer);
