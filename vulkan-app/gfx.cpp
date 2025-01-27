@@ -337,6 +337,9 @@ struct mvp
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
+
+
+
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
 			ubo->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 			ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
@@ -367,6 +370,32 @@ struct mvp
 			vbuffer.copy(command_buffer);
 			rbuffer.copy(command_buffer);
 			new_vertex_buffer.copy(command_buffer);
+
+			VkImageMemoryBarrier dbarrier{};
+			dbarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			dbarrier.image = depth_buffer.handle();
+			dbarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			dbarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			dbarrier.srcAccessMask = VK_ACCESS_NONE;
+			dbarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			dbarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+			dbarrier.subresourceRange.baseArrayLayer = 0;
+			dbarrier.subresourceRange.baseMipLevel = 0;
+			dbarrier.subresourceRange.layerCount = 1;
+			dbarrier.subresourceRange.levelCount = 1;
+			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1, &dbarrier);
+
+			
+			//context.transition_image(
+			//	command_buffer,
+			//	depth_buffer.handle(),
+			//	VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+			//	VK_ACCESS_NONE,
+			//	VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+			//	VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+			//	VK_IMAGE_LAYOUT_UNDEFINED,
+			//	VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+			//);
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 

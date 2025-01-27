@@ -523,9 +523,11 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
 	color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
-	//VkRenderingAttachmentInfo depth_attachment_info{};
-	//depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-	//depth_attachment_info.
+
+	VkRenderingAttachmentInfo depth_attachment_info{};
+	depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+	depth_attachment_info.clearValue = clear_value;
+	//depth_attachment_info.imageLayout
 
 	VkRenderingInfo rendering_info{};
 	rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
