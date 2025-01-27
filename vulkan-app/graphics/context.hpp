@@ -18,12 +18,12 @@ namespace graphics
 		uint32_t family_index;
 	};
 
-	struct framebuffer
-	{
-		VkImage image;
-		VkImageView view;
-		uint32_t index;
-	};
+	//struct framebuffer
+	//{
+	//	VkImage image;
+	//	VkImageView view;
+	//	uint32_t index;
+	//};
 
 	/// <summary>
 	/// Holds everything that gets set up once per application.
@@ -59,26 +59,26 @@ namespace graphics
 		//context(context&&) = delete;
 		~context();
 
-		graphics::framebuffer& get_next_framebuffer();
+		//graphics::framebuffer& get_next_framebuffer();
 		void begin_command_buffer(VkCommandBuffer command_buffer);
-		void begin_rendering(VkCommandBuffer command_buffer);
-		void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout);
-		void present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore);
+		void begin_rendering(VkCommandBuffer command_buffer, VkImageView view);
+		void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout) const;
+		//void present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, graphics::framebuffer& current_framebuffer);
 		void submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence);
 		void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
-		void advance_swapchain();
-		void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
-		void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
+		//void advance_swapchain();
+		//void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
+		//void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
 	private:
-		std::vector<framebuffer> framebuffers;
-		framebuffer current_framebuffer;
+		//std::vector<framebuffer> framebuffers;
+		//framebuffer current_framebuffer;
 		void create_instance();
 		void get_physical_device();
 		void create_surface(HWND window_handle);
 		void create_device();
 		void create_descriptor_pool();
-		void create_swapchain(uint32_t width, uint32_t height);
+		//void create_swapchain(uint32_t width, uint32_t height);
 		void create_descriptor_set_layout();
 		void create_descriptor_set();
 		void create_pipeline_layout();

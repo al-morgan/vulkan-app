@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glm/glm.hpp>
 
 namespace graphics
@@ -10,5 +12,12 @@ namespace graphics
 	struct vertex3d
 	{
 		glm::vec3 pos;
+	};
+
+	struct framebuffer
+	{
+		VkImage image;
+		VkImageView view;
+		uint32_t index;
 	};
 }

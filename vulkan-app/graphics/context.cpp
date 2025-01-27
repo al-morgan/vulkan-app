@@ -15,6 +15,7 @@
 
 #include "file.hpp"
 #include "vk.hpp"
+#include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 
 static void check(VkResult result)
@@ -38,7 +39,7 @@ graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	get_physical_device();
 	create_device();
 	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
-	create_swapchain(width, height);
+	//create_swapchain(width, height);
 	create_descriptor_pool();
 	create_descriptor_set_layout();
 	create_descriptor_set();
@@ -47,10 +48,6 @@ graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	create_pipeline_layout();
 	create_pipeline();
 
-	VkSemaphoreCreateInfo semaphore_create_info{};
-	semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-	check(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &get_next_framebuffer_semaphore));
 }
 
 /// <summary>
@@ -215,56 +212,56 @@ void graphics::context::create_device()
 /// </summary>
 /// <param name="width"></param>
 /// <param name="height"></param>
-void graphics::context::create_swapchain(uint32_t width, uint32_t height)
-{
-	VkExtent2D extent{};
-	extent.width = width;
-	extent.height = height;
-
-	VkSwapchainCreateInfoKHR create_info{};
-	create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	create_info.surface = surface;
-	create_info.minImageCount = 3;
-	create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-	create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-	create_info.imageExtent = extent;
-	create_info.imageArrayLayers = 1;
-	create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-	create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-	create_info.clipped = VK_TRUE;
-	create_info.oldSwapchain = VK_NULL_HANDLE;
-
-	vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
-
-	uint32_t swapchain_image_count;
-	std::vector<VkImage> images;
-	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, nullptr);
-	images.resize(swapchain_image_count);
-	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, images.data());
-
-	framebuffers.resize(swapchain_image_count);
-
-	for (uint32_t i = 0; i < swapchain_image_count; i++)
-	{
-		framebuffers[i].index = i;
-
-		framebuffers[i].image = images[i];
-
-		VkImageViewCreateInfo image_view_create_info{};
-		image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		image_view_create_info.image = framebuffers[i].image;
-		image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
-		image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		image_view_create_info.subresourceRange.layerCount = 1;
-		image_view_create_info.subresourceRange.levelCount = 1;
-
-		vkCreateImageView(device, &image_view_create_info, nullptr, &framebuffers[i].view);
-	}
-}
+//void graphics::context::create_swapchain(uint32_t width, uint32_t height)
+//{
+//	VkExtent2D extent{};
+//	extent.width = width;
+//	extent.height = height;
+//
+//	VkSwapchainCreateInfoKHR create_info{};
+//	create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+//	create_info.surface = surface;
+//	create_info.minImageCount = 3;
+//	create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+//	create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+//	create_info.imageExtent = extent;
+//	create_info.imageArrayLayers = 1;
+//	create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+//	create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+//	create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+//	create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+//	create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+//	create_info.clipped = VK_TRUE;
+//	create_info.oldSwapchain = VK_NULL_HANDLE;
+//
+//	vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
+//
+//	uint32_t swapchain_image_count;
+//	std::vector<VkImage> images;
+//	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, nullptr);
+//	images.resize(swapchain_image_count);
+//	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, images.data());
+//
+//	framebuffers.resize(swapchain_image_count);
+//
+//	for (uint32_t i = 0; i < swapchain_image_count; i++)
+//	{
+//		framebuffers[i].index = i;
+//
+//		framebuffers[i].image = images[i];
+//
+//		VkImageViewCreateInfo image_view_create_info{};
+//		image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+//		image_view_create_info.image = framebuffers[i].image;
+//		image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+//		image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+//		image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//		image_view_create_info.subresourceRange.layerCount = 1;
+//		image_view_create_info.subresourceRange.levelCount = 1;
+//
+//		vkCreateImageView(device, &image_view_create_info, nullptr, &framebuffers[i].view);
+//	}
+//}
 
 void graphics::context::create_descriptor_pool()
 {
@@ -456,14 +453,7 @@ graphics::context::~context()
 
 	vkDestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
 	vkDestroyDescriptorPool(device, descriptor_pool, nullptr);
-	vkDestroySemaphore(device, get_next_framebuffer_semaphore, nullptr);
 
-	for (uint32_t i = 0; i < static_cast<uint32_t>(framebuffers.size()); i++)
-	{
-		vkDestroyImageView(device, framebuffers[i].view, nullptr);
-	}
-
-	vkDestroySwapchainKHR(device, swapchain, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
@@ -474,12 +464,12 @@ graphics::context::~context()
 /// Sets the get_next_framebuffer_semaphore semaphore.
 /// </summary>
 /// <returns></returns>
-graphics::framebuffer& graphics::context::get_next_framebuffer()
-{
-	uint32_t image_index;
-	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, get_next_framebuffer_semaphore, nullptr, &image_index);
-	return framebuffers[image_index];
-}
+//graphics::framebuffer& graphics::context::get_next_framebuffer()
+//{
+//	uint32_t image_index;
+//	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, get_next_framebuffer_semaphore, nullptr, &image_index);
+//	return framebuffers[image_index];
+//}
 
 void graphics::context::create_descriptor_set_layout()
 {
@@ -510,7 +500,7 @@ void graphics::context::begin_command_buffer(VkCommandBuffer command_buffer)
 	vkBeginCommandBuffer(command_buffer, &begin_info);
 }
 
-void graphics::context::begin_rendering(VkCommandBuffer command_buffer)
+void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView view)
 {
 	VkClearValue clear_value{};
 
@@ -522,7 +512,7 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer)
 	color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 	color_attachment_info.clearValue = clear_value;
 	color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-	color_attachment_info.imageView = current_framebuffer.view;
+	color_attachment_info.imageView = view;
 	color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -543,7 +533,7 @@ void graphics::context::transition_image(VkCommandBuffer command_buffer,
 	VkShaderStageFlags desintation_stage,
 	VkAccessFlags destination_access_mask,
 	VkImageLayout old_layout,
-	VkImageLayout new_layout)
+	VkImageLayout new_layout) const
 {
 	VkImageMemoryBarrier barrier{};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -561,17 +551,17 @@ void graphics::context::transition_image(VkCommandBuffer command_buffer,
 
 }
 
-void graphics::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore)
-{
-	VkPresentInfoKHR present_info{};
-	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	present_info.pSwapchains = &swapchain;
-	present_info.swapchainCount = 1;
-	present_info.pWaitSemaphores = &wait_semaphore;
-	present_info.waitSemaphoreCount = 1;
-	present_info.pImageIndices = &current_framebuffer.index;
-	vkQueuePresentKHR(graphics_queue.handle, &present_info);
-}
+//void graphics::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, graphics::framebuffer& current_framebuffer)
+//{
+//	VkPresentInfoKHR present_info{};
+//	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+//	present_info.pSwapchains = &swapchain;
+//	present_info.swapchainCount = 1;
+//	present_info.pWaitSemaphores = &wait_semaphore;
+//	present_info.waitSemaphoreCount = 1;
+//	present_info.pImageIndices = &current_framebuffer.index;
+//	vkQueuePresentKHR(graphics_queue.handle, &present_info);
+//}
 
 
 void graphics::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
@@ -616,35 +606,35 @@ void graphics::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSiz
 }
 
 
-void graphics::context::advance_swapchain()
-{
-	current_framebuffer = get_next_framebuffer();
-}
+//void graphics::context::advance_swapchain()
+//{
+//	current_framebuffer = get_next_framebuffer();
+//}
 
-void graphics::context::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
-{
-	transition_image(
-		command_buffer,
-		current_framebuffer.image,
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-		VK_ACCESS_NONE,
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-	);
-}
-
-void graphics::context::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
-{
-	transition_image(
-		command_buffer,
-		current_framebuffer.image,
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-		VK_ACCESS_NONE,
-		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-	);
-}
+//void graphics::context::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
+//{
+//	transition_image(
+//		command_buffer,
+//		current_framebuffer.image,
+//		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+//		VK_ACCESS_NONE,
+//		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+//		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+//		VK_IMAGE_LAYOUT_UNDEFINED,
+//		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+//	);
+//}
+//
+//void graphics::context::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
+//{
+//	transition_image(
+//		command_buffer,
+//		current_framebuffer.image,
+//		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+//		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+//		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+//		VK_ACCESS_NONE,
+//		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+//		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+//	);
+//}

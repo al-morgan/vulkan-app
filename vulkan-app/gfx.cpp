@@ -28,6 +28,7 @@
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
 #include "graphics/device_image.hpp"
+#include "graphics/swapchain.hpp"
 
 #include "perlin.hpp"
 
@@ -241,6 +242,8 @@ struct mvp
 
 		int foo = points.size();
 
+		graphics::swapchain swapchain(context, WIDTH, HEIGHT, context.surface);
+
 		graphics::vertex3d bar = mesh[900][900];
 
 		//graphics::buffer new_vertex_buffer(context, axis_size * axis_size * sizeof(graphics::vertex3d) * 6, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -354,7 +357,9 @@ struct mvp
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-			context.advance_swapchain();
+			swapchain.get_next_framebuffer();
+			
+			//context.advance_swapchain();
 
 			context.begin_command_buffer(command_buffer);
 
@@ -365,7 +370,8 @@ struct mvp
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
-			context.prepare_swapchain_for_writing(command_buffer);
+			//context.prepare_swapchain_for_writing(command_buffer);
+			swapchain.prepare_swapchain_for_writing(command_buffer);
 
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
@@ -380,11 +386,13 @@ struct mvp
 
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-			context.begin_rendering(command_buffer);
+			context.begin_rendering(command_buffer, swapchain.image_view());
 			vkCmdDraw(command_buffer, 6000000, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
-			context.prepare_swapchain_for_presentation(command_buffer);
+			//context.prepare_swapchain_for_presentation(command_buffer);
+			swapchain.prepare_swapchain_for_presentation(command_buffer);
+
 
 			vkEndCommandBuffer(command_buffer);
 
@@ -392,12 +400,13 @@ struct mvp
 			
 			context.submit(
 				command_buffer,
-				context.get_next_framebuffer_semaphore,
+				swapchain.get_semaphore(),
 				wait_stage,
 				m_render_finished_semaphore,
 				m_in_flight_fence);
 
-			context.present(command_buffer, m_render_finished_semaphore);
+			//context.present(command_buffer, m_render_finished_semaphore);
+			swapchain.present(m_render_finished_semaphore);
 
 			// NO NO NO
 			vkDeviceWaitIdle(context.device);
