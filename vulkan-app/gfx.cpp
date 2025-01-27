@@ -221,7 +221,7 @@ struct mvp
 			{
 				mesh[y][x].pos[0] = static_cast<float>(x) / static_cast<float>(axis_size);
 				mesh[y][x].pos[1] = static_cast<float>(y) / static_cast<float>(axis_size);
-				mesh[y][x].pos[2] = static_cast<float>(std::rand()) * .5f / static_cast<float>(RAND_MAX);
+				mesh[y][x].pos[2] = static_cast<float>(std::rand()) * .05f / static_cast<float>(RAND_MAX);
 			}
 		}
 
