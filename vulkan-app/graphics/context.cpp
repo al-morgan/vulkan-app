@@ -527,7 +527,8 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
 	VkRenderingAttachmentInfo depth_attachment_info{};
 	depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 	depth_attachment_info.clearValue = clear_value;
-	//depth_attachment_info.imageLayout
+	depth_attachment_info.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	depth_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 
 	VkRenderingInfo rendering_info{};
 	rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
@@ -535,7 +536,7 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
 	rendering_info.colorAttachmentCount = 1;
 	rendering_info.layerCount = 1;
 	rendering_info.renderArea = render_area;
-//	rendering_info.pDepthAttachment = &depth_attachment;
+	rendering_info.pDepthAttachment = &depth_attachment_info;
 
 	vkCmdBeginRendering(command_buffer, &rendering_info);
 }
