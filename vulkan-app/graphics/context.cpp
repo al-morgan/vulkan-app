@@ -413,7 +413,7 @@ void graphics::context::create_pipeline()
 	depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depth_stencil_state.depthTestEnable = VK_TRUE;
 	depth_stencil_state.depthWriteEnable = VK_TRUE;
-	depth_stencil_state.depthCompareOp = VK_COMPARE_OP_GREATER;
+	depth_stencil_state.depthCompareOp = VK_COMPARE_OP_LESS;
 	//depth_stencil_state.
 
 	VkGraphicsPipelineCreateInfo create_info{};
@@ -525,7 +525,7 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
 	color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
-
+	clear_value.depthStencil.depth = 1.0f;
 	VkRenderingAttachmentInfo depth_attachment_info{};
 	depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 	depth_attachment_info.clearValue = clear_value;

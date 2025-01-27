@@ -66,5 +66,6 @@ graphics::device_image::device_image(const graphics::context& context, uint32_t 
 graphics::device_image::~device_image()
 {
 	vkFreeMemory(m_context.device, m_memory, nullptr);
+	vkDestroyImageView(m_context.device, m_view, nullptr);
 	vkDestroyImage(m_context.device, m_image, nullptr);
 }
