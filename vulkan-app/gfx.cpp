@@ -415,7 +415,7 @@ struct mvp
 
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-			context.begin_rendering(command_buffer, swapchain.image_view());
+			context.begin_rendering(command_buffer, swapchain.image_view(), depth_buffer.m_view);
 			vkCmdDraw(command_buffer, 6000000, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			

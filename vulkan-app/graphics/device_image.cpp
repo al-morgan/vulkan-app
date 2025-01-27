@@ -46,6 +46,21 @@ graphics::device_image::device_image(const graphics::context& context, uint32_t 
 	check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_memory));
 
 	vkBindImageMemory(context.device, m_image, m_memory, 0);
+
+	VkImageViewCreateInfo iv_create_info{};
+	iv_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	iv_create_info.image = m_image;
+	iv_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	iv_create_info.format = format;
+	iv_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+	iv_create_info.subresourceRange.baseArrayLayer = 0;
+	iv_create_info.subresourceRange.baseMipLevel = 0;
+	iv_create_info.subresourceRange.layerCount = 1;
+	iv_create_info.subresourceRange.levelCount = 1;
+
+
+	//iv_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	vkCreateImageView(context.device, &iv_create_info, nullptr, &m_view);
 }
 
 graphics::device_image::~device_image()

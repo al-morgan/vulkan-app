@@ -16,6 +16,7 @@ namespace graphics
 		device_image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage);
 		device_image() = delete;
 		~device_image();
+		VkImageView m_view;
 
 		/// <summary>
 		/// Returns the device-local buffer handle.

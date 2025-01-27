@@ -413,7 +413,8 @@ void graphics::context::create_pipeline()
 	depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depth_stencil_state.depthTestEnable = VK_TRUE;
 	depth_stencil_state.depthWriteEnable = VK_TRUE;
-	depth_stencil_state.depthCompareOp = VK_COMPARE_OP_LESS;
+	depth_stencil_state.depthCompareOp = VK_COMPARE_OP_GREATER;
+	//depth_stencil_state.
 
 	VkGraphicsPipelineCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -435,6 +436,7 @@ void graphics::context::create_pipeline()
 	pipeline_rendering_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
 	pipeline_rendering_create_info.colorAttachmentCount = 1;
 	pipeline_rendering_create_info.pColorAttachmentFormats = &format;
+	pipeline_rendering_create_info.depthAttachmentFormat = VK_FORMAT_D24_UNORM_S8_UINT;
 	create_info.pNext = &pipeline_rendering_create_info;
 
 	vkCreateGraphicsPipelines(device, nullptr, 1, &create_info, nullptr, &pipeline);
@@ -507,7 +509,7 @@ void graphics::context::begin_command_buffer(VkCommandBuffer command_buffer)
 	vkBeginCommandBuffer(command_buffer, &begin_info);
 }
 
-void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView view )
+void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view)
 {
 	VkClearValue clear_value{};
 
@@ -529,6 +531,7 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
 	depth_attachment_info.clearValue = clear_value;
 	depth_attachment_info.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	depth_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depth_attachment_info.imageView = depth_view;
 
 	VkRenderingInfo rendering_info{};
 	rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
