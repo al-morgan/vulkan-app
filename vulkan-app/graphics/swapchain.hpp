@@ -14,7 +14,7 @@ namespace graphics
 		swapchain() = delete;
 		swapchain(graphics::swapchain&&) = delete;
 		~swapchain();
-		graphics::framebuffer& get_next_framebuffer();
+		void get_next_framebuffer();
 		VkSemaphore get_semaphore() { return m_semaphore; }
 		VkImageView image_view() { return m_current_framebuffer.view; };
 		void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);

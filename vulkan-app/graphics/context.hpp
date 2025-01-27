@@ -35,6 +35,7 @@ namespace graphics
 		VkSurfaceKHR surface;
 		VkPhysicalDevice physical_device;
 		VkDevice device;
+
 		VkSwapchainKHR swapchain;
 		VkSemaphore get_next_framebuffer_semaphore;
 		VkDescriptorPool descriptor_pool;

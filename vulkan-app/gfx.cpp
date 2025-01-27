@@ -355,12 +355,12 @@ struct mvp
 			write_descriptor_set.dstArrayElement = 0;
 			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
+			
+			
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
 			swapchain.get_next_framebuffer();
 			
-			//context.advance_swapchain();
-
 			context.begin_command_buffer(command_buffer);
 
 			ubuffer.copy(command_buffer);
@@ -370,7 +370,7 @@ struct mvp
 
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
 
-			//context.prepare_swapchain_for_writing(command_buffer);
+
 			swapchain.prepare_swapchain_for_writing(command_buffer);
 
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
@@ -390,9 +390,7 @@ struct mvp
 			vkCmdDraw(command_buffer, 6000000, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			
-			//context.prepare_swapchain_for_presentation(command_buffer);
 			swapchain.prepare_swapchain_for_presentation(command_buffer);
-
 
 			vkEndCommandBuffer(command_buffer);
 
@@ -405,7 +403,6 @@ struct mvp
 				m_render_finished_semaphore,
 				m_in_flight_fence);
 
-			//context.present(command_buffer, m_render_finished_semaphore);
 			swapchain.present(m_render_finished_semaphore);
 
 			// NO NO NO

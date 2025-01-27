@@ -409,6 +409,12 @@ void graphics::context::create_pipeline()
 	color_blend_state.logicOp = VK_LOGIC_OP_SET;
 	//color_blend_state.blendConstants
 
+	VkPipelineDepthStencilStateCreateInfo depth_stencil_state{};
+	depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	depth_stencil_state.depthTestEnable = VK_TRUE;
+	depth_stencil_state.depthWriteEnable = VK_TRUE;
+	depth_stencil_state.depthCompareOp = VK_COMPARE_OP_LESS;
+
 	VkGraphicsPipelineCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	create_info.stageCount = 2;
@@ -420,6 +426,7 @@ void graphics::context::create_pipeline()
 	create_info.pRasterizationState = &rasterization_state;
 	create_info.pViewportState = &viewport_state;
 	create_info.pColorBlendState = &color_blend_state;
+	create_info.pDepthStencilState = &depth_stencil_state;
 	//create_info.layout
 
 	// Tutorial says I need this but it works without it?
@@ -500,7 +507,7 @@ void graphics::context::begin_command_buffer(VkCommandBuffer command_buffer)
 	vkBeginCommandBuffer(command_buffer, &begin_info);
 }
 
-void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView view)
+void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView view )
 {
 	VkClearValue clear_value{};
 
@@ -516,12 +523,17 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
 	color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
+	//VkRenderingAttachmentInfo depth_attachment_info{};
+	//depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+	//depth_attachment_info.
+
 	VkRenderingInfo rendering_info{};
 	rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
 	rendering_info.pColorAttachments = &color_attachment_info;
 	rendering_info.colorAttachmentCount = 1;
 	rendering_info.layerCount = 1;
 	rendering_info.renderArea = render_area;
+//	rendering_info.pDepthAttachment = &depth_attachment;
 
 	vkCmdBeginRendering(command_buffer, &rendering_info);
 }

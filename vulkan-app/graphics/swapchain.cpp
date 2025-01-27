@@ -56,13 +56,11 @@ graphics::swapchain::swapchain(graphics::context& context, uint32_t width, uint3
 	vkCreateSemaphore(m_context.device, &semaphore_create_info, nullptr, &m_semaphore);
 }
 
-graphics::framebuffer& graphics::swapchain::get_next_framebuffer()
+void graphics::swapchain::get_next_framebuffer()
 {
 	uint32_t image_index;
 	vkAcquireNextImageKHR(m_context.device, m_swapchain, UINT64_MAX, m_semaphore, nullptr, &image_index);
 	m_current_framebuffer = m_framebuffers[image_index];
-
-	return m_framebuffers[image_index];
 }
 
 graphics::swapchain::~swapchain()
