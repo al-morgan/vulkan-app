@@ -27,7 +27,6 @@
 #include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
-#include "graphics/device_image.hpp"
 #include "graphics/swapchain.hpp"
 #include "graphics/image.hpp"
 
