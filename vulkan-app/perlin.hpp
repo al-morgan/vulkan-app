@@ -78,8 +78,8 @@ namespace app
 			double ll = sample(fx, cy, x, y);
 			double lr = sample(cx, cy, x, y);
 
-			double weight_x = smoothstep(fx, fy, x);
-			double weight_y = smoothstep(fx, fy, y);
+			double weight_x = smoothstep(fx, cx, x);
+			double weight_y = smoothstep(fy, cy, y);
 
 			double x1 = std::lerp(ul, ur, weight_x);
 			double x2 = std::lerp(ll, lr, weight_x);

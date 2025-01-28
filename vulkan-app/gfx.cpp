@@ -32,7 +32,6 @@
 
 #include "perlin.hpp"
 
-
 //#include <vulkan/vulkan_win32.h>
 
 #define WIDTH	800
@@ -221,7 +220,8 @@ struct mvp
 			{
 				mesh[y][x].pos[0] = static_cast<float>(x) / static_cast<float>(axis_size);
 				mesh[y][x].pos[1] = static_cast<float>(y) / static_cast<float>(axis_size);
-				mesh[y][x].pos[2] = static_cast<float>(std::rand()) * .05f / static_cast<float>(RAND_MAX);
+				//mesh[y][x].pos[2] = static_cast<float>(std::rand()) * .01f / static_cast<float>(RAND_MAX);
+				mesh[y][x].pos[2] = noise.get(mesh[y][x].pos[0], mesh[y][x].pos[1]) * 0.1f;
 			}
 		}
 
@@ -277,9 +277,9 @@ struct mvp
 			{
 				mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
 
-				float z = static_cast<float>(std::rand()) * .1f / static_cast<float>(RAND_MAX);
+				float z = static_cast<float>(std::rand()) * .01f / static_cast<float>(RAND_MAX);
 				
-				z = mem[i] / 60.f;
+				z = 0.0f; // mem[i] / 600.f;
 
 				if (x != 10 && y != 10)
 				{
@@ -339,11 +339,8 @@ struct mvp
 
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-
-
-
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
-			ubo->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+			ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 			ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
 				glm::vec3(0.0f, 0.0f, 1.0f));
 			ubo->proj = glm::perspective(glm::radians(45.0f),
