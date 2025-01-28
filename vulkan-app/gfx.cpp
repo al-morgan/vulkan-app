@@ -340,12 +340,18 @@ struct mvp
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
-			ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+			ubo->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
 				glm::vec3(0.0f, 0.0f, 1.0f));
+
+			ubo->model = glm::mat4(1);/*  glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
+				glm::vec3(0.0f, 0.0f, 1.0f));*/
+
 			ubo->proj = glm::perspective(glm::radians(45.0f),
 				800.0f / 800.0f, 0.1f,
 				10.0f);
+
+			ubo->proj[1][1] *= -1.0f;
 
 			descriptor_buffer_info.buffer = ubuffer.handle();
 			descriptor_buffer_info.offset = 0;
