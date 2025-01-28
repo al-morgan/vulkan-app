@@ -23,5 +23,6 @@ namespace graphics
 		/// </summary>
 		/// <returns>The buffer handle.</returns>
 		VkImage handle();
+
 	};
 }

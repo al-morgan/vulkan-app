@@ -17,8 +17,9 @@ namespace graphics
 		VkDeviceMemory m_destination_memory;
 		void* m_mapped_memory;
 		VkImageView m_view;
+		VkImageAspectFlags m_aspect;
 	public:
-		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage);
+		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect);
 		~image();
 
 		/// <summary>
@@ -44,5 +45,11 @@ namespace graphics
 		/// </summary>
 		/// <returns>The size of the buffer, in bytes.</returns>
 		VkDeviceSize size();
+
+
+
+		void send(VkCommandBuffer command_buffer);
+
+		void close();
 	};
 }

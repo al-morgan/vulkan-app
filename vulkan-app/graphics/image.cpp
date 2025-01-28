@@ -27,7 +27,7 @@ VkDeviceSize graphics::image::size()
 	return m_size;
 }
 
-graphics::image::image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage) : m_context(context)
+graphics::image::image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect) : m_context(context), m_aspect(aspect)
 {
 	VkImageCreateInfo image_ci{};
 	image_ci.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -56,20 +56,20 @@ graphics::image::image(const graphics::context& context, uint32_t width, uint32_
 	// Bind device memory
 	vkBindImageMemory(context.device, m_destination, m_destination_memory, 0);
 
+	// Create image view.
+	// TODO: Maybe only do this on demand?
 	VkImageViewCreateInfo image_view_ci{};
 	image_view_ci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	image_view_ci.image = m_destination;
 	image_view_ci.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	image_view_ci.format = format;
-	image_view_ci.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+	image_view_ci.subresourceRange.aspectMask = m_aspect;
 	image_view_ci.subresourceRange.baseArrayLayer = 0;
 	image_view_ci.subresourceRange.baseMipLevel = 0;
 	image_view_ci.subresourceRange.layerCount = 1;
 	image_view_ci.subresourceRange.levelCount = 1;
 	vkCreateImageView(context.device, &image_view_ci, nullptr, &m_view);
 	
-	image_ci.tiling = VK_IMAGE_TILING_LINEAR;
-
 	// END HERE
 
 	// Create host buffer
@@ -93,15 +93,28 @@ graphics::image::image(const graphics::context& context, uint32_t width, uint32_
 
 graphics::image::~image()
 {
+	close();
 	vkFreeMemory(m_context.device, m_destination_memory, nullptr);
-	vkFreeMemory(m_context.device, m_source_memory, nullptr);
-	vkDestroyBuffer(m_context.device, m_source, nullptr);
 	vkDestroyImage(m_context.device, m_destination, nullptr);
 }
 
-void graphics::image::copy(VkCommandBuffer command_buffer)
+void graphics::image::send(VkCommandBuffer command_buffer)
 {
-	//VkBufferCopy buffer_copy{};
-	//buffer_copy.size = m_size;
-	//vkCmdCopyBuffer(command_buffer, m_source, m_destination, 1, &buffer_copy);
+	VkBufferImageCopy region{};
+	region.imageSubresource.aspectMask = m_aspect;
+	region.imageSubresource.layerCount = 1;
+
+	vkCmdCopyBufferToImage(command_buffer, m_source, m_destination, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+}
+
+
+void graphics::image::close()
+{
+	if (m_source_memory != VK_NULL_HANDLE)
+	{
+		vkFreeMemory(m_context.device, m_source_memory, nullptr);
+		vkDestroyBuffer(m_context.device, m_source, nullptr);
+		m_source_memory = VK_NULL_HANDLE;
+		m_source = VK_NULL_HANDLE;
+	}
 }
