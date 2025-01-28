@@ -12,21 +12,6 @@ static void check(VkResult result)
 	}
 }
 
-VkImage graphics::image::handle()
-{
-	return m_destination;
-}
-
-void* graphics::image::data()
-{
-	return m_mapped_memory;
-}
-
-VkDeviceSize graphics::image::size()
-{
-	return m_size;
-}
-
 graphics::image::image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory) : m_context(context), m_aspect(aspect)
 {
 	VkImageCreateInfo image_ci{};

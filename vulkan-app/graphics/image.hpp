@@ -10,48 +10,45 @@ namespace graphics
 	{
 	private:
 		const graphics::context& m_context;
-		VkImage m_destination;
-		VkBuffer m_source;
-		VkDeviceSize m_size;
-		VkDeviceMemory m_source_memory;
-		VkDeviceMemory m_destination_memory;
-		void* m_mapped_memory;
-		VkImageView m_view;
-		VkImageAspectFlags m_aspect;
+		VkImage m_destination = VK_NULL_HANDLE;
+		VkBuffer m_source = VK_NULL_HANDLE;
+		VkDeviceMemory m_source_memory = VK_NULL_HANDLE;
+		VkDeviceMemory m_destination_memory = VK_NULL_HANDLE;
+		void* m_mapped_memory = nullptr;
+		VkImageView m_view = VK_NULL_HANDLE;
+		VkImageAspectFlags m_aspect = 0;
 	public:
 		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory);
 		~image();
 
 		/// <summary>
-		/// Copy the buffer data to the GPU. Call from a command buffer.
-		/// </summary>
-		/// <param name="command_buffer">The current command buffer</param>
-		void copy(VkCommandBuffer command_buffer);
-
-		/// <summary>
 		/// Returns the device-local buffer handle.
 		/// </summary>
 		/// <returns>The buffer handle.</returns>
-		VkImage handle();
+		VkImage handle() { return m_destination; }
 
 		/// <summary>
 		/// Returns a pointer to the host-local data.
 		/// </summary>
 		/// <returns>A pointer to the host-local data.</returns>
-		void* data();
+		void* data() { return m_mapped_memory; };
 
 		/// <summary>
-		/// Returns the size of the buffer.
+		/// Returns the image view.
 		/// </summary>
-		/// <returns>The size of the buffer, in bytes.</returns>
-		VkDeviceSize size();
-
+		/// <returns>The view for this image.</returns>
 		VkImageView view() { return m_view; }
 
-
-
+		/// <summary>
+		/// Sends buffer data to the GPU.
+		/// </summary>
+		/// <param name="command_buffer">The active command buffer.</param>
 		void send(VkCommandBuffer command_buffer);
 
+		/// <summary>
+		/// Closes the connection between the local buffer and the image on
+		/// the GPU, freeing up resources.
+		/// </summary>
 		void close();
 	};
 }
