@@ -138,7 +138,6 @@
     <ClCompile Include="file.cpp" />
     <ClCompile Include="gfx.cpp" />
     <ClCompile Include="graphics\context.cpp" />
-    <ClCompile Include="graphics\device_image.cpp" />
     <ClCompile Include="graphics\image.cpp" />
     <ClCompile Include="graphics\swapchain.cpp" />
     <ClCompile Include="main.cpp" />
@@ -151,7 +150,6 @@
     <ClInclude Include="gfx.hpp" />
     <ClInclude Include="graphics\buffer.hpp" />
     <ClInclude Include="graphics\context.hpp" />
-    <ClInclude Include="graphics\device_image.hpp" />
     <ClInclude Include="graphics\graphics.hpp" />
     <ClInclude Include="graphics\image.hpp" />
     <ClInclude Include="graphics\swapchain.hpp" />
