@@ -97,6 +97,7 @@ graphics::image::~image()
 {
 	close();
 	vkFreeMemory(m_context.device, m_destination_memory, nullptr);
+	vkDestroyImageView(m_context.device, m_view, nullptr);
 	vkDestroyImage(m_context.device, m_destination, nullptr);
 }
 

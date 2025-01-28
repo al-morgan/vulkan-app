@@ -29,6 +29,7 @@
 #include "graphics/buffer.hpp"
 #include "graphics/device_image.hpp"
 #include "graphics/swapchain.hpp"
+#include "graphics/image.hpp"
 
 #include "perlin.hpp"
 
@@ -250,7 +251,9 @@ struct mvp
 		graphics::buffer new_vertex_buffer(context, points.size() * sizeof(graphics::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		memcpy(new_vertex_buffer.data(), points.data(), points.size() * sizeof(graphics::vertex3d));
 
-		graphics::device_image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		//graphics::device_image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+		graphics::image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -415,7 +418,7 @@ struct mvp
 
 			vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-			context.begin_rendering(command_buffer, swapchain.image_view(), depth_buffer.m_view);
+			context.begin_rendering(command_buffer, swapchain.image_view(), depth_buffer.view());
 			vkCmdDraw(command_buffer, 6000000, 1, 0, 0);
 			vkCmdEndRendering(command_buffer);
 			

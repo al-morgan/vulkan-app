@@ -46,6 +46,8 @@ namespace graphics
 		/// <returns>The size of the buffer, in bytes.</returns>
 		VkDeviceSize size();
 
+		VkImageView view() { return m_view; }
+
 
 
 		void send(VkCommandBuffer command_buffer);
