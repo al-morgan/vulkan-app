@@ -20,7 +20,6 @@ VkImage graphics::device_image::handle()
 graphics::device_image::device_image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage) : m_context(context)
 {
 	VkImageCreateInfo create_info{};
-
 	create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
 	create_info.arrayLayers = 1;
@@ -32,13 +31,12 @@ graphics::device_image::device_image(const graphics::context& context, uint32_t 
 	create_info.mipLevels = 1;
 	create_info.usage = usage;
 	create_info.samples = VK_SAMPLE_COUNT_1_BIT;
-
 	vkCreateImage(context.device, &create_info, nullptr, &m_image);
 
 	VkMemoryRequirements memory_requirements;
 	vkGetImageMemoryRequirements(context.device, m_image, &memory_requirements);
-	
-	// Allocate host memory
+
+	// Allocate device memory
 	VkMemoryAllocateInfo memory_allocate_info{};
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memory_allocate_info.allocationSize = memory_requirements.size;
@@ -57,7 +55,6 @@ graphics::device_image::device_image(const graphics::context& context, uint32_t 
 	iv_create_info.subresourceRange.baseMipLevel = 0;
 	iv_create_info.subresourceRange.layerCount = 1;
 	iv_create_info.subresourceRange.levelCount = 1;
-
 
 	//iv_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 	vkCreateImageView(context.device, &iv_create_info, nullptr, &m_view);
