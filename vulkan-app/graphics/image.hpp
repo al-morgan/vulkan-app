@@ -19,7 +19,7 @@ namespace graphics
 		VkImageView m_view;
 		VkImageAspectFlags m_aspect;
 	public:
-		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect);
+		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory);
 		~image();
 
 		/// <summary>

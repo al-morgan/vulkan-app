@@ -27,7 +27,7 @@ VkDeviceSize graphics::image::size()
 	return m_size;
 }
 
-graphics::image::image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect) : m_context(context), m_aspect(aspect)
+graphics::image::image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory) : m_context(context), m_aspect(aspect)
 {
 	VkImageCreateInfo image_ci{};
 	image_ci.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -70,25 +70,27 @@ graphics::image::image(const graphics::context& context, uint32_t width, uint32_
 	image_view_ci.subresourceRange.levelCount = 1;
 	vkCreateImageView(context.device, &image_view_ci, nullptr, &m_view);
 	
-	// END HERE
+	if (host_memory)
+	{
+		// Create host buffer
+		VkBufferCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		create_info.size = memory_requirements.size;
+		create_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		vkCreateBuffer(context.device, &create_info, nullptr, &m_source);
 
-	// Create host buffer
-	VkBufferCreateInfo create_info{};
-	create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	create_info.size = memory_requirements.size;
-	create_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	vkCreateBuffer(context.device, &create_info, nullptr, &m_source);
+		// Allocate host memory
+		VkMemoryAllocateInfo memory_allocate_info{};
+		memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		memory_allocate_info.allocationSize = memory_requirements.size;
+		memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
+		check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
+		check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
 
-	// Allocate host memory
-	VkMemoryAllocateInfo memory_allocate_info{};
-	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	memory_allocate_info.allocationSize = memory_requirements.size;
-	memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
-	check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
-	check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
+		// Map the host memory so we can read it
+		check(vkMapMemory(context.device, m_source_memory, 0, memory_requirements.size, 0, &m_mapped_memory));
+	}
 
-	// Map the host memory so we can read it
-	check(vkMapMemory(context.device, m_source_memory, 0, memory_requirements.size, 0, &m_mapped_memory));
 }
 
 graphics::image::~image()
@@ -105,6 +107,8 @@ void graphics::image::send(VkCommandBuffer command_buffer)
 	region.imageSubresource.layerCount = 1;
 
 	vkCmdCopyBufferToImage(command_buffer, m_source, m_destination, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+	// TODO: need to transition to final layout
 }
 
 
