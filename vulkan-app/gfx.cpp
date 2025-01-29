@@ -32,8 +32,6 @@
 
 #include "perlin.hpp"
 
-//#include <vulkan/vulkan_win32.h>
-
 #define WIDTH	800
 #define HEIGHT	800
 
@@ -43,6 +41,9 @@ static bool is_mouse_down;
 static double center_x, center_y;
 static double last_update_x, last_update_y;
 static double zoom = 1.0;
+
+static double yaw;
+static double pitch;
 
 //namespace app
 //{
@@ -61,23 +62,18 @@ struct mvp
 
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
-		mouse_x = xpos;
-		mouse_y = ypos;
+		constexpr double sensitivity = 0.001;
 
-		if (is_mouse_down)
-		{
-			double dx = mouse_x - last_update_x;
-			double dy = mouse_y - last_update_y;
+		yaw += (xpos) * sensitivity;
+		pitch += (ypos) * sensitivity;
 
-			double ndx = dx / 200.0 / zoom;
-			double ndy = dy / 200.0 / zoom;
+		glfwSetCursorPos(window, 0.0, 0.0);
 
-			center_x -= ndx;
-			center_y -= ndy;
+		//mouse_x = xpos;
+		//mouse_y = ypos;
 
-			last_update_x = mouse_x;
-			last_update_y = mouse_y;
-		}
+		std::cout << xpos << ", " << ypos << std::endl;
+		
 	}
 
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -105,8 +101,6 @@ struct mvp
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 		{
 			is_mouse_down = false;
-			// center_x += (mouse_down_x - mouse_x);
-			// center_y += (mouse_down_y - center_y) / 200.0;
 		}
 	}
 
@@ -119,6 +113,17 @@ struct mvp
 		glfwSetCursorPosCallback(glfw_window, cursor_position_callback);
 		glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
 		glfwSetScrollCallback(glfw_window, scroll_callback);
+
+		glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		if (glfwRawMouseMotionSupported())
+		{
+			glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		}
+		else
+		{
+			throw std::runtime_error("Could not set mouse to raw input mode!");
+		}
+
 		handle = glfwGetWin32Window(glfw_window);
 	}
 
@@ -246,13 +251,72 @@ struct mvp
 
 		graphics::vertex3d bar = mesh[900][900];
 
-		//graphics::buffer new_vertex_buffer(context, axis_size * axis_size * sizeof(graphics::vertex3d) * 6, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		graphics::buffer new_vertex_buffer(context, points.size() * sizeof(graphics::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		memcpy(new_vertex_buffer.data(), points.data(), points.size() * sizeof(graphics::vertex3d));
 
-		//graphics::device_image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-
 		graphics::image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
+
+		glm::vec3 position(.20f, .20f, .20f);
+		glm::vec3 direction(1.0f, 0.0f, 0.0f);
+
+		graphics::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
+
+		float* mem = static_cast<float*>(rbuffer.data());
+
+		//vkBindBufferMemory
+
+		int x = 0;
+		int y = 0;
+		int j = 0;
+		for (uint32_t i = 0; i < 100; i += 1)
+		{
+			mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
+
+			float z = static_cast<float>(std::rand()) * .01f / static_cast<float>(RAND_MAX);
+
+			z = 0.0f; // mem[i] / 600.f;
+
+			if (x != 10 && y != 10)
+			{
+				glm::vec3* foo = static_cast<glm::vec3*>(vbuffer.data());
+				foo[j][0] = static_cast<float>(x * .2f - 1.f);
+				foo[j][1] = static_cast<float>(y * .2f - 1.f);
+				foo[j][2] = z;
+				j++;
+
+				foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
+				foo[j][1] = static_cast<float>(y) * .2f - 1.f;
+				foo[j][2] = z;
+				j++;
+
+				foo[j][0] = static_cast<float>(x) * .2f - 1.f;
+				foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
+				foo[j][2] = z;
+				j++;
+
+				foo[j][0] = static_cast<float>((x + 1) * .2f - 1.f);
+				foo[j][1] = static_cast<float>(y) * .2f - 1.f;
+				foo[j][2] = z;
+				j++;
+
+				foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
+				foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
+				foo[j][2] = z;
+				j++;
+
+				foo[j][0] = static_cast<float>(x * .2f - 1.f);
+				foo[j][1] = static_cast<float>((y + 1) * .2f - 1.f);
+				foo[j][2] = z;
+				j++;
+			}
+
+			x += 1;
+			if (x == 10)
+			{
+				x = 0;
+				y++;
+			}
+		}
 
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
@@ -264,64 +328,8 @@ struct mvp
 			vkResetCommandBuffer(command_buffer, 0);
 			vkResetFences(context.device, 1, &m_in_flight_fence);
 
-			graphics::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
 
-			float* mem = static_cast<float*>(rbuffer.data());
 
-			//vkBindBufferMemory
-
-			int x = 0;
-			int y = 0;
-			int j = 0;
-			for (uint32_t i = 0; i < 100; i += 1)
-			{
-				mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
-
-				float z = static_cast<float>(std::rand()) * .01f / static_cast<float>(RAND_MAX);
-				
-				z = 0.0f; // mem[i] / 600.f;
-
-				if (x != 10 && y != 10)
-				{
-					glm::vec3* foo = static_cast<glm::vec3*>(vbuffer.data());
-					foo[j][0] = static_cast<float>(x * .2f - 1.f);
-					foo[j][1] = static_cast<float>(y * .2f - 1.f);
-					foo[j][2] = z;
-					j++;
-
-					foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
-					foo[j][1] = static_cast<float>(y) * .2f - 1.f;
-					foo[j][2] = z;
-					j++;
-
-					foo[j][0] = static_cast<float>(x) * .2f - 1.f;
-					foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
-					foo[j][2] = z;
-					j++;
-
-					foo[j][0] = static_cast<float>((x + 1) * .2f - 1.f);
-					foo[j][1] = static_cast<float>(y) * .2f - 1.f;
-					foo[j][2] = z;
-					j++;
-
-					foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
-					foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
-					foo[j][2] = z;
-					j++;
-
-					foo[j][0] = static_cast<float>(x * .2f - 1.f);
-					foo[j][1] = static_cast<float>((y + 1) * .2f - 1.f);
-					foo[j][2] = z;
-					j++;
-				}
-				
-				x += 1;
-				if (x == 10)
-				{
-					x = 0;
-					y++;
-				}
-			}
 
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = rbuffer.handle();
@@ -340,7 +348,14 @@ struct mvp
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
-			ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			//ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			direction[0] = sin(yaw);
+			direction[1] = cos(yaw);
+			direction[2] = -sin(pitch);
+			
+			ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
+
 			ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
 				glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -361,7 +376,7 @@ struct mvp
 			write_descriptor_set.descriptorCount = 1;
 			write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			write_descriptor_set.dstArrayElement = 0;
-			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;			
+			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 			
 			vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
@@ -375,13 +390,8 @@ struct mvp
 			new_vertex_buffer.copy(command_buffer);
 
 			depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-		
-
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline_layout, 0, 1, &context.descriptor_set, 0, nullptr);
-
-
 			swapchain.prepare_swapchain_for_writing(command_buffer);
-
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
 			VkDeviceSize offset = 0;

@@ -27,7 +27,6 @@ namespace app
 	private:
 		graphics::context& context;
 		VkFence m_in_flight_fence;
-		//VkSemaphore m_image_available_semaphore;
 		VkSemaphore m_render_finished_semaphore;
 
 	public:

@@ -18,11 +18,6 @@ int main()
 	app::window window;
 	graphics::context context(window.handle, WIDTH, HEIGHT);
 
-	//vk::pipeline_layout pipeline_layout(context.device, context.descriptor_set_layout);
-	//vk::shader_module fragment_shader_module(context.device, "./shaders/fragment/simple.spv");
-	//vk::shader_module vertex_shader_module(context.device, "./shaders/vertex/simple.spv");
-	//vk::pipeline pipeline(context.device, WIDTH, HEIGHT);
-
 	// This stuff is per thread
 	vk::command_pool command_pool(context.device, context.graphics_queue.family_index);
 	vk::command_buffer command_buffer(context.device, command_pool);
