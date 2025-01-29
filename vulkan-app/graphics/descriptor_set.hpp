@@ -17,11 +17,12 @@ namespace graphics
 	{
 	private:
 		graphics::context& m_context;
-		VkDescriptorSetLayout m_layout;
-		std::vector<VkDescriptorSetLayoutBinding> m_bindings;
+		std::vector<VkDescriptorSetLayoutBinding> m_bindings;		
+		VkDescriptorSetLayout m_layout = VK_NULL_HANDLE;
 
 	public:
 		descriptor_set(graphics::context& context) : m_context(context) {}
+
 		~descriptor_set()
 		{
 			vkDestroyDescriptorSetLayout(m_context.device, m_layout, nullptr);
