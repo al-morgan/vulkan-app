@@ -480,10 +480,16 @@ graphics::context::~context()
 //	return framebuffers[image_index];
 //}
 
+
+//class descriptor set
+// holds stage flags
+// binding #
+// descriptor type
+// vector of all those things.
+
 void graphics::context::create_descriptor_set_layout()
 {
 	std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
-
 	bindings[0].binding = 0;
 	bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
 	bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
