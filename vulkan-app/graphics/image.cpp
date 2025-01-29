@@ -54,6 +54,8 @@ graphics::image::image(const graphics::context& context, uint32_t width, uint32_
 	image_view_ci.subresourceRange.layerCount = 1;
 	image_view_ci.subresourceRange.levelCount = 1;
 	vkCreateImageView(context.device, &image_view_ci, nullptr, &m_view);
+
+	m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 	
 	if (host_memory)
 	{
@@ -95,6 +97,29 @@ void graphics::image::send(VkCommandBuffer command_buffer)
 	vkCmdCopyBufferToImage(command_buffer, m_source, m_destination, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	// TODO: need to transition to final layout
+}
+
+
+void graphics::image::transition(VkCommandBuffer command_buffer, VkImageLayout layout, VkPipelineStageFlags source_stage_mask, VkAccessFlags source_access_mask, VkPipelineStageFlags destination_stage_mask, VkAccessFlags destination_access_mask)
+{
+	if (layout == m_layout)
+	{
+		return;
+	}
+
+	VkImageMemoryBarrier barrier{};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.image = m_destination;
+	barrier.oldLayout = m_layout;
+	barrier.newLayout = layout;
+	barrier.srcAccessMask = source_access_mask;
+	barrier.dstAccessMask = destination_access_mask;
+	barrier.subresourceRange.aspectMask = m_aspect;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.subresourceRange.levelCount = 1;
+	vkCmdPipelineBarrier(command_buffer, source_stage_mask, destination_stage_mask, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
 

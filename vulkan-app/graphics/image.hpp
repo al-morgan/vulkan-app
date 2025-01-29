@@ -17,6 +17,7 @@ namespace graphics
 		void* m_mapped_memory = nullptr;
 		VkImageView m_view = VK_NULL_HANDLE;
 		VkImageAspectFlags m_aspect = 0;
+		VkImageLayout m_layout;
 	public:
 		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory);
 		~image();
@@ -44,6 +45,13 @@ namespace graphics
 		/// </summary>
 		/// <param name="command_buffer">The active command buffer.</param>
 		void send(VkCommandBuffer command_buffer);
+
+		/// <summary>
+		/// Transition the image to a new layout.
+		/// </summary>
+		/// <param name="command_buffer"></param>
+		/// <param name="layout"></param>
+		void transition(VkCommandBuffer command_buffer, VkImageLayout layout, VkPipelineStageFlags source_stage_mask, VkAccessFlags source_access_mask, VkPipelineStageFlags destination_stage_mask, VkAccessFlags destination_access_mask);
 
 		/// <summary>
 		/// Closes the connection between the local buffer and the image on
