@@ -162,37 +162,6 @@ struct mvp
 		vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 	}
 
-	//static void push_quad(std::vector<graphics::vertex3d> vector, double x, double y, double size_x, double size_y)
-	//{
-	//	graphics::vertex3d vertex;
-	//	vertex.pos[2] = 0.0f;
-
-	//	vertex.pos[0] = x - size_x;
-	//	vertex.pos[1] = y - size_y;
-	//	vector.push_back(vertex);
-
-	//	vertex.pos[0] = x + size_x;
-	//	vertex.pos[1] = y - size_y;
-	//	vector.push_back(vertex);
-
-	//	vertex.pos[0] = x - size_x;
-	//	vertex.pos[1] = y + size_y;
-	//	vector.push_back(vertex);
-
-	//	vertex.pos[0] = x + size_x;
-	//	vertex.pos[1] = y - size_y;
-	//	vector.push_back(vertex);
-
-	//	vertex.pos[0] = x + size_x;
-	//	vertex.pos[1] = y + size_y;
-	//	vector.push_back(vertex);
-
-	//	vertex.pos[0] = x - size_x;
-	//	vertex.pos[1] = y + size_y;
-	//	vector.push_back(vertex);
-
-	//}
-
 	void app::engine::update(graphics::context& context, app::window& window, vk::command_buffer& command_buffer)
 	{
 		std::srand(std::time(nullptr));
@@ -329,8 +298,6 @@ struct mvp
 			vkResetFences(context.device, 1, &m_in_flight_fence);
 
 
-
-
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = rbuffer.handle();
 			descriptor_buffer_info.offset = 0;
@@ -350,6 +317,11 @@ struct mvp
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
 			//ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
+			position[0] += direction[0] * 0.001f;
+			position[1] += direction[1] * 0.001f;
+			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.01f;
+
+			
 			direction[0] = sin(yaw);
 			direction[1] = cos(yaw);
 			direction[2] = -sin(pitch);
