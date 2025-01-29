@@ -319,7 +319,7 @@ struct mvp
 
 			position[0] += direction[0] * 0.001f;
 			position[1] += direction[1] * 0.001f;
-			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.01f;
+			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.04f;
 
 			
 			direction[0] = sin(yaw);
@@ -335,7 +335,7 @@ struct mvp
 				glm::vec3(0.0f, 0.0f, 1.0f));*/
 
 			ubo->proj = glm::perspective(glm::radians(45.0f),
-				800.0f / 800.0f, 0.1f,
+				800.0f / 800.0f, 0.001f,
 				10.0f);
 
 			ubo->proj[1][1] *= -1.0f;
