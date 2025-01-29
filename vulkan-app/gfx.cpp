@@ -72,7 +72,7 @@ struct mvp
 		//mouse_x = xpos;
 		//mouse_y = ypos;
 
-		std::cout << xpos << ", " << ypos << std::endl;
+		//std::cout << xpos << ", " << ypos << std::endl;
 		
 	}
 
@@ -333,8 +333,8 @@ struct mvp
 			direction[1] = cos(yaw);
 			direction[2] = -sin(pitch);
 
-			glm::vec3 left(sin(yaw - 1.57), cos(yaw - 1.57), -sin(pitch));
-
+			glm::vec3 left(sin(yaw - 1.57), cos(yaw - 1.57), -sin(pitch));			
+			
 			if (keys[GLFW_KEY_W] != GLFW_RELEASE)
 			{
 				position += direction * 0.001f;
@@ -355,7 +355,7 @@ struct mvp
 				position -= left * 0.001f;
 			}
 
-			std::cout << keys[GLFW_KEY_W] << std::endl;
+			//std::cout << keys[GLFW_KEY_W] << std::endl;
 
 			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.04f;
 			
