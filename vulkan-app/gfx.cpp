@@ -104,6 +104,14 @@ struct mvp
 		}
 	}
 
+	static int keys[GLFW_KEY_LAST];
+
+	static void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		keys[key] = action;
+	}
+
+
 	app::window::window()
 	{
 		glfwInit();
@@ -113,6 +121,7 @@ struct mvp
 		glfwSetCursorPosCallback(glfw_window, cursor_position_callback);
 		glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
 		glfwSetScrollCallback(glfw_window, scroll_callback);
+		glfwSetKeyCallback(glfw_window, key_press_callback);
 
 		glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (glfwRawMouseMotionSupported())
@@ -317,14 +326,38 @@ struct mvp
 			mvp* ubo = static_cast<mvp*>(ubuffer.data());
 			//ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-			position[0] += direction[0] * 0.001f;
-			position[1] += direction[1] * 0.001f;
-			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.04f;
-
+			//position[0] += direction[0] * 0.001f;
+			//position[1] += direction[1] * 0.001f;
 			
 			direction[0] = sin(yaw);
 			direction[1] = cos(yaw);
 			direction[2] = -sin(pitch);
+
+			glm::vec3 left(sin(yaw - 1.57), cos(yaw - 1.57), -sin(pitch));
+
+			if (keys[GLFW_KEY_W] != GLFW_RELEASE)
+			{
+				position += direction * 0.001f;
+			}
+
+			if (keys[GLFW_KEY_A] != GLFW_RELEASE)
+			{
+				position += left * 0.001f;
+			}
+
+			if (keys[GLFW_KEY_S] != GLFW_RELEASE)
+			{
+				position -= direction * 0.001f;
+			}
+
+			if (keys[GLFW_KEY_D] != GLFW_RELEASE)
+			{
+				position -= left * 0.001f;
+			}
+
+			std::cout << keys[GLFW_KEY_W] << std::endl;
+
+			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.04f;
 			
 			ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
 
