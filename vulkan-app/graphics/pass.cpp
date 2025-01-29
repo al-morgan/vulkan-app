@@ -1,4 +1,6 @@
+#include <functional>
 #include <vector>
+
 
 #include "vulkan/vulkan.h"
 
@@ -11,13 +13,11 @@ namespace graphics
 	{
 	private:
 		VkPipeline m_pipeline;
-		std::vector<graphics::buffer&> m_buffers;
-		std::vector<graphics::image&> m_images;
+		std::vector<std::reference_wrapper<graphics::buffer>> m_buffers;
+		std::vector<std::reference_wrapper<graphics::image>> m_images;
 
 		// What I need:
 		// Descriptor sets
 		// Transitions
-
-
 	};
 }

@@ -139,6 +139,7 @@
     <ClCompile Include="gfx.cpp" />
     <ClCompile Include="graphics\context.cpp" />
     <ClCompile Include="graphics\image.cpp" />
+    <ClCompile Include="graphics\pass.cpp" />
     <ClCompile Include="graphics\swapchain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="perlin.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="graphics\context.hpp" />
     <ClInclude Include="graphics\graphics.hpp" />
     <ClInclude Include="graphics\image.hpp" />
+    <ClInclude Include="graphics\pass.hpp" />
     <ClInclude Include="graphics\swapchain.hpp" />
     <ClInclude Include="perlin.hpp" />
     <ClInclude Include="vk.hpp" />
