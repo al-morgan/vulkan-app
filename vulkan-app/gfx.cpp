@@ -45,6 +45,7 @@ static double zoom = 1.0;
 
 static double yaw;
 static double pitch;
+static bool jumping;
 
 //namespace app
 //{
@@ -238,6 +239,8 @@ struct mvp
 		glm::vec3 position(.20f, .20f, .20f);
 		glm::vec3 direction(1.0f, 0.0f, 0.0f);
 
+		double fall_speed = 0.0;
+
 		graphics::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
 
 		float* mem = static_cast<float*>(rbuffer.data());
@@ -302,6 +305,8 @@ struct mvp
 		the_set.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
 		the_set.commit();
 
+
+
 		while (!glfwWindowShouldClose(window.glfw_window))
 		{
 			//uint32_t image_view_index = 0; // TODO GET THE INDEX
@@ -311,7 +316,6 @@ struct mvp
 			vkWaitForFences(context.device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
 			vkResetCommandBuffer(command_buffer, 0);
 			vkResetFences(context.device, 1, &m_in_flight_fence);
-
 
 			VkDescriptorBufferInfo descriptor_buffer_info{};
 			descriptor_buffer_info.buffer = rbuffer.handle();
@@ -341,6 +345,18 @@ struct mvp
 
 			glm::vec3 left(sin(yaw - 1.57), cos(yaw - 1.57), -sin(pitch));			
 			
+			double floor = noise.get(position[0], position[1]) * 0.06f + 0.04f;
+
+			if (position[2] < floor)
+			{
+				position[2] = floor;
+				jumping = false;
+			}
+			else
+			{
+				fall_speed += .0001f;
+			}
+
 			if (keys[GLFW_KEY_W] != GLFW_RELEASE)
 			{
 				position += direction * 0.001f;
@@ -361,9 +377,23 @@ struct mvp
 				position -= left * 0.001f;
 			}
 
+			if (keys[GLFW_KEY_SPACE] != GLFW_RELEASE)
+			{
+				if (!jumping)
+				{
+					fall_speed -= .01f;
+				}
+				jumping = true;
+				
+			}
+
 			//std::cout << keys[GLFW_KEY_W] << std::endl;
 
-			position[2] = noise.get(position[0], position[1]) * 0.06f + 0.04f;
+			position[2] -= fall_speed;
+
+
+			
+
 			
 			ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
 
