@@ -10,15 +10,15 @@
 #include "graphics/image.hpp"
 #include "graphics/context.hpp"
 
-
 namespace graphics
 {
 	class descriptor_set
 	{
 	private:
 		graphics::context& m_context;
-		std::vector<VkDescriptorSetLayoutBinding> m_bindings;		
+		std::vector<VkDescriptorSetLayoutBinding> m_bindings;
 		VkDescriptorSetLayout m_layout = VK_NULL_HANDLE;
+		VkDescriptorSet m_descriptor_set = VK_NULL_HANDLE;
 
 	public:
 		descriptor_set(graphics::context& context) : m_context(context) {}
@@ -44,6 +44,15 @@ namespace graphics
 			layout_create_info.bindingCount = m_bindings.size();
 			layout_create_info.pBindings = m_bindings.data();
 			vkCreateDescriptorSetLayout(m_context.device, &layout_create_info, nullptr, &m_layout);
+
+			VkDescriptorSetAllocateInfo alloc_info{};
+			alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			alloc_info.descriptorPool = m_context.descriptor_pool;
+			alloc_info.descriptorSetCount = 1;
+			alloc_info.pSetLayouts = &m_layout;
+			vkAllocateDescriptorSets(m_context.device, &alloc_info, &m_descriptor_set);
+			
+
 		}
 
 		VkDescriptorSetLayout layout() { return m_layout; }
