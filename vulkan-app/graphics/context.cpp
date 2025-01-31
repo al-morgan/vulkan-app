@@ -47,7 +47,6 @@ graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	create_vertex_shader();
 	create_pipeline_layout();
 	create_pipeline();
-
 }
 
 /// <summary>
@@ -296,12 +295,13 @@ void graphics::context::create_pipeline_layout()
 	range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	//VkPipelineLayout pipeline_layout;
-	VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
-	pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	//pipeline_layout_create_info.pPushConstantRanges = &range;
 	//pipeline_layout_create_info.pushConstantRangeCount = 1;
+
+	VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
+	pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipeline_layout_create_info.pSetLayouts = &descriptor_set_layout;
-	pipeline_layout_create_info.setLayoutCount = 1;
+	pipeline_layout_create_info.setLayoutCount = 1; 
 	check(vkCreatePipelineLayout(device, &pipeline_layout_create_info, nullptr, &pipeline_layout));
 }
 
@@ -399,22 +399,18 @@ void graphics::context::create_pipeline()
 
 	VkPipelineColorBlendAttachmentState color_blend_attachment_state{};
 	color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	//color_blend_attachment_state.blendEnable = 
-	//color_blend_attachment_state.alphaBlendOp = 
 
 	VkPipelineColorBlendStateCreateInfo color_blend_state{};
 	color_blend_state.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	color_blend_state.attachmentCount = 1;
 	color_blend_state.pAttachments = &color_blend_attachment_state;
 	color_blend_state.logicOp = VK_LOGIC_OP_SET;
-	//color_blend_state.blendConstants
 
 	VkPipelineDepthStencilStateCreateInfo depth_stencil_state{};
 	depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depth_stencil_state.depthTestEnable = VK_TRUE;
 	depth_stencil_state.depthWriteEnable = VK_TRUE;
 	depth_stencil_state.depthCompareOp = VK_COMPARE_OP_LESS;
-	//depth_stencil_state.
 
 	VkGraphicsPipelineCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -428,7 +424,6 @@ void graphics::context::create_pipeline()
 	create_info.pViewportState = &viewport_state;
 	create_info.pColorBlendState = &color_blend_state;
 	create_info.pDepthStencilState = &depth_stencil_state;
-	//create_info.layout
 
 	// Tutorial says I need this but it works without it?
 	VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
