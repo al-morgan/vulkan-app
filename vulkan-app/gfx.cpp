@@ -206,7 +206,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         {
             mesh[y][x].pos[0] = static_cast<float>(x) / static_cast<float>(axis_size);
             mesh[y][x].pos[1] = static_cast<float>(y) / static_cast<float>(axis_size);
-            //mesh[y][x].pos[2] = static_cast<float>(std::rand()) * .01f / static_cast<float>(RAND_MAX);
             mesh[y][x].pos[2] = noise.get(mesh[y][x].pos[0], mesh[y][x].pos[1]) * 0.06f;
         }
     }
@@ -335,8 +334,13 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 
     vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
 
-
-    //graphics::pass my_pass(context, context.vertex_shader, context.fragment_shader, )
+    //std::vector<graphics::descriptor_set> sets;
+    //sets.resize(1, context);
+    //sets[0].add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
+    //sets[0].add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    //sets[0].commit();
+    //
+    //graphics::pass my_pass(context, context.vertex_shader, context.fragment_shader, sets);
 
     while (!glfwWindowShouldClose(window.glfw_window))
     {
