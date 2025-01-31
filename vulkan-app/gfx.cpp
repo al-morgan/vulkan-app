@@ -322,6 +322,8 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     write_descriptor_set.dstArrayElement = 0;
     write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
 
+    vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
+
     descriptor_buffer_info.buffer = ubuffer.handle();
     descriptor_buffer_info.offset = 0;
     descriptor_buffer_info.range = ubuffer.size();
