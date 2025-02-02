@@ -15,12 +15,14 @@ namespace graphics
     class descriptor_set
     {
     private:
+
+    public:
+
         graphics::context& m_context;
         std::vector<VkDescriptorSetLayoutBinding> m_bindings;
         VkDescriptorSetLayout m_layout = VK_NULL_HANDLE;
         VkDescriptorSet m_descriptor_set = VK_NULL_HANDLE;
 
-    public:
         descriptor_set(graphics::context& context) : m_context(context) {}
 
         ~descriptor_set()
@@ -34,6 +36,7 @@ namespace graphics
             dsl_binding.binding = binding;
             dsl_binding.descriptorType = descriptor_type;
             dsl_binding.stageFlags = stage_flags;
+            dsl_binding.descriptorCount = 1;
             m_bindings.push_back(dsl_binding);
         }
 

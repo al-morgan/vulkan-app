@@ -15,12 +15,7 @@ namespace graphics
     class pass
     {
     private:
-        graphics::context& m_context;
-        VkPipeline m_pipeline;
-        std::vector<std::reference_wrapper<graphics::buffer>> m_buffers;
-        std::vector<std::reference_wrapper<graphics::image>> m_images;
-        std::vector<graphics::descriptor_set>& m_descriptor_sets;
-        VkPipelineLayout m_pipeline_layout;
+
 
         // What I need:
         // Descriptor sets
@@ -28,10 +23,17 @@ namespace graphics
 
     public:
 
+        graphics::context& m_context;
+        VkPipeline m_pipeline;
+        std::vector<std::reference_wrapper<graphics::buffer>> m_buffers;
+        std::vector<std::reference_wrapper<graphics::image>> m_images;
+        std::vector<graphics::descriptor_set>& m_descriptor_sets;
+        VkPipelineLayout m_pipeline_layout;
+
         pass(graphics::context& context, VkShaderModule vertex_shader, VkShaderModule fragment_shader, std::vector<graphics::descriptor_set>& descriptor_sets) : m_context(context), m_descriptor_sets(descriptor_sets)
         {
+            // This could be better.
             std::vector<VkDescriptorSetLayout> layouts;
-
             for (auto&& set : m_descriptor_sets)
             {
                 layouts.push_back(set.layout());
