@@ -4,6 +4,7 @@ layout(location = 0) out vec4 outColor;
 layout(location = 1) in vec2 coords;
 
 
+
 struct ObjectData
 {
 	float x[100];
@@ -12,6 +13,10 @@ struct ObjectData
 layout(set = 0, binding = 0) readonly buffer ObjectBuffer{
 	float foo[];
 } objectBuffer;
+
+layout(set = 0, binding = 2) readonly buffer NormalBuffer{
+	vec4 bar[];
+} normalBuffer;
 
 layout(binding = 1) uniform uniformBufferObject
 {
@@ -39,22 +44,11 @@ float sample_noise(int ax, int ay, float gx, float gy)
 
 void main()
 {
-	//outColor = inColor;
-	//return;
-
-	// grid coordinates
 	
 	float gx = coords.x * 5.0f + 5.0f;
 	float gy = coords.y * 5.0f + 5.0f;
 
 	
-	// OLD GOOD WAY
-	//float gx = gl_FragCoord.x / 80.0f;
-	//float gy = gl_FragCoord.y / 80.0f;
-
-	// center of sample
-	// float sx = floor(gx + 0.5f);
-	// float sy = floor(gy + 0.5f);
 
 	// sample bounds
 	float lx = gx - 0.5f;
@@ -71,40 +65,28 @@ void main()
 	float ll = sample_noise(alx, aly + 1, gx, gy);
 	float lr = sample_noise(alx + 1, aly + 1, gx, gy);
 
-	// interpolation weights
-	//float wx = gx - (floor(gx - 0.5f) + 0.5f);
-	//float wy = gy - (floor(gy - 0.5f) + 0.5f);
-
 	float wx = smoothstep(float(alx) + 0.5f, float(alx) + 1.5f, gx);
 	float wy = smoothstep(float(aly) + 0.5f, float(aly) + 1.5f, gy);
 
 	float x1 = mix(ul, ur, wx);
 	float x2 = mix(ll, lr, wx);
 	float v = mix(x1, x2, wy);
-
-	// float x1 = smoothstep(ul, ur, wx);
-	// float x2 = smoothstep(ll, lr, wx);
-	// float v = smoothstep(x1, x2, wy);
-
-	// v = sample_noise(int(gx), int(gy), gx, gy);
-
-	// v = (v + 1.0f) / 2.0f;
-
-	// v = wy;
-
-
-	// float s = sample_noise(gl_FragCoord.x, gl_FragCoord.y);
-	//s = (s + 1.0f) / 2.0f;
 	
+
+	vec4 n = normalBuffer.bar[gl_PrimitiveID];
+	vec3 light = vec3(.707f, 0.0, -.707f);
+	
+	float d = dot(vec3(n.x, n.y, n.z), light);
+	//float d = (dot(vec3(n.x, n.y, n.z), light) - .5f) * 2.0f;
+
+	float c = gl_PrimitiveID / 1000000.0f;
+
+	//outColor = vec4(n.r, n.g, n.b, 1.0f);
+	
+	outColor = vec4(d, d, d, 1.0f);
+
+	//outColor = vec4(c, c, c, 1.0f);
 
 	// GOOD ONE HERE
-	outColor = vec4(max(v, 0.0f), 0.0f, max(-v, 0.0f), 1.0f);
-
-	//v = (v + .707f) / 2.0f;
-	
-	//outColor = vec4(v, v, v, 1.0f);
-
-	// outColor = vec4((0.7f - max(-v, 0.0f)), max(0.7f - abs(v), 0.0f), (0.7f - max(v, 0.0f)), 1.0f);
-
-	//outColor = vec4(v, v, v, 1.0f);
+	//outColor = vec4(max(v, 0.0f), 0.0f, max(-v, 0.0f), 1.0f);
 }

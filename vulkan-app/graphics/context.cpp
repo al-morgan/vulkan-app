@@ -182,6 +182,9 @@ void graphics::context::create_device()
 	dynamic_rendering_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
 	dynamic_rendering_features.dynamicRendering = VK_TRUE;
 
+	VkPhysicalDeviceFeatures features{};
+	features.geometryShader = VK_TRUE;
+
 	VkDeviceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	create_info.pNext = &dynamic_rendering_features;
@@ -189,6 +192,7 @@ void graphics::context::create_device()
 	create_info.queueCreateInfoCount = 1;
 	create_info.ppEnabledExtensionNames = enabled_extensions.data();
 	create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
+	create_info.pEnabledFeatures = &features;
 
 	vkCreateDevice(physical_device, &create_info, nullptr, &device);
 }

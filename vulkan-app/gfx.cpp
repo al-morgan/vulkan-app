@@ -43,13 +43,6 @@
 
 static bool jumping;
 
-//namespace app
-//{
-
-struct vertex
-{
-    glm::mat3 pos;
-};
 
 struct mvp
 {
@@ -57,10 +50,6 @@ struct mvp
     glm::mat4 view;
     glm::mat4 proj;
 };
-
-
-
-
 
 app::window::window()
 {
@@ -113,19 +102,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 {
     std::srand(std::time(nullptr));
 
-#define MIN -1.0
-#define MAX 1.0
-
-    graphics::vertex2d positions[6] =
-    {
-        glm::vec2(MIN, MIN),
-        glm::vec2(MAX, MIN),
-        glm::vec2(MIN, MAX),
-        glm::vec2(MAX, MIN),
-        glm::vec2(MAX, MAX),
-        glm::vec2(MIN, MAX)
-    };
-
     app::perlin noise(10, 10);
 
     graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -145,6 +121,9 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         }
     }
 
+    //std::vector<graphics::vertex3d> normals;
+    std::vector<glm::vec4> normals;
+
     std::vector<graphics::vertex3d> points;
 
     for (int x = 0; x < axis_size; x++)
@@ -154,9 +133,29 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
             points.push_back(mesh[y][x]);
             points.push_back(mesh[y][x + 1]);
             points.push_back(mesh[y + 1][x]);
+
             points.push_back(mesh[y][x + 1]);
             points.push_back(mesh[y + 1][x + 1]);
             points.push_back(mesh[y + 1][x]);
+
+            glm::vec3 a = mesh[y][x].pos - mesh[y][x + 1].pos;
+            glm::vec3 b = mesh[y + 1][x].pos - mesh[y][x + 1].pos;
+            glm::vec3 c = glm::cross(a, b);
+            c = glm::normalize(c);
+            glm::vec4 d(c.x, c.y, c.z, 1.0f);
+            normals.push_back(d);
+
+            //normals.push_back(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+
+            a = mesh[y][x + 1].pos - mesh[y + 1][x + 1].pos;
+            b = mesh[y + 1][x].pos - mesh[y + 1][x + 1].pos;
+            c = glm::cross(a, b);
+            c = glm::normalize(c);
+            d = glm::vec4(c.x, c.y, c.z, 1.0f);
+            normals.push_back(d);
+
+            //normals.push_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         }
     }
 
@@ -181,13 +180,22 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
     }
 
+    graphics::buffer nbuffer(context, sizeof(normals[0]) * normals.size(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    glm::vec3* nmem = static_cast<glm::vec3*>(nbuffer.data());
+    memcpy(nmem, normals.data(), sizeof(normals[0]) * normals.size());
+
+
     graphics::pass my_pass(context);
     my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     my_pass.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    my_pass.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
     my_pass.commit();
     my_pass.finalize(context.vertex_shader, context.fragment_shader);
     my_pass.update(0, rbuffer);
     my_pass.update(1, ubuffer);
+    my_pass.update(2, nbuffer);
+
+    //my_pass.update(2, )
 
     while (!glfwWindowShouldClose(window.glfw_window))
     {
@@ -235,19 +243,7 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
             position -= left * 0.001f;
         }
 
-        //if (keys[GLFW_KEY_SPACE] != GLFW_RELEASE)
-        //{
-        //    if (!jumping)
-        //    {
-        //        fall_speed -= .01f;
-        //    }
-        //    jumping = true;
-        //}
-
-        //std::cout << keys[GLFW_KEY_W] << std::endl;
-
         position[2] -= fall_speed;
-
 
         ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -263,7 +259,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 
         ubo->proj[1][1] *= -1.0f;
 
-
         swapchain.get_next_framebuffer();
 
         context.begin_command_buffer(command_buffer);
@@ -271,6 +266,7 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         ubuffer.copy(command_buffer);
         vbuffer.copy(command_buffer);
         rbuffer.copy(command_buffer);
+        nbuffer.copy(command_buffer);
         new_vertex_buffer.copy(command_buffer);
 
         depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);

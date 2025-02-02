@@ -129,6 +129,7 @@ namespace graphics
             input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
             input_assembly_state.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
+
             VkPipelineMultisampleStateCreateInfo multisample_state{};
             multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
             multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -137,6 +138,7 @@ namespace graphics
             rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
             rasterization_state.lineWidth = 1.0f;
             rasterization_state.cullMode = VK_CULL_MODE_NONE;
+            //rasterization_state.polygonMode = VK_POLYGON_MODE_LINE;
 
             VkViewport viewport{};
             viewport.width = static_cast<float>(800);
