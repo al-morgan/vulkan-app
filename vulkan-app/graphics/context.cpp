@@ -39,10 +39,7 @@ graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
 	get_physical_device();
 	create_device();
 	vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
-	//create_swapchain(width, height);
 	create_descriptor_pool();
-	create_descriptor_set_layout();
-	create_descriptor_set();
 	create_fragment_shader();
 	create_vertex_shader();
 }
@@ -204,62 +201,6 @@ void graphics::context::create_device()
 	vkCreateDevice(physical_device, &create_info, nullptr, &device);
 }
 
-/// <summary>
-/// Create the swapchain
-/// </summary>
-/// <param name="width"></param>
-/// <param name="height"></param>
-//void graphics::context::create_swapchain(uint32_t width, uint32_t height)
-//{
-//	VkExtent2D extent{};
-//	extent.width = width;
-//	extent.height = height;
-//
-//	VkSwapchainCreateInfoKHR create_info{};
-//	create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-//	create_info.surface = surface;
-//	create_info.minImageCount = 3;
-//	create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-//	create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-//	create_info.imageExtent = extent;
-//	create_info.imageArrayLayers = 1;
-//	create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-//	create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-//	create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-//	create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-//	create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-//	create_info.clipped = VK_TRUE;
-//	create_info.oldSwapchain = VK_NULL_HANDLE;
-//
-//	vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
-//
-//	uint32_t swapchain_image_count;
-//	std::vector<VkImage> images;
-//	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, nullptr);
-//	images.resize(swapchain_image_count);
-//	vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, images.data());
-//
-//	framebuffers.resize(swapchain_image_count);
-//
-//	for (uint32_t i = 0; i < swapchain_image_count; i++)
-//	{
-//		framebuffers[i].index = i;
-//
-//		framebuffers[i].image = images[i];
-//
-//		VkImageViewCreateInfo image_view_create_info{};
-//		image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-//		image_view_create_info.image = framebuffers[i].image;
-//		image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-//		image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
-//		image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-//		image_view_create_info.subresourceRange.layerCount = 1;
-//		image_view_create_info.subresourceRange.levelCount = 1;
-//
-//		vkCreateImageView(device, &image_view_create_info, nullptr, &framebuffers[i].view);
-//	}
-//}
-
 void graphics::context::create_descriptor_pool()
 {
 	VkDescriptorPoolSize types;
@@ -274,18 +215,6 @@ void graphics::context::create_descriptor_pool()
 
 	vkCreateDescriptorPool(device, &create_info, nullptr, &descriptor_pool);
 }
-
-void graphics::context::create_descriptor_set()
-{
-	VkDescriptorSetAllocateInfo alloc_info{};
-	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	alloc_info.descriptorPool = descriptor_pool;
-	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &descriptor_set_layout;
-
-	check(vkAllocateDescriptorSets(device, &alloc_info, &descriptor_set));
-}
-
 
 void graphics::context::create_fragment_shader()
 {
@@ -331,7 +260,6 @@ graphics::context::~context()
 	vkDestroyShaderModule(device, fragment_shader, nullptr);
 	vkDestroyShaderModule(device, vertex_shader, nullptr);
 
-	vkDestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
 	vkDestroyDescriptorPool(device, descriptor_pool, nullptr);
 
 	vkDestroyDevice(device, nullptr);
@@ -351,33 +279,6 @@ graphics::context::~context()
 //	return framebuffers[image_index];
 //}
 
-
-//class descriptor set
-// holds stage flags
-// binding #
-// descriptor type
-// vector of all those things.
-
-void graphics::context::create_descriptor_set_layout()
-{
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
-	bindings[0].binding = 0;
-	bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
-	bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	bindings[0].descriptorCount = 1;
-	bindings[0].pImmutableSamplers = nullptr;
-
-	bindings[1].binding = 1;
-	bindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	bindings[1].descriptorCount = 1;
-
-	VkDescriptorSetLayoutCreateInfo layout_create_info{};
-	layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layout_create_info.bindingCount = bindings.size();
-	layout_create_info.pBindings = bindings.data();
-	check(vkCreateDescriptorSetLayout(device, &layout_create_info, nullptr, &descriptor_set_layout));
-}
 
 void graphics::context::begin_command_buffer(VkCommandBuffer command_buffer)
 {

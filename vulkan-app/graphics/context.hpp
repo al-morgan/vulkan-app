@@ -39,8 +39,6 @@ namespace graphics
 		VkSwapchainKHR swapchain;
 		VkSemaphore get_next_framebuffer_semaphore;
 		VkDescriptorPool descriptor_pool;
-		VkDescriptorSetLayout descriptor_set_layout;
-		VkDescriptorSet descriptor_set;
 		VkShaderModule vertex_shader;
 		VkShaderModule fragment_shader;
 
@@ -69,8 +67,6 @@ namespace graphics
 		void create_surface(HWND window_handle);
 		void create_device();
 		void create_descriptor_pool();
-		void create_descriptor_set_layout();
-		void create_descriptor_set();
 		void create_fragment_shader();
 		void create_vertex_shader();
 	};
