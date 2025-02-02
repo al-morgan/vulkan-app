@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <glm/glm.hpp>
 
 namespace graphics
@@ -20,4 +21,13 @@ namespace graphics
 		VkImageView view;
 		uint32_t index;
 	};
+
+	static void check(VkResult result)
+	{
+		if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("Vulkan error!");
+		}
+	}
+
 }

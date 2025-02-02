@@ -3,14 +3,7 @@
 #include <vulkan/vulkan.h>
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
-
-static void check(VkResult result)
-{
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Vulkan error!");
-	}
-}
+#include "graphics/graphics.hpp"
 
 VkBuffer graphics::buffer::handle()
 {
@@ -48,8 +41,8 @@ graphics::buffer::buffer(const graphics::context& context, size_t size, VkBuffer
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memory_allocate_info.allocationSize = size;
 	memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
-	check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
-	check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
+	graphics::check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
+	graphics::check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
 
 	// Allocate device memory
 	memory_allocate_info.memoryTypeIndex = context.memory_type_device_local;

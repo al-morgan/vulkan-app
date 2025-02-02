@@ -18,14 +18,6 @@
 #include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 
-static void check(VkResult result)
-{
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Vulkan error!");
-	}
-}
-
 /// <summary>
 /// Initialize the context
 /// </summary>
@@ -61,15 +53,15 @@ void graphics::context::create_instance()
 
 	uint32_t instance_extension_count = 0;
 	std::vector<VkExtensionProperties> instance_extensions;
-	check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
+	graphics::check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
 	instance_extensions.resize(instance_extension_count);
-	check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data()));
+	graphics::check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data()));
 
 	uint32_t instance_layer_count;
 	std::vector<VkLayerProperties> instance_layers;
-	check(vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr));
+	graphics::check(vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr));
 	instance_layers.resize(instance_layer_count);
-	check(vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data()));
+	graphics::check(vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data()));
 
 	std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
 
@@ -81,7 +73,7 @@ void graphics::context::create_instance()
 	create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
 	create_info.ppEnabledLayerNames = enabled_layers.data();
 
-	check(vkCreateInstance(&create_info, nullptr, &instance));
+	graphics::check(vkCreateInstance(&create_info, nullptr, &instance));
 }
 
 /// <summary>
@@ -91,9 +83,9 @@ void graphics::context::get_physical_device()
 {
 	uint32_t physical_device_count;
 	std::vector<VkPhysicalDevice> physical_devices;
-	check(vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr));
+	graphics::check(vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr));
 	physical_devices.resize(physical_device_count);
-	check(vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices.data()));
+	graphics::check(vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices.data()));
 
 	if (physical_device_count != 1)
 	{
@@ -141,7 +133,7 @@ void graphics::context::create_surface(HWND window_handle)
 	create_info.hwnd = window_handle;
 	create_info.hinstance = GetModuleHandle(nullptr);
 
-	check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));
+	graphics::check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));
 }
 
 /// <summary>
@@ -161,7 +153,7 @@ void graphics::context::create_device()
 		constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
 		VkBool32 surface_support = VK_FALSE;
 
-		check(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &surface_support));
+		graphics::check(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &surface_support));
 		if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
 		{
 			queue_family_index_o = i;
@@ -346,19 +338,6 @@ void graphics::context::transition_image(VkCommandBuffer command_buffer,
 	vkCmdPipelineBarrier(command_buffer, source_stage, desintation_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 }
-
-//void graphics::context::present(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, graphics::framebuffer& current_framebuffer)
-//{
-//	VkPresentInfoKHR present_info{};
-//	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-//	present_info.pSwapchains = &swapchain;
-//	present_info.swapchainCount = 1;
-//	present_info.pWaitSemaphores = &wait_semaphore;
-//	present_info.waitSemaphoreCount = 1;
-//	present_info.pImageIndices = &current_framebuffer.index;
-//	vkQueuePresentKHR(graphics_queue.handle, &present_info);
-//}
-
 
 void graphics::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
 {
