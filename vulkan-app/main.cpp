@@ -10,6 +10,7 @@
 #include "gfx.hpp"
 #include "graphics/context.hpp"
 #include "input/keyboard.hpp"
+#include "input/mouse.hpp"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -24,6 +25,7 @@ int main()
 	vk::command_buffer command_buffer(context.device, command_pool);
 
     input::init_keyboard(window.glfw_window);
+    input::init_mouse(window.glfw_window);
 
 	app::engine gfx(context);
 

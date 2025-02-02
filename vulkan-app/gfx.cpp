@@ -25,6 +25,7 @@
 #include <GLFW/glfw3native.h>
 
 #include "input/keyboard.hpp"
+#include "input/mouse.hpp"
 
 #include "graphics/graphics.hpp"
 #include "graphics/descriptor_set.hpp"
@@ -39,15 +40,7 @@
 #define WIDTH	800
 #define HEIGHT	800
 
-static double mouse_x, mouse_y;
-static double mouse_down_x, mouse_down_y;
-static bool is_mouse_down;
-static double center_x, center_y;
-static double last_update_x, last_update_y;
-static double zoom = 1.0;
 
-static double yaw;
-static double pitch;
 static bool jumping;
 
 //namespace app
@@ -65,43 +58,7 @@ struct mvp
     glm::mat4 proj;
 };
 
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    constexpr double sensitivity = 0.001;
 
-    yaw += (xpos)*sensitivity;
-    pitch += (ypos)*sensitivity;
-
-    glfwSetCursorPos(window, 0.0, 0.0);
-}
-
-static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    double constexpr factor = 1.1;
-
-    if (yoffset > 0)
-    {
-        zoom *= factor;
-    }
-    else
-    {
-        zoom /= factor;
-    }
-}
-
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-    {
-        is_mouse_down = true;
-        last_update_x = mouse_x;
-        last_update_y = mouse_y;
-    }
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-    {
-        is_mouse_down = false;
-    }
-}
 
 
 
@@ -111,18 +68,8 @@ app::window::window()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfw_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-    glfwSetCursorPosCallback(glfw_window, cursor_position_callback);
-    glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
-    glfwSetScrollCallback(glfw_window, scroll_callback);
-    glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    if (glfwRawMouseMotionSupported())
-    {
-        glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
-    else
-    {
-        throw std::runtime_error("Could not set mouse to raw input mode!");
-    }
+
+
 
     handle = glfwGetWin32Window(glfw_window);
 }
@@ -250,11 +197,11 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         vkResetFences(context.device, 1, &m_in_flight_fence);
         mvp* ubo = static_cast<mvp*>(ubuffer.data());
 
-        direction[0] = sin(yaw);
-        direction[1] = cos(yaw);
-        direction[2] = -sin(pitch);
+        direction[0] = sin(input::get_yaw());
+        direction[1] = cos(input::get_yaw());
+        direction[2] = -sin(input::get_pitch());
 
-        glm::vec3 left(sin(yaw - 1.57), cos(yaw - 1.57), -sin(pitch));
+        glm::vec3 left(sin(input::get_yaw() - 1.57), cos(input::get_yaw() - 1.57), -sin(input::get_pitch()));
 
         double floor = noise.get(position[0], position[1]) * 0.06f + 0.04f;
 

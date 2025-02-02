@@ -1,19 +1,14 @@
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
 
 #include "input/keyboard.hpp"
 
 namespace input
 {
-    //static int keys[GLFW_KEY_LAST];
-
     static bool status[KEY_COUNT];
 
     static void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        boolean pressed = false;
+        bool pressed = false;
 
         input::keys which_key;
 
