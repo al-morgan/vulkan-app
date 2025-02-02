@@ -329,45 +329,13 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     my_pass.update(0, rbuffer);
     my_pass.update(1, ubuffer);
 
-    //VkWriteDescriptorSet write_descriptor_set{};
-    //write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    //write_descriptor_set.dstSet = my_pass.m_descriptor_set;
-    //write_descriptor_set.dstBinding = 0;
-    //write_descriptor_set.descriptorCount = 1;
-    //write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    //write_descriptor_set.dstArrayElement = 0;
-    //write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
-
-    //vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
-
-    //descriptor_buffer_info.buffer = ubuffer.handle();
-    //descriptor_buffer_info.offset = 0;
-    //descriptor_buffer_info.range = ubuffer.size();
-
-    //write_descriptor_set.dstBinding = 1;
-    //write_descriptor_set.descriptorCount = 1;
-    //write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    //write_descriptor_set.dstArrayElement = 0;
-    //write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
-
-    //vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
-
     while (!glfwWindowShouldClose(window.glfw_window))
     {
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
         vkResetCommandBuffer(command_buffer, 0);
         vkResetFences(context.device, 1, &m_in_flight_fence);
-
-
-
-        //vkUpdateDescriptorSets(context.device, 1, &write_descriptor_set, 0, nullptr);
-
         mvp* ubo = static_cast<mvp*>(ubuffer.data());
-        //ubo->view = glm::lookAt(glm::vec3(.20f, .20f, .20f), glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        //position[0] += direction[0] * 0.001f;
-        //position[1] += direction[1] * 0.001f;
 
         direction[0] = sin(yaw);
         direction[1] = cos(yaw);
