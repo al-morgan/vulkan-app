@@ -29,6 +29,7 @@ namespace graphics
         std::vector<std::reference_wrapper<graphics::image>> m_images;
         //std::vector<graphics::descriptor_set>& m_descriptor_sets;
         VkPipelineLayout m_pipeline_layout;
+        std::vector<VkDescriptorType> m_descriptor_types;
 
         std::vector<VkDescriptorSetLayoutBinding> m_bindings;
         VkDescriptorSetLayout m_layout = VK_NULL_HANDLE;
@@ -42,6 +43,9 @@ namespace graphics
             dsl_binding.stageFlags = stage_flags;
             dsl_binding.descriptorCount = 1;
             m_bindings.push_back(dsl_binding);
+
+            m_descriptor_types.resize(binding + 1);
+            m_descriptor_types[binding] = descriptor_type;
         }
 
         void commit()
@@ -61,6 +65,25 @@ namespace graphics
         }
 
         VkDescriptorSetLayout layout() { return m_layout; }
+
+
+        void update(uint32_t binding, graphics::buffer& buffer)
+        {
+            VkDescriptorBufferInfo descriptor_buffer_info{};
+            descriptor_buffer_info.buffer = buffer.handle();
+            descriptor_buffer_info.offset = 0;
+            descriptor_buffer_info.range = buffer.size();
+            
+            VkWriteDescriptorSet write_descriptor_set{};
+            write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write_descriptor_set.dstSet = m_descriptor_set;
+            write_descriptor_set.dstBinding = binding;
+            write_descriptor_set.descriptorCount = 1;
+            write_descriptor_set.descriptorType = m_descriptor_types[binding];
+            write_descriptor_set.dstArrayElement = 0;
+            write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+            vkUpdateDescriptorSets(m_context.device, 1, &write_descriptor_set, 0, nullptr);
+        }
 
         void finalize(VkShaderModule vertex_shader, VkShaderModule fragment_shader)
         {
