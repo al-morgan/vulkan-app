@@ -24,6 +24,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include "input/keyboard.hpp"
+
 #include "graphics/graphics.hpp"
 #include "graphics/descriptor_set.hpp"
 #include "graphics/context.hpp"
@@ -71,12 +73,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     pitch += (ypos)*sensitivity;
 
     glfwSetCursorPos(window, 0.0, 0.0);
-
-    //mouse_x = xpos;
-    //mouse_y = ypos;
-
-    //std::cout << xpos << ", " << ypos << std::endl;
-
 }
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -107,12 +103,6 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     }
 }
 
-static int keys[GLFW_KEY_LAST];
-
-static void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    keys[key] = action;
-}
 
 
 app::window::window()
@@ -124,8 +114,6 @@ app::window::window()
     glfwSetCursorPosCallback(glfw_window, cursor_position_callback);
     glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
     glfwSetScrollCallback(glfw_window, scroll_callback);
-    glfwSetKeyCallback(glfw_window, key_press_callback);
-
     glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported())
     {
@@ -280,35 +268,34 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
             fall_speed += .0001f;
         }
 
-        if (keys[GLFW_KEY_W] != GLFW_RELEASE)
+        if (input::is_pressed(input::KEY_FORWARD))
         {
             position += direction * 0.001f;
         }
 
-        if (keys[GLFW_KEY_A] != GLFW_RELEASE)
+        if (input::is_pressed(input::KEY_LEFT))
         {
             position += left * 0.001f;
         }
 
-        if (keys[GLFW_KEY_S] != GLFW_RELEASE)
+        if (input::is_pressed(input::KEY_BACKWARD))
         {
             position -= direction * 0.001f;
         }
 
-        if (keys[GLFW_KEY_D] != GLFW_RELEASE)
+        if (input::is_pressed(input::KEY_RIGHT))
         {
             position -= left * 0.001f;
         }
 
-        if (keys[GLFW_KEY_SPACE] != GLFW_RELEASE)
-        {
-            if (!jumping)
-            {
-                fall_speed -= .01f;
-            }
-            jumping = true;
-
-        }
+        //if (keys[GLFW_KEY_SPACE] != GLFW_RELEASE)
+        //{
+        //    if (!jumping)
+        //    {
+        //        fall_speed -= .01f;
+        //    }
+        //    jumping = true;
+        //}
 
         //std::cout << keys[GLFW_KEY_W] << std::endl;
 

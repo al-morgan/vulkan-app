@@ -1,4 +1,63 @@
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+#include "input/keyboard.hpp"
+
 namespace input
 {
+    //static int keys[GLFW_KEY_LAST];
+
+    static bool status[KEY_COUNT];
+
+    static void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        boolean pressed = false;
+
+        input::keys which_key;
+
+        switch (action)
+        {
+        case GLFW_PRESS:
+            pressed = true;
+            break;
+        case GLFW_RELEASE:
+            pressed = false;
+            break;
+        case GLFW_REPEAT:
+            return;
+        }
+
+        switch (key)
+        {
+        case GLFW_KEY_W:
+            which_key = KEY_FORWARD;
+            break;
+        case GLFW_KEY_A:
+            which_key = KEY_LEFT;
+            break;
+        case GLFW_KEY_S:
+            which_key = KEY_BACKWARD;
+            break;
+        case GLFW_KEY_D:
+            which_key = KEY_RIGHT;
+            break;
+        default:
+            return;
+        }
+
+        status[which_key] = pressed;
+    }
+
+    void init_keyboard(GLFWwindow* window)
+    {
+        glfwSetKeyCallback(window, key_press_callback);
+    }
+
+    bool is_pressed(input::keys key)
+    {
+        return status[key];
+    }
 
 }

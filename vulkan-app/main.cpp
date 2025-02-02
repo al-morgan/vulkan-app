@@ -9,6 +9,7 @@
 #include "vk.hpp"
 #include "gfx.hpp"
 #include "graphics/context.hpp"
+#include "input/keyboard.hpp"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -22,6 +23,7 @@ int main()
 	vk::command_pool command_pool(context.device, context.graphics_queue.family_index);
 	vk::command_buffer command_buffer(context.device, command_pool);
 
+    input::init_keyboard(window.glfw_window);
 
 	app::engine gfx(context);
 
