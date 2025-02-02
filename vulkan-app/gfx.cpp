@@ -225,8 +225,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         }
     }
 
-    int foo = points.size();
-
     graphics::swapchain swapchain(context, WIDTH, HEIGHT, context.surface);
 
     graphics::vertex3d bar = mesh[900][900];
@@ -242,62 +240,10 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     double fall_speed = 0.0;
 
     graphics::buffer rbuffer(context, 128 * 4, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT);
-
     float* mem = static_cast<float*>(rbuffer.data());
-
-    //vkBindBufferMemory
-
-    int x = 0;
-    int y = 0;
-    int j = 0;
     for (uint32_t i = 0; i < 100; i += 1)
     {
         mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
-
-        float z = static_cast<float>(std::rand()) * .01f / static_cast<float>(RAND_MAX);
-
-        z = 0.0f; // mem[i] / 600.f;
-
-        if (x != 10 && y != 10)
-        {
-            glm::vec3* foo = static_cast<glm::vec3*>(vbuffer.data());
-            foo[j][0] = static_cast<float>(x * .2f - 1.f);
-            foo[j][1] = static_cast<float>(y * .2f - 1.f);
-            foo[j][2] = z;
-            j++;
-
-            foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
-            foo[j][1] = static_cast<float>(y) * .2f - 1.f;
-            foo[j][2] = z;
-            j++;
-
-            foo[j][0] = static_cast<float>(x) * .2f - 1.f;
-            foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
-            foo[j][2] = z;
-            j++;
-
-            foo[j][0] = static_cast<float>((x + 1) * .2f - 1.f);
-            foo[j][1] = static_cast<float>(y) * .2f - 1.f;
-            foo[j][2] = z;
-            j++;
-
-            foo[j][0] = static_cast<float>(x + 1) * .2f - 1.f;
-            foo[j][1] = static_cast<float>(y + 1) * .2f - 1.f;
-            foo[j][2] = z;
-            j++;
-
-            foo[j][0] = static_cast<float>(x * .2f - 1.f);
-            foo[j][1] = static_cast<float>((y + 1) * .2f - 1.f);
-            foo[j][2] = z;
-            j++;
-        }
-
-        x += 1;
-        if (x == 10)
-        {
-            x = 0;
-            y++;
-        }
     }
 
     graphics::pass my_pass(context);
@@ -396,7 +342,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
         vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
         swapchain.prepare_swapchain_for_writing(command_buffer);
-        //vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline);
 
         VkDeviceSize offset = 0;
