@@ -27,22 +27,47 @@ namespace graphics
         VkPipeline m_pipeline;
         std::vector<std::reference_wrapper<graphics::buffer>> m_buffers;
         std::vector<std::reference_wrapper<graphics::image>> m_images;
-        std::vector<graphics::descriptor_set>& m_descriptor_sets;
+        //std::vector<graphics::descriptor_set>& m_descriptor_sets;
         VkPipelineLayout m_pipeline_layout;
 
-        pass(graphics::context& context, VkShaderModule vertex_shader, VkShaderModule fragment_shader, std::vector<graphics::descriptor_set>& descriptor_sets) : m_context(context), m_descriptor_sets(descriptor_sets)
-        {
-            // This could be better.
-            std::vector<VkDescriptorSetLayout> layouts;
-            for (auto&& set : m_descriptor_sets)
-            {
-                layouts.push_back(set.layout());
-            }
+        std::vector<VkDescriptorSetLayoutBinding> m_bindings;
+        VkDescriptorSetLayout m_layout = VK_NULL_HANDLE;
+        VkDescriptorSet m_descriptor_set = VK_NULL_HANDLE;
 
+        void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags)
+        {
+            VkDescriptorSetLayoutBinding dsl_binding{};
+            dsl_binding.binding = binding;
+            dsl_binding.descriptorType = descriptor_type;
+            dsl_binding.stageFlags = stage_flags;
+            dsl_binding.descriptorCount = 1;
+            m_bindings.push_back(dsl_binding);
+        }
+
+        void commit()
+        {
+            VkDescriptorSetLayoutCreateInfo layout_create_info{};
+            layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            layout_create_info.bindingCount = m_bindings.size();
+            layout_create_info.pBindings = m_bindings.data();
+            vkCreateDescriptorSetLayout(m_context.device, &layout_create_info, nullptr, &m_layout);
+
+            VkDescriptorSetAllocateInfo alloc_info{};
+            alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            alloc_info.descriptorPool = m_context.descriptor_pool;
+            alloc_info.descriptorSetCount = 1;
+            alloc_info.pSetLayouts = &m_layout;
+            vkAllocateDescriptorSets(m_context.device, &alloc_info, &m_descriptor_set);
+        }
+
+        VkDescriptorSetLayout layout() { return m_layout; }
+
+        void finalize(VkShaderModule vertex_shader, VkShaderModule fragment_shader)
+        {
             VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
             pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipeline_layout_create_info.pSetLayouts = layouts.data();
-            pipeline_layout_create_info.setLayoutCount = layouts.size();
+            pipeline_layout_create_info.pSetLayouts = &m_layout;
+            pipeline_layout_create_info.setLayoutCount = 1;
             vkCreatePipelineLayout(m_context.device, &pipeline_layout_create_info, nullptr, &m_pipeline_layout);
 
             VkPipelineShaderStageCreateInfo vertex_stage_create_info{};
@@ -145,6 +170,12 @@ namespace graphics
             create_info.pNext = &pipeline_rendering_create_info;
 
             vkCreateGraphicsPipelines(m_context.device, nullptr, 1, &create_info, nullptr, &m_pipeline);
+
+
+        }
+        pass(graphics::context& context) : m_context(context)
+        {
+
         }
     };
 }

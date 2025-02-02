@@ -321,12 +321,16 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     sets[0].add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
     sets[0].commit();
 
-    graphics::pass my_pass(context, context.vertex_shader, context.fragment_shader, sets);
+    graphics::pass my_pass(context);
+    my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
+    my_pass.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    my_pass.commit();
+    my_pass.finalize(context.vertex_shader, context.fragment_shader);
 
 
     VkWriteDescriptorSet write_descriptor_set{};
     write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    write_descriptor_set.dstSet = sets[0].m_descriptor_set;
+    write_descriptor_set.dstSet = my_pass.m_descriptor_set;
     write_descriptor_set.dstBinding = 0;
     write_descriptor_set.descriptorCount = 1;
     write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -445,7 +449,7 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         new_vertex_buffer.copy(command_buffer);
 
         depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_sets[0].m_descriptor_set, 0, nullptr);
+        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
         swapchain.prepare_swapchain_for_writing(command_buffer);
         //vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline);
