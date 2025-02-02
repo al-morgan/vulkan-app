@@ -24,8 +24,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "graphics/descriptor_set.hpp"
 #include "graphics/graphics.hpp"
+#include "graphics/descriptor_set.hpp"
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
 #include "graphics/swapchain.hpp"

@@ -142,6 +142,8 @@
     <ClCompile Include="graphics\image.cpp" />
     <ClCompile Include="graphics\pass.cpp" />
     <ClCompile Include="graphics\swapchain.cpp" />
+    <ClCompile Include="input\keyboard.cpp" />
+    <ClCompile Include="input\mouse.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="perlin.cpp" />
     <ClCompile Include="graphics\buffer.cpp" />
@@ -157,6 +159,8 @@
     <ClInclude Include="graphics\image.hpp" />
     <ClInclude Include="graphics\pass.hpp" />
     <ClInclude Include="graphics\swapchain.hpp" />
+    <ClInclude Include="input\keyboard.hpp" />
+    <ClInclude Include="input\mouse.hpp" />
     <ClInclude Include="perlin.hpp" />
     <ClInclude Include="vk.hpp" />
   </ItemGroup>
