@@ -300,27 +300,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         }
     }
 
-    graphics::descriptor_set the_set(context);
-    the_set.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    the_set.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    the_set.commit();
-
-    //uint32_t image_view_index = 0; // TODO GET THE INDEX
-    constexpr uint32_t buffer_size = 128 * 4;
-
-    VkDescriptorBufferInfo descriptor_buffer_info{};
-    descriptor_buffer_info.buffer = rbuffer.handle();
-    descriptor_buffer_info.offset = 0;
-    descriptor_buffer_info.range = buffer_size;
-
-
-
-    std::vector<graphics::descriptor_set> sets;
-    sets.resize(1, context);
-    sets[0].add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    sets[0].add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    sets[0].commit();
-
     graphics::pass my_pass(context);
     my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     my_pass.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
@@ -388,9 +367,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         //std::cout << keys[GLFW_KEY_W] << std::endl;
 
         position[2] -= fall_speed;
-
-
-
 
 
         ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
