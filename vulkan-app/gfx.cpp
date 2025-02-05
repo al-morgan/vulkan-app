@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 
@@ -194,8 +195,19 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     my_pass.update(1, ubuffer);
     my_pass.update(2, nbuffer);
 
+    auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
+
+    double frame_count = 0;
+
     while (!glfwWindowShouldClose(window.glfw_window))
     {
+        auto elapsed = std::chrono::steady_clock::now();
+        const std::chrono::duration<double> diff = elapsed - start;
+        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(elapsed);        
+        auto blah = now_ms - start;
+        std::cout << frame_count / blah.count() * 1000.0 << std::endl;
+        frame_count++;
+        
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
         vkResetCommandBuffer(command_buffer, 0);
@@ -260,11 +272,15 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 
         context.begin_command_buffer(command_buffer);
 
+        if (frame_count == 1)
+        {
+            vbuffer.copy(command_buffer);
+            rbuffer.copy(command_buffer);
+            nbuffer.copy(command_buffer);
+            new_vertex_buffer.copy(command_buffer);
+        }
+
         ubuffer.copy(command_buffer);
-        vbuffer.copy(command_buffer);
-        rbuffer.copy(command_buffer);
-        nbuffer.copy(command_buffer);
-        new_vertex_buffer.copy(command_buffer);
 
         depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
         vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
@@ -302,7 +318,7 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
         swapchain.present(m_render_finished_semaphore);
 
         // NO NO NO
-        vkDeviceWaitIdle(context.device);
+        //vkDeviceWaitIdle(context.device);
     }
 
 }
