@@ -184,7 +184,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     glm::vec3* nmem = static_cast<glm::vec3*>(nbuffer.data());
     memcpy(nmem, normals.data(), sizeof(normals[0]) * normals.size());
 
-
     graphics::pass my_pass(context);
     my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     my_pass.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
@@ -194,8 +193,6 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     my_pass.update(0, rbuffer);
     my_pass.update(1, ubuffer);
     my_pass.update(2, nbuffer);
-
-    //my_pass.update(2, )
 
     while (!glfwWindowShouldClose(window.glfw_window))
     {
