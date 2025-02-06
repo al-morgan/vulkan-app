@@ -10,14 +10,9 @@
 
 #include "gfx.hpp"
 #include <vector>
-#include <limits>
-#include <optional>
-#include <fstream>
-#include <array>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "file.hpp"
 #include "vk.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -29,12 +24,12 @@
 #include "input/mouse.hpp"
 
 #include "graphics/graphics.hpp"
-#include "graphics/descriptor_set.hpp"
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
 #include "graphics/swapchain.hpp"
 #include "graphics/image.hpp"
 #include "graphics/pass.hpp"
+#include "graphics/frame.hpp"
 
 #include "perlin.hpp"
 
@@ -45,12 +40,6 @@
 static bool jumping;
 
 
-struct mvp
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
-};
 
 app::window::window()
 {
@@ -106,7 +95,7 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
     app::perlin noise(10, 10);
 
     graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-    graphics::buffer ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
     constexpr int axis_size = 1000;
 
@@ -199,20 +188,38 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 
     double frame_count = 0;
 
+    //std::array<graphics::frame, 2> frame_set{ context };
+
+    // I think I need to rule-of-three the frame
+    // Probably rule-of-five too.
+    std::vector<graphics::frame> frame_set;
+
+    for (uint32_t i = 0; i < graphics::NUM_FRAMES; i++)
+    {
+        frame_set.emplace_back(context);
+    }
+
+    uint32_t current_frame = 0;
+
+
     while (!glfwWindowShouldClose(window.glfw_window))
     {
         auto elapsed = std::chrono::steady_clock::now();
         const std::chrono::duration<double> diff = elapsed - start;
-        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(elapsed);        
+        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(elapsed);
         auto blah = now_ms - start;
         std::cout << frame_count / blah.count() * 1000.0 << std::endl;
         frame_count++;
         
+        current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
+
+
+
         glfwPollEvents();
-        vkWaitForFences(context.device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX);
+        vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
         vkResetCommandBuffer(command_buffer, 0);
-        vkResetFences(context.device, 1, &m_in_flight_fence);
-        mvp* ubo = static_cast<mvp*>(ubuffer.data());
+        vkResetFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence);
+        graphics::mvp* ubo = static_cast<graphics::mvp*>(ubuffer.data());
 
         direction[0] = sin(input::get_yaw());
         direction[1] = cos(input::get_yaw());
@@ -312,14 +319,14 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
             command_buffer,
             swapchain.get_semaphore(),
             wait_stage,
-            m_render_finished_semaphore,
-            m_in_flight_fence);
+            frame_set[current_frame].m_render_finished_semaphore,
+            frame_set[current_frame].m_in_flight_fence);
 
-        swapchain.present(m_render_finished_semaphore);
+        swapchain.present(frame_set[current_frame].m_render_finished_semaphore);
 
         // NO NO NO
         //vkDeviceWaitIdle(context.device);
     }
 
+    vkDeviceWaitIdle(context.device);
 }
-//}
