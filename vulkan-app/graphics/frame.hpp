@@ -24,6 +24,7 @@ public:
     graphics::buffer ubuffer;
     VkFence m_in_flight_fence;
     VkSemaphore m_render_finished_semaphore;
+    VkSemaphore m_swapchain_semaphore;
 
     vk::command_pool m_command_pool;
     vk::command_buffer m_command_buffer;
@@ -43,6 +44,7 @@ public:
         semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
         vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
+        vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_swapchain_semaphore);
     }
 
     frame(const graphics::frame& other) :

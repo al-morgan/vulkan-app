@@ -92,7 +92,7 @@ app::engine::~engine()
     vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 }
 
-void app::engine::update(graphics::context& context, app::window& window, vk::command_buffer& command_buffer)
+void app::engine::update(graphics::context& context, app::window& window)
 {
     std::srand(std::time(nullptr));
 
@@ -221,7 +221,7 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
-        vkResetCommandBuffer(command_buffer, 0);
+        vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
         vkResetFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(ubuffer.data());
 
@@ -279,49 +279,49 @@ void app::engine::update(graphics::context& context, app::window& window, vk::co
 
         ubo->proj[1][1] *= -1.0f;
 
-        swapchain.get_next_framebuffer();
+        swapchain.get_next_framebuffer(frame_set[current_frame].m_swapchain_semaphore);
 
-        context.begin_command_buffer(command_buffer);
+        context.begin_command_buffer(frame_set[current_frame].m_command_buffer);
 
         if (frame_count == 1)
         {
-            vbuffer.copy(command_buffer);
-            rbuffer.copy(command_buffer);
-            nbuffer.copy(command_buffer);
-            new_vertex_buffer.copy(command_buffer);
+            vbuffer.copy(frame_set[current_frame].m_command_buffer);
+            rbuffer.copy(frame_set[current_frame].m_command_buffer);
+            nbuffer.copy(frame_set[current_frame].m_command_buffer);
+            new_vertex_buffer.copy(frame_set[current_frame].m_command_buffer);
         }
 
-        ubuffer.copy(command_buffer);
+        ubuffer.copy(frame_set[current_frame].m_command_buffer);
 
-        depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
-        swapchain.prepare_swapchain_for_writing(command_buffer);
-        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline);
+        depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
+        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
+        swapchain.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
+        vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline);
 
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { new_vertex_buffer.handle() };
-        vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
+        vkCmdBindVertexBuffers(frame_set[current_frame].m_command_buffer, 0, 1, buffers, &offset);
 
         VkMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 
-        vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+        vkCmdPipelineBarrier(frame_set[current_frame].m_command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-        context.begin_rendering(command_buffer, swapchain.image_view(), depth_buffer.view());
-        vkCmdDraw(command_buffer, 6000000, 1, 0, 0);
-        vkCmdEndRendering(command_buffer);
+        context.begin_rendering(frame_set[current_frame].m_command_buffer, swapchain.image_view(), depth_buffer.view());
+        vkCmdDraw(frame_set[current_frame].m_command_buffer, 6000000, 1, 0, 0);
+        vkCmdEndRendering(frame_set[current_frame].m_command_buffer);
 
-        swapchain.prepare_swapchain_for_presentation(command_buffer);
+        swapchain.prepare_swapchain_for_presentation(frame_set[current_frame].m_command_buffer);
 
-        vkEndCommandBuffer(command_buffer);
+        vkEndCommandBuffer(frame_set[current_frame].m_command_buffer);
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         context.submit(
-            command_buffer,
-            swapchain.get_semaphore(),
+            frame_set[current_frame].m_command_buffer,
+            frame_set[current_frame].m_swapchain_semaphore,
             wait_stage,
             frame_set[current_frame].m_render_finished_semaphore,
             frame_set[current_frame].m_in_flight_fence);

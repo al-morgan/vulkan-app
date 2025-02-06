@@ -31,7 +31,7 @@ int main()
 
     try
     {
-		gfx.update(context, window, command_buffer);
+		gfx.update(context, window);
     }
     catch (const std::exception& e)
     {

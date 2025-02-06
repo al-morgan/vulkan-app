@@ -32,6 +32,6 @@ namespace app
 	public:
 		engine(graphics::context& context);
 		~engine();
-		void update(graphics::context& context, app::window& window, vk::command_buffer& command_buffer);
+		void update(graphics::context& context, app::window& window);
 	};
 }
