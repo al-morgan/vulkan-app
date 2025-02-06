@@ -5,6 +5,7 @@
 
 namespace graphics
 {
+
 constexpr uint32_t NUM_FRAMES = 2;
 
 struct mvp
@@ -24,9 +25,14 @@ public:
     VkFence m_in_flight_fence;
     VkSemaphore m_render_finished_semaphore;
 
+    vk::command_pool m_command_pool;
+    vk::command_buffer m_command_buffer;
+
     frame(graphics::context& context) :
         m_context(context),
-        ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT),
+        m_command_pool(context.device, context.graphics_queue.family_index),
+        m_command_buffer(context.device, m_command_pool)
     {
         VkFenceCreateInfo fence_create_info{};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
