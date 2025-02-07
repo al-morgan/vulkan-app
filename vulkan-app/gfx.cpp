@@ -205,7 +205,6 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     uint32_t current_frame = 0;
 
-
     while (!glfwWindowShouldClose(window.glfw_window))
     {
         auto elapsed = std::chrono::steady_clock::now();
@@ -214,10 +213,8 @@ void app::engine::update(graphics::context& context, app::window& window)
         auto blah = now_ms - start;
         std::cout << frame_count / blah.count() * 1000.0 << std::endl;
         frame_count++;
-        
+
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
-
-
 
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
@@ -327,9 +324,6 @@ void app::engine::update(graphics::context& context, app::window& window)
             frame_set[current_frame].m_in_flight_fence);
 
         swapchain.present(frame_set[current_frame].m_render_finished_semaphore);
-
-        // NO NO NO
-        //vkDeviceWaitIdle(context.device);
     }
 
     vkDeviceWaitIdle(context.device);
