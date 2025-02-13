@@ -146,6 +146,7 @@
     <ClCompile Include="input\keyboard.cpp" />
     <ClCompile Include="input\mouse.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="perlin.cpp" />
     <ClCompile Include="graphics\buffer.cpp" />
     <ClCompile Include="vk.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="graphics\swapchain.hpp" />
     <ClInclude Include="input\keyboard.hpp" />
     <ClInclude Include="input\mouse.hpp" />
+    <ClInclude Include="mesh.hpp" />
     <ClInclude Include="perlin.hpp" />
     <ClInclude Include="vk.hpp" />
   </ItemGroup>
