@@ -133,7 +133,7 @@ public:
         rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterization_state.lineWidth = 1.0f;
         rasterization_state.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterization_state.polygonMode = VK_POLYGON_MODE_LINE;
+        //rasterization_state.polygonMode = VK_POLYGON_MODE_LINE;
 
         VkViewport viewport{};
         viewport.width = static_cast<float>(800);

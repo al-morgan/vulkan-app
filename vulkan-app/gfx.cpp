@@ -98,9 +98,12 @@ void app::engine::update(graphics::context& context, app::window& window)
 {
     std::srand(std::time(nullptr));
 
-    app::perlin noise(10, 10, 10000.0f, 10000.0f);
+    app::perlin noise(100, 100, 10000.0f, 10000.0f);
+    app::perlin noise_low(10, 10, 10000.0f, 10000.0f);
 
     graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    
+    // TODO: I'm not using the ubuffer from the frame so it's getting all weird!
     graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
     constexpr int axis_size = 1000;
@@ -115,7 +118,8 @@ void app::engine::update(graphics::context& context, app::window& window)
 
             point[0] = static_cast<float>(x) * 10;
             point[1] = static_cast<float>(y) * 10;
-            point[2] = noise.get(point[0], point[1]) * 60.0f;
+            point[2] = noise.get(point[0], point[1]) * 10.0f;
+            point[2] += noise.get(point[0], point[1]) * 100.0f;
 
             mesh.set(x, y, point);
         }
@@ -201,6 +205,8 @@ void app::engine::update(graphics::context& context, app::window& window)
             fall_speed += .0001f;
         }
 
+        position[2] = 200.f;
+
         if (input::is_pressed(input::KEY_FORWARD))
         {
             position += direction * speed;
@@ -221,7 +227,12 @@ void app::engine::update(graphics::context& context, app::window& window)
             position -= left * speed;
         }
 
-        position[2] -= fall_speed;
+        //position[2] -= fall_speed;
+
+        if (position[2] < 199.f)
+        {
+            throw std::runtime_error("WHAT");
+        }
 
         ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
 
