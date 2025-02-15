@@ -115,9 +115,9 @@ void app::engine::update(graphics::context& context, app::window& window)
         {
             glm::vec3 point;
 
-            point[0] = static_cast<float>(x) / static_cast<float>(axis_size);
-            point[1] = static_cast<float>(y) / static_cast<float>(axis_size);
-            point[2] = noise.get(point[0], point[1]) * 0.06f;
+            point[0] = static_cast<float>(x);
+            point[1] = static_cast<float>(y);
+            point[2] = noise.get(point[0] / 1000.f, point[1] / 1000.f) * 60.0f;
 
             mesh.set(x, y, point);
         }
@@ -128,7 +128,7 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::swapchain swapchain(context, WIDTH, HEIGHT, context.surface);
     graphics::image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
-    glm::vec3 position(.20f, .20f, .20f);
+    glm::vec3 position(500.f, 500.f, 100.f);
     glm::vec3 direction(1.0f, 0.0f, 0.0f);
 
     double fall_speed = 0.0;
@@ -189,7 +189,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         glm::vec3 left(sin(input::get_yaw() - 1.57), cos(input::get_yaw() - 1.57), -sin(input::get_pitch()));
 
-        double floor = noise.get(position[0], position[1]) * 0.06f + 0.04f;
+        double floor = noise.get(position[0] / 1000.f, position[1] / 1000.f) * 60.f + 2.0f;
 
         if (position[2] < floor)
         {
@@ -233,7 +233,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         ubo->proj = glm::perspective(glm::radians(45.0f),
             800.0f / 800.0f, 0.001f,
-            10.0f);
+            1000.0f);
 
         ubo->proj[1][1] *= -1.0f;
 
