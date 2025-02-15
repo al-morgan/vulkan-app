@@ -16,7 +16,7 @@ private:
 public:
     std::vector<glm::vec3> m_mesh;
     std::vector<uint32_t> m_indices;
-    std::vector<glm::vec3> m_normals;
+    std::vector<glm::vec4> m_normals;
 
     graphics::buffer m_mesh_buffer;
     graphics::buffer m_index_buffer;
@@ -72,7 +72,8 @@ public:
             glm::vec3 b = v2 - v3;
             glm::vec3 c = glm::cross(a, b);
             c = glm::normalize(c);
-            m_normals.push_back(c);
+            glm::vec4 d = glm::vec4(c, 1.0f);
+            m_normals.push_back(d);
         }
     }
 

@@ -7,6 +7,11 @@ namespace app
 
 	static double smoothstep(double edge_0, double edge_1, double x)
 	{
+        if (edge_0 == edge_1)
+        {
+            return edge_0;
+        }
+
 		double t;
 		t = std::clamp((x - edge_0) / (edge_1 - edge_0), 0.0, 1.0);
 		return t * t * (3.0 - 2.0 * t);
