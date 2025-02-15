@@ -105,8 +105,6 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     constexpr int axis_size = 1000;
 
-    //static graphics::vertex3d mesh[axis_size + 1][axis_size + 1];
-
     app::mesh mesh(context, axis_size, axis_size);
 
     for (int x = 0; x < axis_size; x++)
@@ -115,9 +113,9 @@ void app::engine::update(graphics::context& context, app::window& window)
         {
             glm::vec3 point;
 
-            point[0] = static_cast<float>(x);
-            point[1] = static_cast<float>(y);
-            point[2] = noise.get(point[0] / 1000.f, point[1] / 1000.f) * 60.0f;
+            point[0] = static_cast<float>(x) * 10;
+            point[1] = static_cast<float>(y) * 10;
+            point[2] = noise.get(point[0] / 10000.f, point[1] / 10000.f) * 60.0f;
 
             mesh.set(x, y, point);
         }
@@ -189,7 +187,9 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         glm::vec3 left(sin(input::get_yaw() - 1.57), cos(input::get_yaw() - 1.57), -sin(input::get_pitch()));
 
-        double floor = noise.get(position[0] / 1000.f, position[1] / 1000.f) * 60.f + 2.0f;
+        double floor = noise.get(position[0] / 10000.f, position[1] / 10000.f) * 60.f + 4.0f;
+
+        float speed = 0.1f;
 
         if (position[2] < floor)
         {
@@ -203,22 +203,22 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         if (input::is_pressed(input::KEY_FORWARD))
         {
-            position += direction * 0.001f;
+            position += direction * speed;
         }
 
         if (input::is_pressed(input::KEY_LEFT))
         {
-            position += left * 0.001f;
+            position += left * speed;
         }
 
         if (input::is_pressed(input::KEY_BACKWARD))
         {
-            position -= direction * 0.001f;
+            position -= direction * speed;
         }
 
         if (input::is_pressed(input::KEY_RIGHT))
         {
-            position -= left * 0.001f;
+            position -= left * speed;
         }
 
         position[2] -= fall_speed;
@@ -233,7 +233,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         ubo->proj = glm::perspective(glm::radians(45.0f),
             800.0f / 800.0f, 0.001f,
-            1000.0f);
+            10000.0f);
 
         ubo->proj[1][1] *= -1.0f;
 

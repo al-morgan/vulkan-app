@@ -74,7 +74,7 @@ void main()
 	
 
 	vec4 n = normalBuffer.bar[gl_PrimitiveID];
-	vec3 light = vec3(.707f, 0.0, .707f);
+	vec3 light = vec3(.9f, 0.0, .107f);
 	
 	float d = dot(vec3(n.x, n.y, n.z), light);
 
