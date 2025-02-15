@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 #include "glm/glm.hpp"
@@ -13,11 +15,13 @@ class mesh
 private:
 public:
     std::vector<glm::vec3> m_mesh;
-    std::vector<uint32_t>m_indices;
+    std::vector<uint32_t> m_indices;
+    std::vector<glm::vec3> m_normals;
 
     graphics::buffer m_mesh_buffer;
     graphics::buffer m_index_buffer;
-    
+    graphics::buffer m_normal_buffer;
+
     int m_width;
 
     uint32_t get_index(uint32_t x, uint32_t y)
@@ -25,10 +29,13 @@ public:
         return y * m_width + x;
     }
 
+    // Should width and height be the number of squares or the
+    // number of points? Probably points.
     mesh(graphics::context &context, uint32_t width, uint32_t height) :
         m_width(width),
         m_mesh_buffer(context, width * height * sizeof(m_mesh[0]), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT),
-        m_index_buffer(context, (width - 1) * (height - 1) * 6 * sizeof(m_indices[0]), VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+        m_index_buffer(context, (width - 1) * (height - 1) * 6 * sizeof(m_indices[0]), VK_BUFFER_USAGE_INDEX_BUFFER_BIT),
+        m_normal_buffer(context, (width - 1) * (height - 1) * 2 * sizeof(m_normals[0]), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
     {
         m_mesh.resize(width * height);
         m_indices.reserve((width - 1) * (height - 1) * 6);
@@ -51,6 +58,29 @@ public:
     void set(int x, int y, glm::vec3 value)
     {
         m_mesh[y * m_width + x] = value;
+    }
+
+    void make_normals()
+    {
+        for (uint32_t i = 0; i < m_indices.size(); i += 3)
+        {
+            glm::vec3 v1 = m_mesh[m_indices[i]];
+            glm::vec3 v2 = m_mesh[m_indices[i + 1]];
+            glm::vec3 v3 = m_mesh[m_indices[i + 2]];
+
+            glm::vec3 a = v1 - v3;
+            glm::vec3 b = v2 - v3;
+            glm::vec3 c = glm::cross(a, b);
+            c = glm::normalize(c);
+            m_normals.push_back(c);
+        }
+    }
+
+    void copy(VkCommandBuffer command_buffer)
+    {
+        m_mesh_buffer.copy(command_buffer);
+        m_index_buffer.copy(command_buffer);
+        m_normal_buffer.copy(command_buffer);
     }
 };
 

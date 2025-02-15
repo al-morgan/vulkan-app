@@ -15,7 +15,7 @@ layout(set = 0, binding = 0) readonly buffer ObjectBuffer{
 } objectBuffer;
 
 layout(set = 0, binding = 2) readonly buffer NormalBuffer{
-	vec4 bar[];
+	vec3 bar[];
 } normalBuffer;
 
 layout(binding = 1) uniform uniformBufferObject
@@ -73,17 +73,18 @@ void main()
 	float v = mix(x1, x2, wy);
 	
 
-	vec4 n = normalBuffer.bar[gl_PrimitiveID];
+	vec4 n = vec4(normalBuffer.bar[gl_PrimitiveID], 1.0f);
 	vec3 light = vec3(.707f, 0.0, -.707f);
 	
 	float d = dot(vec3(n.x, n.y, n.z), light);
 	//float d = (dot(vec3(n.x, n.y, n.z), light) - .5f) * 2.0f;
 
-	float c = gl_PrimitiveID / 1000000.0f;
+	//float c = gl_PrimitiveID / 1000000.0f;
 
 	//outColor = vec4(n.r, n.g, n.b, 1.0f);
-	
-	outColor = vec4(d, d, d, 1.0f);
+	outColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	//outColor = vec4(d, d, d, 1.0f);
 
 	//outColor = vec4(c, c, c, 1.0f);
 

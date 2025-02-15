@@ -37,12 +37,17 @@ graphics::buffer::buffer(const graphics::context& context, size_t size, VkBuffer
 	vkCreateBuffer(context.device, &create_info, nullptr, &m_destination);
 
 	// Allocate host memory
+    VkMemoryRequirements memory_requirements;
+    vkGetBufferMemoryRequirements(context.device, m_source, &memory_requirements);
 	VkMemoryAllocateInfo memory_allocate_info{};
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	memory_allocate_info.allocationSize = size;
+	memory_allocate_info.allocationSize = memory_requirements.size;
 	memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
 	graphics::check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
 	graphics::check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
+
+    vkGetBufferMemoryRequirements(context.device, m_destination, &memory_requirements);
+    memory_allocate_info.allocationSize = memory_requirements.size;
 
 	// Allocate device memory
 	memory_allocate_info.memoryTypeIndex = context.memory_type_device_local;
