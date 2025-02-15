@@ -78,6 +78,10 @@ public:
 
     void copy(VkCommandBuffer command_buffer)
     {
+        memcpy(m_mesh_buffer.data(), m_mesh.data(), m_mesh.size() * sizeof(m_mesh[0]));
+        memcpy(m_index_buffer.data(), m_indices.data(), m_indices.size() * sizeof(m_indices[0]));
+        memcpy(m_normal_buffer.data(), m_normals.data(), m_normals.size() * sizeof(m_normals[0]));
+
         m_mesh_buffer.copy(command_buffer);
         m_index_buffer.copy(command_buffer);
         m_normal_buffer.copy(command_buffer);
