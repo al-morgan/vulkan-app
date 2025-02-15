@@ -125,51 +125,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     mesh.make_normals();
 
-    //std::vector<graphics::vertex3d> normals;
-    //std::vector<glm::vec4> normals;
-
-    //std::vector<graphics::vertex3d> points;
-
-    //for (int x = 0; x < axis_size; x++)
-    //{
-    //    for (int y = 0; y < axis_size; y++)
-    //    {
-    //        points.push_back(mesh[y][x]);
-    //        points.push_back(mesh[y][x + 1]);
-    //        points.push_back(mesh[y + 1][x]);
-
-    //        points.push_back(mesh[y][x + 1]);
-    //        points.push_back(mesh[y + 1][x + 1]);
-    //        points.push_back(mesh[y + 1][x]);
-
-    //        glm::vec3 a = mesh[y][x].pos - mesh[y][x + 1].pos;
-    //        glm::vec3 b = mesh[y + 1][x].pos - mesh[y][x + 1].pos;
-    //        glm::vec3 c = glm::cross(a, b);
-    //        c = glm::normalize(c);
-    //        glm::vec4 d(c.x, c.y, c.z, 1.0f);
-    //        normals.push_back(d);
-
-    //        //normals.push_back(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
-
-    //        a = mesh[y][x + 1].pos - mesh[y + 1][x + 1].pos;
-    //        b = mesh[y + 1][x].pos - mesh[y + 1][x + 1].pos;
-    //        c = glm::cross(a, b);
-    //        c = glm::normalize(c);
-    //        d = glm::vec4(c.x, c.y, c.z, 1.0f);
-    //        normals.push_back(d);
-
-    //        //normals.push_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-    //    }
-    //}
-
     graphics::swapchain swapchain(context, WIDTH, HEIGHT, context.surface);
-
-    //graphics::vertex3d bar = mesh[900][900];
-
-    //graphics::buffer new_vertex_buffer(context, points.size() * sizeof(graphics::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-    //memcpy(new_vertex_buffer.data(), points.data(), points.size() * sizeof(graphics::vertex3d));
-
     graphics::image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
     glm::vec3 position(.20f, .20f, .20f);
@@ -183,10 +139,6 @@ void app::engine::update(graphics::context& context, app::window& window)
     {
         mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
     }
-
-    //graphics::buffer nbuffer(context, sizeof(normals[0]) * normals.size(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-    //glm::vec3* nmem = static_cast<glm::vec3*>(nbuffer.data());
-    //memcpy(nmem, normals.data(), sizeof(normals[0]) * normals.size());
 
     graphics::pass my_pass(context);
     my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
@@ -202,8 +154,6 @@ void app::engine::update(graphics::context& context, app::window& window)
     auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 
     double frame_count = 0;
-
-    //std::array<graphics::frame, 2> frame_set{ context };
 
     // I think I need to rule-of-three the frame
     // Probably rule-of-five too.
@@ -294,10 +244,6 @@ void app::engine::update(graphics::context& context, app::window& window)
         if (frame_count == 1)
         {
             mesh.copy(frame_set[current_frame].m_command_buffer);
-            //vbuffer.copy(frame_set[current_frame].m_command_buffer);
-            //rbuffer.copy(frame_set[current_frame].m_command_buffer);
-            //nbuffer.copy(frame_set[current_frame].m_command_buffer);
-            //new_vertex_buffer.copy(frame_set[current_frame].m_command_buffer);
         }
 
         ubuffer.copy(frame_set[current_frame].m_command_buffer);
@@ -321,11 +267,7 @@ void app::engine::update(graphics::context& context, app::window& window)
         vkCmdPipelineBarrier(frame_set[current_frame].m_command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
         context.begin_rendering(frame_set[current_frame].m_command_buffer, swapchain.image_view(), depth_buffer.view());
-        //vkCmdDraw(frame_set[current_frame].m_command_buffer, 6000000, 1, 0, 0);
-
         vkCmdDrawIndexed(frame_set[current_frame].m_command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
-
-
         vkCmdEndRendering(frame_set[current_frame].m_command_buffer);
 
         swapchain.prepare_swapchain_for_presentation(frame_set[current_frame].m_command_buffer);
@@ -342,8 +284,6 @@ void app::engine::update(graphics::context& context, app::window& window)
             frame_set[current_frame].m_in_flight_fence);
 
         swapchain.present(frame_set[current_frame].m_render_finished_semaphore);
-
-        //vkDeviceWaitIdle(context.device);
     }
 
     vkDeviceWaitIdle(context.device);
