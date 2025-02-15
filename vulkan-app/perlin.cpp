@@ -46,10 +46,11 @@ namespace app
 		}
 
 	public:
-		perlin(uint32_t x, uint32_t y)
+		perlin(uint32_t x, uint32_t y, uint32_t sample_size_x, uint32_t sample_size_y)
 		{
 			size_x = x;
 			size_y = y;
+
 			grid.resize(static_cast<std::vector<double>::size_type>(x * y));
 		}
 

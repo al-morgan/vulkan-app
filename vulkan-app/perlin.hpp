@@ -30,6 +30,8 @@ namespace app
 		std::vector<intersection>grid;
 		uint32_t size_x;
 		uint32_t size_y;
+        uint32_t m_sample_size_x;
+        uint32_t m_sample_size_y;
 
 		double sample(uint32_t grid_x, uint32_t grid_y, double sample_x, double sample_y)
 		{
@@ -46,10 +48,12 @@ namespace app
 		}
 
 	public:
-		perlin(uint32_t x, uint32_t y)
+		perlin(uint32_t x, uint32_t y, uint32_t sample_size_x, uint32_t sample_size_y)
 		{
 			size_x = x;
 			size_y = y;
+            m_sample_size_x = sample_size_x;
+            m_sample_size_y = sample_size_y;
 			grid.resize(static_cast<std::vector<double>::size_type>(x * y));
 
 			for (uint32_t i = 0; i < grid.size(); i++)
@@ -72,6 +76,9 @@ namespace app
 		{
 			x *= (size_x - 1);
 			y *= (size_y - 1);
+
+            x /= m_sample_size_x;
+            y /= m_sample_size_y;
 
 			uint32_t fx = static_cast<uint32_t>(floor(x));
 			uint32_t fy = static_cast<uint32_t>(floor(y));

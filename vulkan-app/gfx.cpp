@@ -98,7 +98,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 {
     std::srand(std::time(nullptr));
 
-    app::perlin noise(10, 10);
+    app::perlin noise(10, 10, 10000.0f, 10000.0f);
 
     graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
@@ -115,7 +115,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
             point[0] = static_cast<float>(x) * 10;
             point[1] = static_cast<float>(y) * 10;
-            point[2] = noise.get(point[0] / 10000.f, point[1] / 10000.f) * 60.0f;
+            point[2] = noise.get(point[0], point[1]) * 60.0f;
 
             mesh.set(x, y, point);
         }
@@ -187,7 +187,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         glm::vec3 left(sin(input::get_yaw() - 1.57), cos(input::get_yaw() - 1.57), -sin(input::get_pitch()));
 
-        double floor = noise.get(position[0] / 10000.f, position[1] / 10000.f) * 60.f + 4.0f;
+        double floor = noise.get(position[0], position[1]) * 60.f + 4.0f;
 
         float speed = 0.1f;
 
