@@ -74,7 +74,7 @@ void main()
 	float v = mix(x1, x2, wy);
 	
 
-	vec4 n = normalBuffer.bar[gl_PrimitiveID];
+	vec4 n = normalBuffer.bar[gl_PrimitiveID / 2];
 	//vec3 light = vec3(.9f, 0.0, .107f);
     vec3 light = vec3(.707f, 0.0, .707f);
 	

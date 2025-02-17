@@ -89,7 +89,7 @@ public:
             glm::vec4 f = glm::vec4(e, 1.0f);
             
             m_normals.push_back(f);
-            m_normals.push_back(f);
+            //m_normals.push_back(f);
         }
     }
 
