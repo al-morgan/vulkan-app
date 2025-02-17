@@ -62,7 +62,7 @@ public:
 
     void make_normals()
     {
-        for (uint32_t i = 0; i < m_indices.size(); i += 3)
+        for (uint32_t i = 0; i < m_indices.size(); i += 6)
         {
             glm::vec3 v1 = m_mesh[m_indices[i]];
             glm::vec3 v2 = m_mesh[m_indices[i + 1]];
@@ -71,9 +71,25 @@ public:
             glm::vec3 a = v1 - v3;
             glm::vec3 b = v2 - v3;
             glm::vec3 c = glm::cross(a, b);
-            c = glm::normalize(c);
-            glm::vec4 d = glm::vec4(c, 1.0f);
-            m_normals.push_back(d);
+            //c = glm::normalize(c);
+            //glm::vec4 d = glm::vec4(c, 1.0f);
+
+            v1 = m_mesh[m_indices[i + 3]];
+            v2 = m_mesh[m_indices[i + 4]];
+            v3 = m_mesh[m_indices[i + 5]];
+
+            a = v1 - v3;
+            b = v2 - v3;
+            glm::vec3 d = glm::cross(a, b);
+            //c = glm::normalize(c);
+            //glm::vec4 d = glm::vec4(c, 1.0f);
+
+            auto e = (c + d);
+            e = glm::normalize(e);
+            glm::vec4 f = glm::vec4(e, 1.0f);
+            
+            m_normals.push_back(f);
+            m_normals.push_back(f);
         }
     }
 

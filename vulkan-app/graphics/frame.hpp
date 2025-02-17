@@ -1,12 +1,11 @@
 #include "glm/glm.hpp"
 #include "graphics/context.hpp"
 #include "graphics/buffer.hpp"
-
+#include "graphics/graphics.hpp"
 
 namespace graphics
 {
 
-constexpr uint32_t NUM_FRAMES = 2;
 
 struct mvp
 {

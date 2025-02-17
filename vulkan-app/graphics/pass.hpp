@@ -49,6 +49,7 @@ public:
         layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layout_create_info.bindingCount = m_bindings.size();
         layout_create_info.pBindings = m_bindings.data();
+        layout_create_info.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
         vkCreateDescriptorSetLayout(m_context.device, &layout_create_info, nullptr, &m_layout);
 
         VkDescriptorSetAllocateInfo alloc_info{};
@@ -123,7 +124,6 @@ public:
         VkPipelineInputAssemblyStateCreateInfo input_assembly_state{};
         input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         input_assembly_state.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
 
         VkPipelineMultisampleStateCreateInfo multisample_state{};
         multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

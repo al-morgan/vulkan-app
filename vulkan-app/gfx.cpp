@@ -104,7 +104,7 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::buffer vbuffer(context, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     
     // TODO: I'm not using the ubuffer from the frame so it's getting all weird!
-    graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    //graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
     constexpr int axis_size = 1000;
 
@@ -142,6 +142,8 @@ void app::engine::update(graphics::context& context, app::window& window)
         mem[i] = static_cast<float>(std::rand()) * 2.0f * 3.14159f / static_cast<float>(RAND_MAX);
     }
 
+    std::vector<graphics::frame> frame_set;
+
     graphics::pass my_pass(context);
     my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     my_pass.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
@@ -150,7 +152,6 @@ void app::engine::update(graphics::context& context, app::window& window)
     my_pass.finalize(context.vertex_shader, context.fragment_shader);
     
     my_pass.update(0, rbuffer);
-    my_pass.update(1, ubuffer);
     my_pass.update(2, mesh.m_normal_buffer);
 
     auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
@@ -159,7 +160,6 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     // I think I need to rule-of-three the frame
     // Probably rule-of-five too.
-    std::vector<graphics::frame> frame_set;
 
     for (uint32_t i = 0; i < graphics::NUM_FRAMES; i++)
     {
@@ -179,11 +179,13 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
 
+        my_pass.update(1, frame_set[current_frame].ubuffer);
+
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
         vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
         vkResetFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence);
-        graphics::mvp* ubo = static_cast<graphics::mvp*>(ubuffer.data());
+        graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
 
         direction[0] = sin(input::get_yaw());
         direction[1] = cos(input::get_yaw());
@@ -243,7 +245,7 @@ void app::engine::update(graphics::context& context, app::window& window)
             glm::vec3(0.0f, 0.0f, 1.0f));*/
 
         ubo->proj = glm::perspective(glm::radians(45.0f),
-            800.0f / 800.0f, 0.001f,
+            800.0f / 800.0f, 0.1f,
             10000.0f);
 
         ubo->proj[1][1] *= -1.0f;
@@ -257,7 +259,7 @@ void app::engine::update(graphics::context& context, app::window& window)
             mesh.copy(frame_set[current_frame].m_command_buffer);
         }
 
-        ubuffer.copy(frame_set[current_frame].m_command_buffer);
+        frame_set[current_frame].ubuffer.copy(frame_set[current_frame].m_command_buffer);
 
         depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
         vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
