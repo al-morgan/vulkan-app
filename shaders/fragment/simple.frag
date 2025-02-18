@@ -13,5 +13,6 @@ void main()
     vec3 light = vec3(.707f, 0.0, .707f);
 
     float intensity = dot(vec3(n.x, n.y, n.z), light);
+    intensity = pow(intensity, 2.2);
     outColor = vec4(intensity, intensity, intensity, 1.0f);
 }

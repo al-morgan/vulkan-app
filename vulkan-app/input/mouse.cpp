@@ -7,8 +7,8 @@
 namespace input
 {
     static double zoom = 1.0;
-    static double yaw;
-    static double pitch;
+    static double yaw = 3.14159 / 4;
+    static double pitch = .2;
     static double last_update_x, last_update_y;
     static double mouse_x, mouse_y;
     static bool is_mouse_down;
@@ -61,6 +61,7 @@ namespace input
         if (glfwRawMouseMotionSupported())
         {
             glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+            glfwSetCursorPos(window, 0.0, 0.0);
         }
         else
         {

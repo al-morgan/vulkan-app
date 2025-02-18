@@ -96,7 +96,7 @@ app::engine::~engine()
 
 void app::engine::update(graphics::context& context, app::window& window)
 {
-    std::srand(std::time(nullptr));
+    //std::srand(std::time(nullptr));
 
     app::perlin noise(100, 100, 10000.0f, 10000.0f);
     app::perlin noise_low(10, 10, 10000.0f, 10000.0f);
