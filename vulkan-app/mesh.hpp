@@ -100,6 +100,32 @@ public:
             }
         }
 
+        for (uint32_t x = 1; x < m_width - 2; x++)
+        {
+            for (uint32_t y = 1; y < m_width - 2; y++) // TODO: height instead of width
+            {
+                //glm::vec3 a = m_mesh[get_index(x - 1, y)].pos - m_mesh[get_index(x, y)].pos;
+                //glm::vec3 b = m_mesh[get_index(x + 1, y)].pos - m_mesh[get_index(x, y)].pos;
+                //glm::vec3 c = m_mesh[get_index(x, y - 1)].pos - m_mesh[get_index(x, y)].pos;
+                //glm::vec3 d = m_mesh[get_index(x, y + 1)].pos - m_mesh[get_index(x, y)].pos;
+
+                //a = glm::normalize(a);
+                //b = glm::normalize(b);
+                //c = glm::normalize(c);
+                //d = glm::normalize(d);
+
+                glm::vec3 a = get_normal(x, y);
+                glm::vec3 b = get_normal(x + 1, y);
+                glm::vec3 c = get_normal(x, y + 1);
+                glm::vec3 d = get_normal(x + 1, y + 1);
+
+                glm::vec3 e = a + b + c + d;
+                e = glm::normalize(e);
+
+                m_mesh[get_index(x, y)].normal = e;
+            }
+        }
+
         return;
 
         for (uint32_t i = 0; i < m_indices.size(); i += 6)
@@ -127,31 +153,7 @@ public:
             m_normals.push_back(f);
         }
 
-        for (uint32_t x = 1; x < m_width - 2; x++)
-        {
-            for (uint32_t y = 1; y < m_width - 2; y++) // TODO: height instead of width
-            {
-                //glm::vec3 a = m_mesh[get_index(x - 1, y)].pos - m_mesh[get_index(x, y)].pos;
-                //glm::vec3 b = m_mesh[get_index(x + 1, y)].pos - m_mesh[get_index(x, y)].pos;
-                //glm::vec3 c = m_mesh[get_index(x, y - 1)].pos - m_mesh[get_index(x, y)].pos;
-                //glm::vec3 d = m_mesh[get_index(x, y + 1)].pos - m_mesh[get_index(x, y)].pos;
 
-                //a = glm::normalize(a);
-                //b = glm::normalize(b);
-                //c = glm::normalize(c);
-                //d = glm::normalize(d);
-
-                glm::vec3 a = m_normals[y * (m_width - 1) + x - 1];
-                glm::vec3 b = m_normals[y * (m_width - 1) + x];
-                glm::vec3 c = m_normals[(y - 1) * (m_width - 1) + x];
-                glm::vec3 d = m_normals[(y - 1) * (m_width - 1) + (x - 1)];
-
-                glm::vec3 e = a + b + c + d;
-                e = glm::normalize(e);
-
-                m_mesh[get_index(x, y)].normal = e;
-            }
-        }
     }
 
     void copy(VkCommandBuffer command_buffer)
