@@ -5,6 +5,7 @@ layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 normal;
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 coords;
+layout(location = 2) out vec3 outNormal;
 
 layout(set = 0, binding = 0) readonly buffer ObjectBuffer {
     float foo[];
@@ -31,4 +32,5 @@ void main()
     fragColor = vec4(foo.x, foo.y, foo.z, 1.0);
     gl_Position = foo;
     coords = vec2(inPosition.x, inPosition.y);
+    outNormal = normal;
 }
