@@ -14,7 +14,7 @@ class mesh
 {
 private:
 public:
-    std::vector<glm::vec3> m_mesh;
+    std::vector<graphics::vertex3d> m_mesh;
     std::vector<uint32_t> m_indices;
     std::vector<glm::vec4> m_normals;
 
@@ -35,7 +35,7 @@ public:
         m_width(width),
         m_mesh_buffer(context, width * height * sizeof(m_mesh[0]), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT),
         m_index_buffer(context, (width - 1) * (height - 1) * 6 * sizeof(m_indices[0]), VK_BUFFER_USAGE_INDEX_BUFFER_BIT),
-        m_normal_buffer(context, (width - 1) * (height - 1) * 2 * sizeof(m_normals[0]), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+        m_normal_buffer(context, width* height * sizeof(m_mesh[0]), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
     {
         m_mesh.resize(width * height);
         m_indices.reserve((width - 1) * (height - 1) * 6);
@@ -57,39 +57,34 @@ public:
 
     void set(int x, int y, glm::vec3 value)
     {
-        m_mesh[y * m_width + x] = value;
+        m_mesh[y * m_width + x].pos = value;
     }
 
     void make_normals()
     {
         for (uint32_t i = 0; i < m_indices.size(); i += 6)
         {
-            glm::vec3 v1 = m_mesh[m_indices[i]];
-            glm::vec3 v2 = m_mesh[m_indices[i + 1]];
-            glm::vec3 v3 = m_mesh[m_indices[i + 2]];
+            glm::vec3 v1 = m_mesh[m_indices[i]].pos;
+            glm::vec3 v2 = m_mesh[m_indices[i + 1]].pos;
+            glm::vec3 v3 = m_mesh[m_indices[i + 2]].pos;
 
             glm::vec3 a = v1 - v3;
             glm::vec3 b = v2 - v3;
             glm::vec3 c = glm::cross(a, b);
-            //c = glm::normalize(c);
-            //glm::vec4 d = glm::vec4(c, 1.0f);
 
-            v1 = m_mesh[m_indices[i + 3]];
-            v2 = m_mesh[m_indices[i + 4]];
-            v3 = m_mesh[m_indices[i + 5]];
+            v1 = m_mesh[m_indices[i + 3]].pos;
+            v2 = m_mesh[m_indices[i + 4]].pos;
+            v3 = m_mesh[m_indices[i + 5]].pos;
 
             a = v1 - v3;
             b = v2 - v3;
             glm::vec3 d = glm::cross(a, b);
-            //c = glm::normalize(c);
-            //glm::vec4 d = glm::vec4(c, 1.0f);
 
             auto e = (c + d);
             e = glm::normalize(e);
             glm::vec4 f = glm::vec4(e, 1.0f);
             
             m_normals.push_back(f);
-            //m_normals.push_back(f);
         }
     }
 

@@ -103,21 +103,26 @@ public:
 
         std::array<VkPipelineShaderStageCreateInfo, 2> stages = { vertex_stage_create_info, fragment_stage_create_info };
 
-        VkVertexInputAttributeDescription vertex_input_attribute_description{};
-        vertex_input_attribute_description.binding = 0;
-        vertex_input_attribute_description.location = 0;
-        vertex_input_attribute_description.format = VK_FORMAT_R32G32B32_SFLOAT;
-        vertex_input_attribute_description.offset = 0;
+        VkVertexInputAttributeDescription vertex_input_attribute_descriptions[2];
+        vertex_input_attribute_descriptions[0].binding = 0;
+        vertex_input_attribute_descriptions[0].location = 0;
+        vertex_input_attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+        vertex_input_attribute_descriptions[0].offset = 0;
+
+        vertex_input_attribute_descriptions[1].binding = 0;
+        vertex_input_attribute_descriptions[1].location = 1;
+        vertex_input_attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        vertex_input_attribute_descriptions[1].offset = 12;
 
         VkVertexInputBindingDescription vertex_input_binding_description{};
         vertex_input_binding_description.binding = 0;
         vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertex_input_binding_description.stride = sizeof(glm::vec3);
+        vertex_input_binding_description.stride = sizeof(graphics::vertex3d);
 
         VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
         vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertex_input_state_create_info.pVertexAttributeDescriptions = &vertex_input_attribute_description;
-        vertex_input_state_create_info.vertexAttributeDescriptionCount = 1;
+        vertex_input_state_create_info.pVertexAttributeDescriptions = vertex_input_attribute_descriptions;
+        vertex_input_state_create_info.vertexAttributeDescriptionCount = 2;
         vertex_input_state_create_info.pVertexBindingDescriptions = &vertex_input_binding_description;
         vertex_input_state_create_info.vertexBindingDescriptionCount = 1;
 

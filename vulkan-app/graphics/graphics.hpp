@@ -17,6 +17,7 @@ struct vertex2d
 struct vertex3d
 {
     glm::vec3 pos;
+    glm::vec3 normal;
 };
 
 struct framebuffer
