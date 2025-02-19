@@ -86,6 +86,22 @@ public:
             
             m_normals.push_back(f);
         }
+
+        for (uint32_t x = 1; x < m_width - 1; x++)
+        {
+            for (uint32_t y = 1; y < m_width - 1; y++) // TODO: height instead of width
+            {
+                glm::vec3 a = m_mesh[get_index(x - 1, y)].pos - m_mesh[get_index(x, y)].pos;
+                glm::vec3 b = m_mesh[get_index(x + 1, y)].pos - m_mesh[get_index(x, y)].pos;
+                glm::vec3 c = m_mesh[get_index(x, y - 1)].pos - m_mesh[get_index(x, y)].pos;
+                glm::vec3 d = m_mesh[get_index(x, y + 1)].pos - m_mesh[get_index(x, y)].pos;
+
+                glm::vec3 e = a + b + c + d;
+                e = glm::normalize(e);
+
+                m_mesh[get_index(x, y)].normal = e;
+            }
+        }
     }
 
     void copy(VkCommandBuffer command_buffer)
