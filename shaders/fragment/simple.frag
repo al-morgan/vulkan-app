@@ -17,7 +17,8 @@ void main()
     vec3 light = vec3(.707f, 0.0, .707f);
 
     float intensity = dot(vec3(n.x, n.y, n.z), light);
-    intensity = max(intensity, 0.1);
+    intensity = max(intensity, 0.0);
+    intensity += .02;
     //intensity = pow(intensity, 1/2.2);
 
     //intensity += (gl_PrimitiveID % 2) * .05;
