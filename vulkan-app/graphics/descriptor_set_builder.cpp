@@ -6,7 +6,7 @@
 namespace graphics
 {
 
-descriptor_set_cache::descriptor_set_cache(graphics::context& context) :
+descriptor_set_builder::descriptor_set_builder(graphics::context& context) :
     m_context(context)
 {
     VkDescriptorPoolSize types;
@@ -22,13 +22,13 @@ descriptor_set_cache::descriptor_set_cache(graphics::context& context) :
     vkCreateDescriptorPool(context.device, &create_info, nullptr, &m_descriptor_pool);
 }
 
-void descriptor_set_cache::reset()
+void descriptor_set_builder::reset()
 {
     m_bindings.clear();
     m_layout = VK_NULL_HANDLE;
 }
 
-void descriptor_set_cache::add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags)
+void descriptor_set_builder::add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags)
 {
     VkDescriptorSetLayoutBinding dsl_binding{};
     dsl_binding.binding = binding;
@@ -38,7 +38,7 @@ void descriptor_set_cache::add_binding(uint32_t binding, VkDescriptorType descri
     m_bindings.push_back(dsl_binding);
 }
 
-void descriptor_set_cache::commit()
+VkDescriptorSet descriptor_set_builder::get_result()
 {
     // TODO: check if descriptor set exists.
     VkDescriptorSet descriptor_set;
@@ -56,7 +56,7 @@ void descriptor_set_cache::commit()
     alloc_info.pSetLayouts = &m_layout;
     vkAllocateDescriptorSets(m_context.device, &alloc_info, &descriptor_set);
 
-    m_descriptor_sets.push_back(descriptor_set);
+    return descriptor_set;
 }
 
 }
