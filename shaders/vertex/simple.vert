@@ -3,7 +3,9 @@
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 normal;
-layout(location = 0) out vec4 fragColor;
+
+// layout(location = 0) out vec4 fragColor;
+layout(location = 0) out float intensity;
 layout(location = 1) out vec2 coords;
 layout(location = 2) out vec3 outNormal;
 
@@ -29,8 +31,15 @@ vec3 colors[3] = vec3[]
 void main()
 {
     vec4 foo = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-    fragColor = vec4(foo.x, foo.y, foo.z, 1.0);
+    //fragColor = vec4(foo.x, foo.y, foo.z, 1.0);
     gl_Position = foo;
     coords = vec2(inPosition.x, inPosition.y);
     outNormal = normal;
+
+    vec3 n = normal;
+    vec3 light = vec3(.707f, 0.0, .707f);
+    intensity = dot(vec3(n.x, n.y, n.z), light);
+
+
+    //fragColor = vec4(intensity, intensity, intensity, 1.0f);
 }
