@@ -55,6 +55,7 @@ public:
     ~frame()
     {
         vkDestroySemaphore(m_context.device, m_render_finished_semaphore, nullptr);
+        vkDestroySemaphore(m_context.device, m_swapchain_semaphore, nullptr);
         vkDestroyFence(m_context.device, m_in_flight_fence, nullptr);
     }
 };

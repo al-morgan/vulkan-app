@@ -202,6 +202,12 @@ public:
     {
 
     }
+
+    ~pass()
+    {
+        vkDestroyPipelineLayout(m_context.device, m_pipeline_layout, nullptr);
+        vkDestroyDescriptorSetLayout(m_context.device, m_layout, nullptr);
+    }
 };
 
 }
