@@ -23,7 +23,9 @@ descriptor_set_builder::descriptor_set_builder(graphics::context& context) :
 }
 
 descriptor_set_builder::~descriptor_set_builder()
-{}
+{
+    vkDestroyDescriptorPool(m_context.device, m_descriptor_pool, nullptr);
+}
 
 void descriptor_set_builder::reset()
 {
@@ -58,6 +60,11 @@ VkDescriptorSet descriptor_set_builder::get_result()
     alloc_info.descriptorSetCount = 1;
     alloc_info.pSetLayouts = &m_layout;
     vkAllocateDescriptorSets(m_context.device, &alloc_info, &descriptor_set);
+
+    // I don't think I have to do this actually.
+    m_descriptor_sets.push_back(descriptor_set);
+
+    vkDestroyDescriptorSetLayout(m_context.device, m_layout, nullptr);
 
     return descriptor_set;
 }

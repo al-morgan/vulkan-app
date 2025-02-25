@@ -22,7 +22,8 @@ private:
     graphics::context&                          m_context;
     VkDescriptorSetLayout                       m_layout = VK_NULL_HANDLE;
     std::vector<VkDescriptorSetLayoutBinding>   m_bindings;
+    std::vector<VkDescriptorSet>                m_descriptor_sets;
     VkDescriptorPool                            m_descriptor_pool;
 };
 
-};
+}
