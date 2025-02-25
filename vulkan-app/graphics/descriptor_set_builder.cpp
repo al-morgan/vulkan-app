@@ -1,7 +1,7 @@
 #include <vulkan/vulkan.h>
 
 #include "graphics/context.hpp"
-#include "graphics/descriptor_set_cache.hpp"
+#include "graphics/descriptor_set_builder.hpp"
 
 namespace graphics
 {
@@ -21,6 +21,9 @@ descriptor_set_builder::descriptor_set_builder(graphics::context& context) :
 
     vkCreateDescriptorPool(context.device, &create_info, nullptr, &m_descriptor_pool);
 }
+
+descriptor_set_builder::~descriptor_set_builder()
+{}
 
 void descriptor_set_builder::reset()
 {

@@ -139,7 +139,7 @@
     <ClCompile Include="gfx.cpp" />
     <ClCompile Include="graphics\context.cpp" />
     <ClCompile Include="graphics\descriptor_set.cpp" />
-    <ClCompile Include="graphics\descriptor_set_cache.cpp" />
+    <ClCompile Include="graphics\descriptor_set_builder.cpp" />
     <ClCompile Include="graphics\frame.cpp" />
     <ClCompile Include="graphics\image.cpp" />
     <ClCompile Include="graphics\pass.cpp" />
@@ -158,7 +158,7 @@
     <ClInclude Include="graphics\buffer.hpp" />
     <ClInclude Include="graphics\context.hpp" />
     <ClInclude Include="graphics\descriptor_set.hpp" />
-    <ClInclude Include="graphics\descriptor_set_cache.hpp" />
+    <ClInclude Include="graphics\descriptor_set_builder.hpp" />
     <ClInclude Include="graphics\frame.hpp" />
     <ClInclude Include="graphics\graphics.hpp" />
     <ClInclude Include="graphics\image.hpp" />

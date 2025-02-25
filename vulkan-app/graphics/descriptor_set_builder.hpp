@@ -9,10 +9,11 @@
 namespace graphics
 {
 
-class descriptor_set_cache
+class descriptor_set_builder
 {
 public:
-    descriptor_set_cache(graphics::context& context);
+    descriptor_set_builder(graphics::context& context);
+    ~descriptor_set_builder();
     void reset();
     void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags);
     VkDescriptorSet get_result();
