@@ -24,6 +24,10 @@ set_layout_builder::set_layout_builder(graphics::context& context) :
 
 set_layout_builder::~set_layout_builder()
 {
+    for (auto layout : m_layouts)
+    {
+        vkDestroyDescriptorSetLayout(m_context.device, layout, nullptr);
+    }
     //vkDestroyDescriptorPool(m_context.device, m_descriptor_pool, nullptr);
 }
 
