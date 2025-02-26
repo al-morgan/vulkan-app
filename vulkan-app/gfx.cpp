@@ -34,7 +34,7 @@
 #include "graphics/image.hpp"
 #include "graphics/pass.hpp"
 #include "graphics/frame.hpp"
-#include "graphics/descriptor_set_builder.hpp"
+#include "graphics/set_layout_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -169,7 +169,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     uint32_t current_frame = 0;
 
-    graphics::descriptor_set_builder my_builder(context);
+    graphics::set_layout_builder my_builder(context);
     my_builder.reset();
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);

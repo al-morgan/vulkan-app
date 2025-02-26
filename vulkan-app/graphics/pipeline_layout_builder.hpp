@@ -16,8 +16,9 @@ public:
     void add_descriptor_set(VkDescriptorSet descriptor_set);
     VkPipelineLayout get_result();
 private:
-    graphics::context& context;
-    
+    graphics::context& m_context;
+    std::vector<VkDescriptorSetLayout> m_set_layouts;
+    std::vector<VkPipelineLayout> m_layouts;
 };
 
 
