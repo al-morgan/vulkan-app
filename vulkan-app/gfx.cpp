@@ -36,6 +36,7 @@
 #include "graphics/frame.hpp"
 #include "graphics/set_layout_builder.hpp"
 #include "graphics/set_builder.hpp"
+#include "graphics/pipeline_layout_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -173,14 +174,17 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::set_layout_builder my_builder(context);
     my_builder.reset();
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
     my_builder.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    VkDescriptorSetLayout my_layout = my_builder.get_result();
+    VkDescriptorSetLayout static_set = my_builder.get_result();
+    my_builder.reset();
+    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    VkDescriptorSetLayout dynamic_set = my_builder.get_result();
 
-    graphics::set_builder my_set_builder(context);
-    my_set_builder.reset();
-    my_set_builder.add_set(0, my_layout);
-    VkDescriptorSet my_set = my_set_builder.get_result();
+    graphics::pipeline_layout_builder my_pipeline_layout_builder(context);
+    my_pipeline_layout_builder.reset();
+    my_pipeline_layout_builder.add_set(0, static_set);
+    my_pipeline_layout_builder.add_set(1, dynamic_set);
+    VkPipelineLayout my_set = my_pipeline_layout_builder.get_result();
 
     // Next: add layout builder
 

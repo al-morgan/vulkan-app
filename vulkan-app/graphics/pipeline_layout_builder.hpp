@@ -13,7 +13,7 @@ public:
     pipeline_layout_builder(graphics::context& context);
     ~pipeline_layout_builder();
     void reset();
-    void add_descriptor_set(VkDescriptorSet descriptor_set);
+    void add_set(uint32_t layout, VkDescriptorSetLayout descriptor_set);
     VkPipelineLayout get_result();
 private:
     graphics::context& m_context;

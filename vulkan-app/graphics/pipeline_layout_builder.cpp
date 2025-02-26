@@ -10,16 +10,21 @@ pipeline_layout_builder::pipeline_layout_builder(graphics::context& context) :
 { }
 
 pipeline_layout_builder::~pipeline_layout_builder()
-{}
+{
+    for (auto layout : m_layouts)
+    {
+        vkDestroyPipelineLayout(m_context.device, layout, nullptr);
+    }
+}
 
 void pipeline_layout_builder::reset()
 {
     m_set_layouts.clear();
 }
 
-void pipeline_layout_builder::add_descriptor_set(VkDescriptorSet descriptor_set)
+void pipeline_layout_builder::add_set(uint32_t layout, VkDescriptorSetLayout descriptor_set)
 {
-    //m_set_layouts.push_back(descriptor_set);
+    m_set_layouts.push_back(descriptor_set);
 }
 
 VkPipelineLayout pipeline_layout_builder::get_result()
