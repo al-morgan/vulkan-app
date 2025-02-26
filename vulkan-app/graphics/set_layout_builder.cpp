@@ -9,17 +9,7 @@ namespace graphics
 set_layout_builder::set_layout_builder(graphics::context& context) :
     m_context(context)
 {
-    //VkDescriptorPoolSize types;
-    //types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-    //types.descriptorCount = 1;
 
-    //VkDescriptorPoolCreateInfo create_info{};
-    //create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    //create_info.poolSizeCount = 0;
-    //create_info.pPoolSizes = &types;
-    //create_info.maxSets = 10;
-
-    //vkCreateDescriptorPool(context.device, &create_info, nullptr, &m_descriptor_pool);
 }
 
 set_layout_builder::~set_layout_builder()
@@ -28,7 +18,6 @@ set_layout_builder::~set_layout_builder()
     {
         vkDestroyDescriptorSetLayout(m_context.device, layout, nullptr);
     }
-    //vkDestroyDescriptorPool(m_context.device, m_descriptor_pool, nullptr);
 }
 
 void set_layout_builder::reset()
@@ -58,18 +47,6 @@ VkDescriptorSetLayout set_layout_builder::get_result()
     vkCreateDescriptorSetLayout(m_context.device, &layout_create_info, nullptr, &layout);
 
     m_layouts.push_back(layout);
-
-    //VkDescriptorSetAllocateInfo alloc_info{};
-    //alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    //alloc_info.descriptorPool = m_descriptor_pool;
-    //alloc_info.descriptorSetCount = 1;
-    //alloc_info.pSetLayouts = &m_layout;
-    //vkAllocateDescriptorSets(m_context.device, &alloc_info, &descriptor_set);
-
-    // I don't think I have to do this actually.
-    //m_descriptor_sets.push_back(descriptor_set);
-
-    
 
     return layout;
 }

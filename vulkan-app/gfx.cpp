@@ -35,6 +35,7 @@
 #include "graphics/pass.hpp"
 #include "graphics/frame.hpp"
 #include "graphics/set_layout_builder.hpp"
+#include "graphics/set_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -174,7 +175,12 @@ void app::engine::update(graphics::context& context, app::window& window)
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
     my_builder.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    my_builder.get_result();
+    VkDescriptorSetLayout my_layout = my_builder.get_result();
+
+    graphics::set_builder my_set_builder(context);
+    my_set_builder.reset();
+    my_set_builder.add_set(0, my_layout);
+    VkDescriptorSet my_set = my_set_builder.get_result();
 
     // Next: add layout builder
 
