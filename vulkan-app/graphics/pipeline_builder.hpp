@@ -19,9 +19,9 @@ public:
     void set_fragment_shader(VkShaderModule shader);
 private:
     graphics::context& m_context;
-    VkPipelineLayout m_layout;
-    VkShaderModule  m_vertex_shader;
-    VkShaderModule m_fragment_shader;
+    VkPipelineLayout m_layout = VK_NULL_HANDLE;
+    VkShaderModule  m_vertex_shader = VK_NULL_HANDLE;
+    VkShaderModule m_fragment_shader = VK_NULL_HANDLE;
 };
 
 }

@@ -37,6 +37,7 @@
 #include "graphics/set_layout_builder.hpp"
 #include "graphics/set_builder.hpp"
 #include "graphics/pipeline_layout_builder.hpp"
+#include "graphics/shader_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -170,6 +171,13 @@ void app::engine::update(graphics::context& context, app::window& window)
     }
 
     uint32_t current_frame = 0;
+
+    graphics::shader_builder shader_builder(context);
+    shader_builder.set_code("./shaders/vertex/simple.spv");
+    VkShaderModule vertex_shader = shader_builder.get_result();
+
+    shader_builder.set_code("./shaders/fragment/simple.spv");
+    VkShaderModule fragment_shader = shader_builder.get_result();
 
     graphics::set_layout_builder my_builder(context);
     my_builder.reset();
