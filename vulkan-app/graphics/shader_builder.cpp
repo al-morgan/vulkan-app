@@ -41,6 +41,4 @@ VkShaderModule shader_builder::get_result()
 
 }
 
-
-
 }

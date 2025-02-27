@@ -38,6 +38,7 @@
 #include "graphics/set_builder.hpp"
 #include "graphics/pipeline_layout_builder.hpp"
 #include "graphics/shader_builder.hpp"
+#include "graphics/pipeline_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -192,7 +193,13 @@ void app::engine::update(graphics::context& context, app::window& window)
     my_pipeline_layout_builder.reset();
     my_pipeline_layout_builder.add_set(0, static_set);
     my_pipeline_layout_builder.add_set(1, dynamic_set);
-    VkPipelineLayout my_set = my_pipeline_layout_builder.get_result();
+    VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();
+
+    graphics::pipeline_builder pipeline_builder(context);
+    pipeline_builder.set_fragment_shader(fragment_shader);
+    pipeline_builder.set_vertex_shader(vertex_shader);
+    pipeline_builder.set_layout(my_layout);
+    VkPipeline pipeline = pipeline_builder.get_result();
 
     // Next: add layout builder
 

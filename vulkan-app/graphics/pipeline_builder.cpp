@@ -16,7 +16,10 @@ pipeline_builder::pipeline_builder(graphics::context& context) :
 
 pipeline_builder::~pipeline_builder()
 {
-
+    for (auto pipeline : m_pipelines)
+    {
+        vkDestroyPipeline(m_context.device, pipeline, nullptr);
+    }
 }
 
 void pipeline_builder::reset()
@@ -150,6 +153,8 @@ VkPipeline pipeline_builder::get_result()
     create_info.pNext = &pipeline_rendering_create_info;
 
     vkCreateGraphicsPipelines(m_context.device, nullptr, 1, &create_info, nullptr, &pipeline);
+
+    m_pipelines.push_back(pipeline);
 
     return pipeline;
 }

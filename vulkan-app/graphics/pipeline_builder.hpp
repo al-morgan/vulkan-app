@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <vulkan/vulkan.h>
 
 #include "graphics/context.hpp"
@@ -22,6 +24,7 @@ private:
     VkPipelineLayout m_layout = VK_NULL_HANDLE;
     VkShaderModule  m_vertex_shader = VK_NULL_HANDLE;
     VkShaderModule m_fragment_shader = VK_NULL_HANDLE;
+    std::vector<VkPipeline> m_pipelines;
 };
 
 }
