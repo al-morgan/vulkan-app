@@ -169,17 +169,6 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     std::vector<graphics::frame> frame_set;
 
-    graphics::pass my_pass(context);
-    my_pass.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    my_pass.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    my_pass.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    my_pass.commit();
-    my_pass.finalize(context.vertex_shader, context.fragment_shader);
-    
-    my_pass.update(0, rbuffer);
-    my_pass.update(2, mesh.m_normal_buffer);
-
-
 
     auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 
@@ -244,8 +233,6 @@ void app::engine::update(graphics::context& context, app::window& window)
         frame_count++;
 
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
-
-        my_pass.update(1, frame_set[current_frame].ubuffer);
 
         updateds(context, 1, descriptor_set, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
 
@@ -368,8 +355,6 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         vkDeviceWaitIdle(context.device);
     }
-
-    vkDestroyPipeline(context.device, my_pass.m_pipeline, nullptr);
 
     vkDeviceWaitIdle(context.device);
 }
