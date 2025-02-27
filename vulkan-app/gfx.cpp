@@ -39,6 +39,7 @@
 #include "graphics/pipeline_layout_builder.hpp"
 #include "graphics/shader_builder.hpp"
 #include "graphics/pipeline_builder.hpp"
+#include "graphics/descriptor_set_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -203,6 +204,10 @@ void app::engine::update(graphics::context& context, app::window& window)
     pipeline_builder.set_layout(my_layout);
     VkPipeline pipeline = pipeline_builder.get_result();
 
+    graphics::descriptor_set_builder descriptor_set_builder(context);
+    descriptor_set_builder.set_layout(static_set);
+    VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
+
     // Next: add layout builder
 
     while (!glfwWindowShouldClose(window.glfw_window))
@@ -211,7 +216,7 @@ void app::engine::update(graphics::context& context, app::window& window)
         const std::chrono::duration<double> diff = elapsed - start;
         auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(elapsed);
         auto blah = now_ms - start;
-        std::cout << frame_count / blah.count() * 1000.0 << std::endl;
+        //std::cout << frame_count / blah.count() * 1000.0 << std::endl;
         frame_count++;
 
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;

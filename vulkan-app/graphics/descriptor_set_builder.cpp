@@ -29,8 +29,13 @@ descriptor_set_builder::~descriptor_set_builder()
 }
 
 
+void descriptor_set_builder::set_layout(VkDescriptorSetLayout layout)
+{
+    m_layout = layout;
+}
 
-VkDescriptorSet get_result()
+
+VkDescriptorSet descriptor_set_builder::get_result()
 {
     VkDescriptorSet descriptor_set;
     
