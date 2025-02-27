@@ -183,16 +183,18 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::set_layout_builder my_builder(context);
     my_builder.reset();
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    my_builder.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    VkDescriptorSetLayout static_set = my_builder.get_result();
-    my_builder.reset();
+    // TODO: move to another set.
     my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    VkDescriptorSetLayout dynamic_set = my_builder.get_result();
+    my_builder.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    
+    VkDescriptorSetLayout static_set = my_builder.get_result();
+    //my_builder.reset();
+    //VkDescriptorSetLayout dynamic_set = my_builder.get_result();
 
     graphics::pipeline_layout_builder my_pipeline_layout_builder(context);
     my_pipeline_layout_builder.reset();
     my_pipeline_layout_builder.add_set(0, static_set);
-    my_pipeline_layout_builder.add_set(1, dynamic_set);
+    //my_pipeline_layout_builder.add_set(1, dynamic_set);
     VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();
 
     graphics::pipeline_builder pipeline_builder(context);
@@ -297,9 +299,9 @@ void app::engine::update(graphics::context& context, app::window& window)
         frame_set[current_frame].ubuffer.copy(frame_set[current_frame].m_command_buffer);
 
         depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
+        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
         swapchain.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
-        vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_pass.m_pipeline);
+        vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { mesh.m_mesh_buffer.handle() };
