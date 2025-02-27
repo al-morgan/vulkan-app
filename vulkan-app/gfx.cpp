@@ -32,7 +32,6 @@
 #include "graphics/buffer.hpp"
 #include "graphics/swapchain.hpp"
 #include "graphics/image.hpp"
-#include "graphics/pass.hpp"
 #include "graphics/frame.hpp"
 #include "graphics/set_layout_builder.hpp"
 #include "graphics/set_builder.hpp"
@@ -194,18 +193,17 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::set_layout_builder my_builder(context);
     my_builder.reset();
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    // TODO: move to another set.
-    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    my_builder.add_binding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
     
     VkDescriptorSetLayout static_set = my_builder.get_result();
-    //my_builder.reset();
-    //VkDescriptorSetLayout dynamic_set = my_builder.get_result();
+    my_builder.reset();
+    my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    VkDescriptorSetLayout dynamic_set = my_builder.get_result();
 
     graphics::pipeline_layout_builder my_pipeline_layout_builder(context);
     my_pipeline_layout_builder.reset();
     my_pipeline_layout_builder.add_set(0, static_set);
-    //my_pipeline_layout_builder.add_set(1, dynamic_set);
+    my_pipeline_layout_builder.add_set(1, dynamic_set);
     VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();
 
     graphics::pipeline_builder pipeline_builder(context);
@@ -217,9 +215,11 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::descriptor_set_builder descriptor_set_builder(context);
     descriptor_set_builder.set_layout(static_set);
     VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
+    descriptor_set_builder.set_layout(dynamic_set);
+    VkDescriptorSet descriptor_set_2 = descriptor_set_builder.get_result();
 
     updateds(context, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
-    updateds(context, 2, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
+    updateds(context, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
 
     // Next: add layout builder
 
@@ -234,7 +234,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
 
-        updateds(context, 1, descriptor_set, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
+        updateds(context, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
 
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
@@ -317,7 +317,12 @@ void app::engine::update(graphics::context& context, app::window& window)
         frame_set[current_frame].ubuffer.copy(frame_set[current_frame].m_command_buffer);
 
         depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, 1, &descriptor_set, 0, nullptr);
+        
+        std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
+        
+        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
+        
+        
         swapchain.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
         vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
