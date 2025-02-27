@@ -79,6 +79,25 @@ static void vk_check(VkResult result)
     }
 }
 
+// TODO: where should this go?
+void updateds(graphics::context& m_context, uint32_t binding, VkDescriptorSet descriptor_set, VkDescriptorType descriptor_type, graphics::buffer& buffer)
+{
+    VkDescriptorBufferInfo descriptor_buffer_info{};
+    descriptor_buffer_info.buffer = buffer.handle();
+    descriptor_buffer_info.offset = 0;
+    descriptor_buffer_info.range = buffer.size();
+
+    VkWriteDescriptorSet write_descriptor_set{};
+    write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write_descriptor_set.dstSet = descriptor_set;
+    write_descriptor_set.dstBinding = binding;
+    write_descriptor_set.descriptorCount = 1;
+    write_descriptor_set.descriptorType = descriptor_type;
+    write_descriptor_set.dstArrayElement = 0;
+    write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+    vkUpdateDescriptorSets(m_context.device, 1, &write_descriptor_set, 0, nullptr);
+}
+
 app::engine::engine(graphics::context& context) : context(context)
 {
     VkFenceCreateInfo fence_create_info{};
@@ -160,6 +179,8 @@ void app::engine::update(graphics::context& context, app::window& window)
     my_pass.update(0, rbuffer);
     my_pass.update(2, mesh.m_normal_buffer);
 
+
+
     auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now());
 
     double frame_count = 0;
@@ -208,6 +229,9 @@ void app::engine::update(graphics::context& context, app::window& window)
     descriptor_set_builder.set_layout(static_set);
     VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
 
+    updateds(context, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
+    updateds(context, 2, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
+
     // Next: add layout builder
 
     while (!glfwWindowShouldClose(window.glfw_window))
@@ -222,6 +246,8 @@ void app::engine::update(graphics::context& context, app::window& window)
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
 
         my_pass.update(1, frame_set[current_frame].ubuffer);
+
+        updateds(context, 1, descriptor_set, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
 
         glfwPollEvents();
         vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
@@ -304,7 +330,7 @@ void app::engine::update(graphics::context& context, app::window& window)
         frame_set[current_frame].ubuffer.copy(frame_set[current_frame].m_command_buffer);
 
         depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, 1, &my_pass.m_descriptor_set, 0, nullptr);
+        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, 1, &descriptor_set, 0, nullptr);
         swapchain.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
         vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
