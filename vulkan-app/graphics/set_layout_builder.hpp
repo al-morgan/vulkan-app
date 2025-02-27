@@ -23,7 +23,6 @@ private:
     VkDescriptorSetLayout                       m_layout = VK_NULL_HANDLE;
     std::vector<VkDescriptorSetLayoutBinding>   m_bindings;
     std::vector<VkDescriptorSetLayout>          m_layouts;
-    VkDescriptorPool                            m_descriptor_pool;
 };
 
 }
