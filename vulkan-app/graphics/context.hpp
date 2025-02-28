@@ -1,11 +1,9 @@
 #pragma once
 
-#include <Windows.h>
-
 #include <vector>
 
+#include <Windows.h>
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
 
 namespace graphics
 {

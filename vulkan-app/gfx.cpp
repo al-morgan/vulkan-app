@@ -9,10 +9,6 @@
 
 
 #include "gfx.hpp"
-#include <limits>
-#include <optional>
-#include <fstream>
-#include <array>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -189,17 +185,15 @@ void app::engine::update(graphics::context& context, app::window& window)
     VkShaderModule fragment_shader = shader_builder.get_result();
 
     graphics::set_layout_builder my_builder(context);
-    my_builder.reset();
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    
+    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);    
     VkDescriptorSetLayout static_set = my_builder.get_result();
+
     my_builder.reset();
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
     VkDescriptorSetLayout dynamic_set = my_builder.get_result();
 
     graphics::pipeline_layout_builder my_pipeline_layout_builder(context);
-    my_pipeline_layout_builder.reset();
     my_pipeline_layout_builder.add_set(0, static_set);
     my_pipeline_layout_builder.add_set(1, dynamic_set);
     VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();

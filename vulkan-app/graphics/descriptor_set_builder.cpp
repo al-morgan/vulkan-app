@@ -28,7 +28,6 @@ descriptor_set_builder::~descriptor_set_builder()
     vkDestroyDescriptorPool(m_context.device, m_descriptor_pool, nullptr);
 }
 
-
 void descriptor_set_builder::set_layout(VkDescriptorSetLayout layout)
 {
     m_layout = layout;

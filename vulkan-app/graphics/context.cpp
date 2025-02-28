@@ -1,19 +1,10 @@
-#include <windows.h>
-
 #include <iostream>
-#include <array>
-
-#define VK_USE_PLATFORM_WIN32_KHR
-
-#include <vulkan/vulkan.h>
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-
 #include <vector>
 #include <optional>
+
+#include <Windows.h>
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.h>
 
 #include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
@@ -64,9 +55,6 @@ void graphics::context::create_instance()
     graphics::check(vkCreateInstance(&create_info, nullptr, &instance));
 }
 
-/// <summary>
-/// Get the Vulkan physical device
-/// </summary>
 void graphics::context::get_physical_device()
 {
     uint32_t physical_device_count;
