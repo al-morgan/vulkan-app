@@ -110,10 +110,6 @@ void graphics::context::get_physical_device()
     }
 }
 
-/// <summary>
-/// Create the surface
-/// </summary>
-/// <param name="window_handle"></param>
 void graphics::context::create_surface(HWND window_handle)
 {
     VkWin32SurfaceCreateInfoKHR create_info{};
@@ -124,9 +120,6 @@ void graphics::context::create_surface(HWND window_handle)
     graphics::check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));
 }
 
-/// <summary>
-/// Create the logical device.
-/// </summary>
 void graphics::context::create_device()
 {
     uint32_t queue_family_count;
@@ -185,12 +178,6 @@ void graphics::context::create_device()
     vkCreateDevice(physical_device, &create_info, nullptr, &device);
 }
 
-
-
-
-/// <summary>
-/// Destroy the context
-/// </summary>
 graphics::context::~context()
 {
     vkDeviceWaitIdle(device);
@@ -311,4 +298,3 @@ void graphics::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSiz
     allocated_device_memory.push_back(device_memory);
 
 }
-

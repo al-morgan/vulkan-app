@@ -38,9 +38,9 @@ public:
 
     context(HWND window_handle, uint32_t width, uint32_t height);
     context() = delete;
+    context(graphics::context&&) = delete;
     ~context();
 
-    //graphics::framebuffer& get_next_framebuffer();
     void begin_command_buffer(VkCommandBuffer command_buffer);
     void begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view);
     void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout) const;
