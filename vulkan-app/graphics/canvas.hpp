@@ -23,16 +23,13 @@ public:
     VkPhysicalDevice    m_physical_device;
     VkDevice            m_device;
     VkSwapchainKHR      m_swapchain;
-    VkSemaphore get_next_framebuffer_semaphore;
 
     uint32_t memory_type_device_local;
     uint32_t memory_type_host_coherent;
 
     std::vector<VkDeviceMemory> allocated_device_memory;
 
-    graphics::queue transfer_queue;
     graphics::queue graphics_queue;
-    graphics::queue present_queue;
 
     canvas(HWND window_handle, uint32_t width, uint32_t height);
     canvas() = delete;
