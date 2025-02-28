@@ -12,7 +12,7 @@ static void check(VkResult result)
 	}
 }
 
-graphics::image::image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory) : m_context(context), m_aspect(aspect)
+graphics::image::image(const graphics::canvas& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory) : m_context(context), m_aspect(aspect)
 {
 	VkImageCreateInfo image_ci{};
 	image_ci.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

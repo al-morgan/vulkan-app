@@ -17,7 +17,7 @@
 int main()
 {
 	app::window window;
-	graphics::context context(window.handle, WIDTH, HEIGHT);
+	graphics::canvas context(window.handle, WIDTH, HEIGHT);
 
     input::init_keyboard(window.glfw_window);
     input::init_mouse(window.glfw_window);

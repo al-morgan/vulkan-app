@@ -9,7 +9,7 @@
 #include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 
-graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
+graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height)
 {
     create_instance();
     create_surface(window_handle);
@@ -18,7 +18,7 @@ graphics::context::context(HWND window_handle, uint32_t width, uint32_t height)
     vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
 }
 
-void graphics::context::create_instance()
+void graphics::canvas::create_instance()
 {
     VkApplicationInfo app_info{};
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -55,7 +55,7 @@ void graphics::context::create_instance()
     graphics::check(vkCreateInstance(&create_info, nullptr, &instance));
 }
 
-void graphics::context::get_physical_device()
+void graphics::canvas::get_physical_device()
 {
     uint32_t physical_device_count;
     std::vector<VkPhysicalDevice> physical_devices;
@@ -98,7 +98,7 @@ void graphics::context::get_physical_device()
     }
 }
 
-void graphics::context::create_surface(HWND window_handle)
+void graphics::canvas::create_surface(HWND window_handle)
 {
     VkWin32SurfaceCreateInfoKHR create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -108,7 +108,7 @@ void graphics::context::create_surface(HWND window_handle)
     graphics::check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));
 }
 
-void graphics::context::create_device()
+void graphics::canvas::create_device()
 {
     uint32_t queue_family_count;
     std::vector<VkQueueFamilyProperties> queue_families;
@@ -166,7 +166,7 @@ void graphics::context::create_device()
     vkCreateDevice(physical_device, &create_info, nullptr, &device);
 }
 
-graphics::context::~context()
+graphics::canvas::~canvas()
 {
     vkDeviceWaitIdle(device);
 
@@ -181,14 +181,14 @@ graphics::context::~context()
 }
 
 
-void graphics::context::begin_command_buffer(VkCommandBuffer command_buffer)
+void graphics::canvas::begin_command_buffer(VkCommandBuffer command_buffer)
 {
     VkCommandBufferBeginInfo begin_info{};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     vkBeginCommandBuffer(command_buffer, &begin_info);
 }
 
-void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view)
+void graphics::canvas::begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view)
 {
     VkClearValue clear_value{};
 
@@ -223,7 +223,7 @@ void graphics::context::begin_rendering(VkCommandBuffer command_buffer, VkImageV
     vkCmdBeginRendering(command_buffer, &rendering_info);
 }
 
-void graphics::context::transition_image(VkCommandBuffer command_buffer,
+void graphics::canvas::transition_image(VkCommandBuffer command_buffer,
     VkImage image,
     VkShaderStageFlags source_stage,
     VkAccessFlags source_access_mask,
@@ -248,7 +248,7 @@ void graphics::context::transition_image(VkCommandBuffer command_buffer,
 
 }
 
-void graphics::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
+void graphics::canvas::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
 {
     VkSubmitInfo submit_info{};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -262,7 +262,7 @@ void graphics::context::submit(VkCommandBuffer command_buffer, VkSemaphore wait_
     vkQueueSubmit(graphics_queue.handle, 1, &submit_info, fence);
 }
 
-void graphics::context::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
+void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
 {
     VkDeviceMemory device_memory;
 

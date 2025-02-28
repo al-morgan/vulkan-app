@@ -15,7 +15,7 @@ public:
     uint32_t family_index;
 };
 
-class context
+class canvas
 {
 public:
     VkInstance instance;
@@ -35,10 +35,10 @@ public:
     graphics::queue graphics_queue;
     graphics::queue present_queue;
 
-    context(HWND window_handle, uint32_t width, uint32_t height);
-    context() = delete;
-    context(graphics::context&&) = delete;
-    ~context();
+    canvas(HWND window_handle, uint32_t width, uint32_t height);
+    canvas() = delete;
+    canvas(graphics::canvas&&) = delete;
+    ~canvas();
 
     void begin_command_buffer(VkCommandBuffer command_buffer);
     void begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view);

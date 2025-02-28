@@ -5,7 +5,7 @@
 
 namespace graphics
 {
-set_builder::set_builder(graphics::context& context) :
+set_builder::set_builder(graphics::canvas& context) :
     m_context(context)
 {
     VkDescriptorPoolSize types;

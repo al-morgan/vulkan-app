@@ -12,7 +12,7 @@ namespace graphics
 class pipeline_builder
 {
 public:
-    pipeline_builder(graphics::context& context);
+    pipeline_builder(graphics::canvas& context);
     ~pipeline_builder();
     void reset();
     VkPipeline get_result();
@@ -20,7 +20,7 @@ public:
     void set_vertex_shader(VkShaderModule shader);
     void set_fragment_shader(VkShaderModule shader);
 private:
-    graphics::context& m_context;
+    graphics::canvas& m_context;
     VkPipelineLayout m_layout = VK_NULL_HANDLE;
     VkShaderModule  m_vertex_shader = VK_NULL_HANDLE;
     VkShaderModule m_fragment_shader = VK_NULL_HANDLE;

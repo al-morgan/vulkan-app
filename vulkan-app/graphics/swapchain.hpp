@@ -12,11 +12,11 @@ namespace graphics
 	private:
 		VkSwapchainKHR m_swapchain;
 		VkSemaphore m_semaphore;
-		const graphics::context& m_context;
+		const graphics::canvas& m_context;
 		std::vector<framebuffer> m_framebuffers;
 		graphics::framebuffer m_current_framebuffer;
 	public:
-		swapchain(graphics::context& context, uint32_t width, uint32_t height, VkSurfaceKHR surface);
+		swapchain(graphics::canvas& context, uint32_t width, uint32_t height, VkSurfaceKHR surface);
 		swapchain() = delete;
 		swapchain(graphics::swapchain&&) = delete;
 		~swapchain();

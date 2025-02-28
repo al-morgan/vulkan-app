@@ -5,7 +5,7 @@
 namespace graphics
 {
 
-pipeline_layout_builder::pipeline_layout_builder(graphics::context& context) :
+pipeline_layout_builder::pipeline_layout_builder(graphics::canvas& context) :
     m_context(context)
 { }
 

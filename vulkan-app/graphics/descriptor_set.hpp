@@ -18,12 +18,12 @@ namespace graphics
 
     public:
 
-        graphics::context& m_context;
+        graphics::canvas& m_context;
         std::vector<VkDescriptorSetLayoutBinding> m_bindings;
         VkDescriptorSetLayout m_layout = VK_NULL_HANDLE;
         VkDescriptorSet m_descriptor_set = VK_NULL_HANDLE;
 
-        descriptor_set(graphics::context& context) : m_context(context) {}
+        descriptor_set(graphics::canvas& context) : m_context(context) {}
 
         ~descriptor_set()
         {

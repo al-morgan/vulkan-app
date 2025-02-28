@@ -11,7 +11,7 @@ namespace graphics
 class buffer
 {
 private:
-    const graphics::context& m_context;
+    const graphics::canvas& m_context;
     VkBuffer m_destination;
     VkBuffer m_source;
     VkDeviceSize m_size;
@@ -19,7 +19,7 @@ private:
     VkDeviceMemory m_destination_memory;
     void* m_mapped_memory;
 public:
-    buffer(const graphics::context& context, size_t size, VkBufferUsageFlags usage);
+    buffer(const graphics::canvas& context, size_t size, VkBufferUsageFlags usage);
     ~buffer();
 
     void copy(VkCommandBuffer command_buffer);

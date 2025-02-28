@@ -6,7 +6,7 @@
 namespace graphics
 {
 
-set_layout_builder::set_layout_builder(graphics::context& context) :
+set_layout_builder::set_layout_builder(graphics::canvas& context) :
     m_context(context)
 {
 

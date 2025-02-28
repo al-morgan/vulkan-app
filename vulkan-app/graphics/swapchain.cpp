@@ -3,7 +3,7 @@
 #include "graphics/context.hpp"
 #include "graphics/swapchain.hpp"
 
-graphics::swapchain::swapchain(graphics::context& context, uint32_t width, uint32_t height, VkSurfaceKHR surface)
+graphics::swapchain::swapchain(graphics::canvas& context, uint32_t width, uint32_t height, VkSurfaceKHR surface)
     : m_context(context)
 {
     VkExtent2D extent{};

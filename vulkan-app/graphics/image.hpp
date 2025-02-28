@@ -11,7 +11,7 @@ namespace graphics
 	class image
 	{
 	private:
-		const graphics::context& m_context;
+		const graphics::canvas& m_context;
 		VkImage m_destination = VK_NULL_HANDLE;
 		VkBuffer m_source = VK_NULL_HANDLE;
 		VkDeviceMemory m_source_memory = VK_NULL_HANDLE;
@@ -21,7 +21,7 @@ namespace graphics
 		VkImageAspectFlags m_aspect = 0;
 		VkImageLayout m_layout;
 	public:
-		image(const graphics::context& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory);
+		image(const graphics::canvas& context, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect, bool host_memory);
 		~image();
 
 		/// <summary>

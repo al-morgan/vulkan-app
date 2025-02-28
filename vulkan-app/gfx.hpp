@@ -23,13 +23,13 @@ namespace app
 	class engine
 	{
 	private:
-		graphics::context& context;
+		graphics::canvas& context;
 		VkFence m_in_flight_fence;
 		VkSemaphore m_render_finished_semaphore;
 
 	public:
-		engine(graphics::context& context);
+		engine(graphics::canvas& context);
 		~engine();
-		void update(graphics::context& context, app::window& window);
+		void update(graphics::canvas& context, app::window& window);
 	};
 }

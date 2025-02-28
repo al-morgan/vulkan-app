@@ -41,7 +41,6 @@
 #define WIDTH	800
 #define HEIGHT	800
 
-
 static bool jumping;
 
 
@@ -73,7 +72,7 @@ static void vk_check(VkResult result)
 }
 
 // TODO: where should this go?
-void updateds(graphics::context& m_context, uint32_t binding, VkDescriptorSet descriptor_set, VkDescriptorType descriptor_type, graphics::buffer& buffer)
+void updateds(graphics::canvas& m_context, uint32_t binding, VkDescriptorSet descriptor_set, VkDescriptorType descriptor_type, graphics::buffer& buffer)
 {
     VkDescriptorBufferInfo descriptor_buffer_info{};
     descriptor_buffer_info.buffer = buffer.handle();
@@ -91,7 +90,7 @@ void updateds(graphics::context& m_context, uint32_t binding, VkDescriptorSet de
     vkUpdateDescriptorSets(m_context.device, 1, &write_descriptor_set, 0, nullptr);
 }
 
-app::engine::engine(graphics::context& context) : context(context)
+app::engine::engine(graphics::canvas& context) : context(context)
 {
     VkFenceCreateInfo fence_create_info{};
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -112,7 +111,7 @@ app::engine::~engine()
     vkDestroyFence(context.device, m_in_flight_fence, nullptr);
 }
 
-void app::engine::update(graphics::context& context, app::window& window)
+void app::engine::update(graphics::canvas& context, app::window& window)
 {
     //std::srand(std::time(nullptr));
 
@@ -167,9 +166,6 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     double frame_count = 0;
 
-    // I think I need to rule-of-three the frame
-    // Probably rule-of-five too.
-
     for (uint32_t i = 0; i < graphics::NUM_FRAMES; i++)
     {
         frame_set.emplace_back(context);
@@ -186,7 +182,7 @@ void app::engine::update(graphics::context& context, app::window& window)
 
     graphics::set_layout_builder my_builder(context);
     my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);    
+    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
     VkDescriptorSetLayout static_set = my_builder.get_result();
 
     my_builder.reset();
@@ -207,6 +203,7 @@ void app::engine::update(graphics::context& context, app::window& window)
     graphics::descriptor_set_builder descriptor_set_builder(context);
     descriptor_set_builder.set_layout(static_set);
     VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
+
     descriptor_set_builder.set_layout(dynamic_set);
     VkDescriptorSet descriptor_set_2 = descriptor_set_builder.get_result();
 

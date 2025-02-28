@@ -3,7 +3,7 @@
 namespace graphics
 {
 
-shader_builder::shader_builder(graphics::context& context) :
+shader_builder::shader_builder(graphics::canvas& context) :
     m_context(context)
 {
 

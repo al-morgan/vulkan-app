@@ -18,7 +18,7 @@ struct mvp
 class frame
 {
 private:
-    graphics::context& m_context;
+    graphics::canvas& m_context;
 public:
     graphics::buffer ubuffer;
     VkFence m_in_flight_fence;
@@ -28,7 +28,7 @@ public:
     VkCommandPool m_command_pool;
     VkCommandBuffer m_command_buffer;
 
-    frame(graphics::context& context) :
+    frame(graphics::canvas& context) :
         m_context(context),
         ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
     {

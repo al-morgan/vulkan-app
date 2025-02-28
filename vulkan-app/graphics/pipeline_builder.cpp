@@ -8,7 +8,7 @@
 namespace graphics
 {
 
-pipeline_builder::pipeline_builder(graphics::context& context) :
+pipeline_builder::pipeline_builder(graphics::canvas& context) :
     m_context(context)
 {
 

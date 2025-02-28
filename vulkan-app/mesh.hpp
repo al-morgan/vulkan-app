@@ -31,7 +31,7 @@ public:
 
     // Should width and height be the number of squares or the
     // number of points? Probably points.
-    mesh(graphics::context &context, uint32_t width, uint32_t height) :
+    mesh(graphics::canvas &context, uint32_t width, uint32_t height) :
         m_width(width),
         m_mesh_buffer(context, width * height * sizeof(m_mesh[0]), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT),
         m_index_buffer(context, (width - 1) * (height - 1) * 6 * sizeof(m_indices[0]), VK_BUFFER_USAGE_INDEX_BUFFER_BIT),

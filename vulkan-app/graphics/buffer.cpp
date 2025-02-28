@@ -20,7 +20,7 @@ VkDeviceSize graphics::buffer::size()
 	return m_size;
 }
 
-graphics::buffer::buffer(const graphics::context& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
+graphics::buffer::buffer(const graphics::canvas& context, size_t size, VkBufferUsageFlags usage) : m_context(context)
 {
 	m_size = size;
 
