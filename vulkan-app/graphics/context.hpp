@@ -1,8 +1,9 @@
 #pragma once
 
+#include <Windows.h>
+
 #include <vector>
 
-#include "vk.hpp"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 

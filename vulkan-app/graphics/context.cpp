@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #include <iostream>
 #include <array>
 
@@ -13,8 +15,6 @@
 #include <vector>
 #include <optional>
 
-#include "file.hpp"
-#include "vk.hpp"
 #include "graphics/graphics.hpp"
 #include "graphics/context.hpp"
 
