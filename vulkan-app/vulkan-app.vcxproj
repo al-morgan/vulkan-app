@@ -137,7 +137,7 @@
   <ItemGroup>
     <ClCompile Include="file.cpp" />
     <ClCompile Include="gfx.cpp" />
-    <ClCompile Include="graphics\context.cpp" />
+    <ClCompile Include="graphics\canvas.cpp" />
     <ClCompile Include="graphics\descriptor_set.cpp" />
     <ClCompile Include="graphics\descriptor_set_builder.cpp" />
     <ClCompile Include="graphics\pipeline_builder.cpp" />
@@ -159,7 +159,7 @@
     <ClInclude Include="file.hpp" />
     <ClInclude Include="gfx.hpp" />
     <ClInclude Include="graphics\buffer.hpp" />
-    <ClInclude Include="graphics\context.hpp" />
+    <ClInclude Include="graphics\canvas.hpp" />
     <ClInclude Include="graphics\descriptor_set.hpp" />
     <ClInclude Include="graphics\descriptor_set_builder.hpp" />
     <ClInclude Include="graphics\pipeline_builder.hpp" />

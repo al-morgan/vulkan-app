@@ -1,5 +1,5 @@
 #include "glm/glm.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "graphics/buffer.hpp"
 #include "graphics/graphics.hpp"
 

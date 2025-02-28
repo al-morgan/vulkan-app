@@ -5,7 +5,7 @@
 #include "glm/glm.hpp"
 
 #include "graphics/buffer.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 
 namespace app
 {

@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 
 #include "gfx.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "input/keyboard.hpp"
 #include "input/mouse.hpp"
 

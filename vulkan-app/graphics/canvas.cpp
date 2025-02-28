@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 
 #include "graphics/graphics.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height)
 {

@@ -8,7 +8,7 @@
 
 #include "graphics/buffer.hpp"
 #include "graphics/image.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 
 namespace graphics
 {

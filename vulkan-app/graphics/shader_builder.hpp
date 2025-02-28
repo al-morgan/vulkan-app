@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.h>
 
 #include "file.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 
 namespace graphics
 {

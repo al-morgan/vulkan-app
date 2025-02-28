@@ -1,7 +1,7 @@
 #include <stdexcept>
 
 #include <vulkan/vulkan.h>
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "graphics/image.hpp"
 
 static void check(VkResult result)

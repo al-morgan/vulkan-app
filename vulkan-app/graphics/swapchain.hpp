@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include "graphics/graphics.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 
 namespace graphics
 {

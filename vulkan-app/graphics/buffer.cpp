@@ -1,7 +1,7 @@
 #include <stdexcept>
 
 #include <vulkan/vulkan.h>
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "graphics/buffer.hpp"
 #include "graphics/graphics.hpp"
 

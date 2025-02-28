@@ -1,6 +1,6 @@
 #include <vulkan/vulkan.h>
 
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "graphics/set_layout_builder.hpp"
 
 namespace graphics

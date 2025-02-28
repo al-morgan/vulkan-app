@@ -1,7 +1,7 @@
 #include <vulkan/vulkan.h>
 
 #include "graphics/set_builder.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 
 namespace graphics
 {

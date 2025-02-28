@@ -22,7 +22,7 @@
 #include "input/mouse.hpp"
 
 #include "graphics/graphics.hpp"
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "graphics/buffer.hpp"
 #include "graphics/swapchain.hpp"
 #include "graphics/image.hpp"

@@ -1,6 +1,6 @@
 #include <vulkan/vulkan.h>
 
-#include "graphics/context.hpp"
+#include "graphics/canvas.hpp"
 #include "graphics/swapchain.hpp"
 
 graphics::swapchain::swapchain(graphics::canvas& context, uint32_t width, uint32_t height, VkSurfaceKHR surface)
