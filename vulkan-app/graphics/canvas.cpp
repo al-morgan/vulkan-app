@@ -245,7 +245,6 @@ void graphics::canvas::transition_image(VkCommandBuffer command_buffer,
     barrier.subresourceRange.layerCount = 1;
     barrier.subresourceRange.levelCount = 1;
     vkCmdPipelineBarrier(command_buffer, source_stage, desintation_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-
 }
 
 void graphics::canvas::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
@@ -284,5 +283,4 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
     vkUnmapMemory(m_device, device_memory);
 
     allocated_device_memory.push_back(device_memory);
-
 }

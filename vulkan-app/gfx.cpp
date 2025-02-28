@@ -43,16 +43,12 @@
 
 static bool jumping;
 
-
-
 app::window::window()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfw_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-
-
 
     handle = glfwGetWin32Window(glfw_window);
 }

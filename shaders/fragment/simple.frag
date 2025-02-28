@@ -1,7 +1,6 @@
 #version 450
 
 layout(location = 2) in vec3 in_normal;
-
 layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 2) readonly buffer NormalBuffer
