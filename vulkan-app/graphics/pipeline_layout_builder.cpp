@@ -13,7 +13,7 @@ pipeline_layout_builder::~pipeline_layout_builder()
 {
     for (auto layout : m_layouts)
     {
-        vkDestroyPipelineLayout(m_context.device, layout, nullptr);
+        vkDestroyPipelineLayout(m_context.m_device, layout, nullptr);
     }
 }
 
@@ -36,7 +36,7 @@ VkPipelineLayout pipeline_layout_builder::get_result()
     create_info.pSetLayouts = m_set_layouts.data();
     create_info.setLayoutCount = m_set_layouts.size();
     
-    vkCreatePipelineLayout(m_context.device, &create_info, nullptr, &layout);
+    vkCreatePipelineLayout(m_context.m_device, &create_info, nullptr, &layout);
 
     m_layouts.push_back(layout);
 

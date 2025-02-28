@@ -87,7 +87,7 @@ void updateds(graphics::canvas& m_context, uint32_t binding, VkDescriptorSet des
     write_descriptor_set.descriptorType = descriptor_type;
     write_descriptor_set.dstArrayElement = 0;
     write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
-    vkUpdateDescriptorSets(m_context.device, 1, &write_descriptor_set, 0, nullptr);
+    vkUpdateDescriptorSets(m_context.m_device, 1, &write_descriptor_set, 0, nullptr);
 }
 
 app::engine::engine(graphics::canvas& context) : context(context)
@@ -95,20 +95,20 @@ app::engine::engine(graphics::canvas& context) : context(context)
     VkFenceCreateInfo fence_create_info{};
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-    vkCreateFence(context.device, &fence_create_info, nullptr, &m_in_flight_fence);
+    vkCreateFence(context.m_device, &fence_create_info, nullptr, &m_in_flight_fence);
 
     VkSemaphoreCreateInfo semaphore_create_info{};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
+    vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
 }
 
 app::engine::~engine()
 {
-    vkDeviceWaitIdle(context.device);
+    vkDeviceWaitIdle(context.m_device);
 
-    vkDestroySemaphore(context.device, m_render_finished_semaphore, nullptr);
-    vkDestroyFence(context.device, m_in_flight_fence, nullptr);
+    vkDestroySemaphore(context.m_device, m_render_finished_semaphore, nullptr);
+    vkDestroyFence(context.m_device, m_in_flight_fence, nullptr);
 }
 
 void app::engine::update(graphics::canvas& context, app::window& window)
@@ -144,7 +144,7 @@ void app::engine::update(graphics::canvas& context, app::window& window)
 
     mesh.make_normals();
 
-    graphics::swapchain swapchain(context, WIDTH, HEIGHT, context.surface);
+    graphics::swapchain swapchain(context, WIDTH, HEIGHT, context.m_surface);
     graphics::image depth_buffer(context, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
     glm::vec3 position(500.f, 500.f, 100.f);
@@ -226,9 +226,9 @@ void app::engine::update(graphics::canvas& context, app::window& window)
         updateds(context, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
 
         glfwPollEvents();
-        vkWaitForFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
+        vkWaitForFences(context.m_device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
         vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
-        vkResetFences(context.device, 1, &frame_set[current_frame].m_in_flight_fence);
+        vkResetFences(context.m_device, 1, &frame_set[current_frame].m_in_flight_fence);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
 
         direction[0] = sin(input::get_yaw());
@@ -347,8 +347,8 @@ void app::engine::update(graphics::canvas& context, app::window& window)
 
         swapchain.present(frame_set[current_frame].m_render_finished_semaphore);
 
-        vkDeviceWaitIdle(context.device);
+        vkDeviceWaitIdle(context.m_device);
     }
 
-    vkDeviceWaitIdle(context.device);
+    vkDeviceWaitIdle(context.m_device);
 }

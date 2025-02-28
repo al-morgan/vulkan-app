@@ -13,7 +13,7 @@ shader_builder::~shader_builder()
 {
     for (auto shader : m_shaders)
     {
-        vkDestroyShaderModule(m_context.device, shader, nullptr);
+        vkDestroyShaderModule(m_context.m_device, shader, nullptr);
     }
 }
 
@@ -33,7 +33,7 @@ VkShaderModule shader_builder::get_result()
     buffer = app::read_file(m_filename);
     create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
     create_info.codeSize = buffer.size();
-    vkCreateShaderModule(m_context.device, &create_info, nullptr, &shader);
+    vkCreateShaderModule(m_context.m_device, &create_info, nullptr, &shader);
 
     m_shaders.push_back(shader);
 

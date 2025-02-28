@@ -25,13 +25,13 @@ graphics::swapchain::swapchain(graphics::canvas& context, uint32_t width, uint32
     create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
     create_info.clipped = VK_TRUE;
     create_info.oldSwapchain = VK_NULL_HANDLE;
-    vkCreateSwapchainKHR(m_context.device, &create_info, nullptr, &m_swapchain);
+    vkCreateSwapchainKHR(m_context.m_device, &create_info, nullptr, &m_swapchain);
 
     uint32_t swapchain_image_count;
     std::vector<VkImage> images;
-    vkGetSwapchainImagesKHR(m_context.device, m_swapchain, &swapchain_image_count, nullptr);
+    vkGetSwapchainImagesKHR(m_context.m_device, m_swapchain, &swapchain_image_count, nullptr);
     images.resize(swapchain_image_count);
-    vkGetSwapchainImagesKHR(m_context.device, m_swapchain, &swapchain_image_count, images.data());
+    vkGetSwapchainImagesKHR(m_context.m_device, m_swapchain, &swapchain_image_count, images.data());
 
     m_framebuffers.resize(swapchain_image_count);
 
@@ -48,31 +48,31 @@ graphics::swapchain::swapchain(graphics::canvas& context, uint32_t width, uint32
         image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         image_view_create_info.subresourceRange.layerCount = 1;
         image_view_create_info.subresourceRange.levelCount = 1;
-        vkCreateImageView(m_context.device, &image_view_create_info, nullptr, &m_framebuffers[i].view);
+        vkCreateImageView(m_context.m_device, &image_view_create_info, nullptr, &m_framebuffers[i].view);
     }
 
     VkSemaphoreCreateInfo semaphore_create_info{};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    vkCreateSemaphore(m_context.device, &semaphore_create_info, nullptr, &m_semaphore);
+    vkCreateSemaphore(m_context.m_device, &semaphore_create_info, nullptr, &m_semaphore);
 }
 
 void graphics::swapchain::get_next_framebuffer(VkSemaphore semaphore)
 {
     uint32_t image_index;
-    vkAcquireNextImageKHR(m_context.device, m_swapchain, UINT64_MAX, semaphore, nullptr, &image_index);
+    vkAcquireNextImageKHR(m_context.m_device, m_swapchain, UINT64_MAX, semaphore, nullptr, &image_index);
     m_current_framebuffer = m_framebuffers[image_index];
 }
 
 graphics::swapchain::~swapchain()
 {
-    vkDestroySemaphore(m_context.device, m_semaphore, nullptr);
+    vkDestroySemaphore(m_context.m_device, m_semaphore, nullptr);
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(m_framebuffers.size()); i++)
     {
-        vkDestroyImageView(m_context.device, m_framebuffers[i].view, nullptr);
+        vkDestroyImageView(m_context.m_device, m_framebuffers[i].view, nullptr);
     }
 
-    vkDestroySwapchainKHR(m_context.device, m_swapchain, nullptr);
+    vkDestroySwapchainKHR(m_context.m_device, m_swapchain, nullptr);
 }
 
 void graphics::swapchain::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)

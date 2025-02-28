@@ -18,7 +18,7 @@ pipeline_builder::~pipeline_builder()
 {
     for (auto pipeline : m_pipelines)
     {
-        vkDestroyPipeline(m_context.device, pipeline, nullptr);
+        vkDestroyPipeline(m_context.m_device, pipeline, nullptr);
     }
 }
 
@@ -152,7 +152,7 @@ VkPipeline pipeline_builder::get_result()
     pipeline_rendering_create_info.depthAttachmentFormat = VK_FORMAT_D24_UNORM_S8_UINT;
     create_info.pNext = &pipeline_rendering_create_info;
 
-    vkCreateGraphicsPipelines(m_context.device, nullptr, 1, &create_info, nullptr, &pipeline);
+    vkCreateGraphicsPipelines(m_context.m_device, nullptr, 1, &create_info, nullptr, &pipeline);
 
     m_pipelines.push_back(pipeline);
 

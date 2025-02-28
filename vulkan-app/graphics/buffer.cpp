@@ -30,40 +30,40 @@ graphics::buffer::buffer(const graphics::canvas& context, size_t size, VkBufferU
 	create_info.size = size;
 	create_info.usage = usage | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 	create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	vkCreateBuffer(context.device, &create_info, nullptr, &m_source);
+	vkCreateBuffer(context.m_device, &create_info, nullptr, &m_source);
 
 	// Create device buffer
 	create_info.usage = usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-	vkCreateBuffer(context.device, &create_info, nullptr, &m_destination);
+	vkCreateBuffer(context.m_device, &create_info, nullptr, &m_destination);
 
 	// Allocate host memory
     VkMemoryRequirements memory_requirements;
-    vkGetBufferMemoryRequirements(context.device, m_source, &memory_requirements);
+    vkGetBufferMemoryRequirements(context.m_device, m_source, &memory_requirements);
 	VkMemoryAllocateInfo memory_allocate_info{};
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memory_allocate_info.allocationSize = memory_requirements.size;
 	memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
-	graphics::check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
-	graphics::check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
+	graphics::check(vkAllocateMemory(context.m_device, &memory_allocate_info, nullptr, &m_source_memory));
+	graphics::check(vkBindBufferMemory(context.m_device, m_source, m_source_memory, 0));
 
-    vkGetBufferMemoryRequirements(context.device, m_destination, &memory_requirements);
+    vkGetBufferMemoryRequirements(context.m_device, m_destination, &memory_requirements);
     memory_allocate_info.allocationSize = memory_requirements.size;
 
 	// Allocate device memory
 	memory_allocate_info.memoryTypeIndex = context.memory_type_device_local;
-	check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_destination_memory));
-	check(vkBindBufferMemory(context.device, m_destination, m_destination_memory, 0));
+	check(vkAllocateMemory(context.m_device, &memory_allocate_info, nullptr, &m_destination_memory));
+	check(vkBindBufferMemory(context.m_device, m_destination, m_destination_memory, 0));
 
 	// Map the host memory so we can read it
-	check(vkMapMemory(context.device, m_source_memory, 0, size, 0, &m_mapped_memory));
+	check(vkMapMemory(context.m_device, m_source_memory, 0, size, 0, &m_mapped_memory));
 }
 
 graphics::buffer::~buffer()
 {
-	vkFreeMemory(m_context.device, m_destination_memory, nullptr);
-	vkFreeMemory(m_context.device, m_source_memory, nullptr);
-	vkDestroyBuffer(m_context.device, m_source, nullptr);
-	vkDestroyBuffer(m_context.device, m_destination, nullptr);
+	vkFreeMemory(m_context.m_device, m_destination_memory, nullptr);
+	vkFreeMemory(m_context.m_device, m_source_memory, nullptr);
+	vkDestroyBuffer(m_context.m_device, m_source, nullptr);
+	vkDestroyBuffer(m_context.m_device, m_destination, nullptr);
 }
 
 void graphics::buffer::copy(VkCommandBuffer command_buffer)

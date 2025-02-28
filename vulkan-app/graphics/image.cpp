@@ -26,20 +26,20 @@ graphics::image::image(const graphics::canvas& context, uint32_t width, uint32_t
 	image_ci.mipLevels = 1;
 	image_ci.usage = usage;
 	image_ci.samples = VK_SAMPLE_COUNT_1_BIT;
-	check(vkCreateImage(context.device, &image_ci, nullptr, &m_destination));
+	check(vkCreateImage(context.m_device, &image_ci, nullptr, &m_destination));
 
 	VkMemoryRequirements memory_requirements;
-	vkGetImageMemoryRequirements(context.device, m_destination, &memory_requirements);
+	vkGetImageMemoryRequirements(context.m_device, m_destination, &memory_requirements);
 
 	// Allocate device memory
 	VkMemoryAllocateInfo memory_ai{};
 	memory_ai.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memory_ai.allocationSize = memory_requirements.size;
 	memory_ai.memoryTypeIndex = context.memory_type_device_local;
-	check(vkAllocateMemory(context.device, &memory_ai, nullptr, &m_destination_memory));
+	check(vkAllocateMemory(context.m_device, &memory_ai, nullptr, &m_destination_memory));
 
 	// Bind device memory
-	vkBindImageMemory(context.device, m_destination, m_destination_memory, 0);
+	vkBindImageMemory(context.m_device, m_destination, m_destination_memory, 0);
 
 	// Create image view.
 	// TODO: Maybe only do this on demand?
@@ -53,7 +53,7 @@ graphics::image::image(const graphics::canvas& context, uint32_t width, uint32_t
 	image_view_ci.subresourceRange.baseMipLevel = 0;
 	image_view_ci.subresourceRange.layerCount = 1;
 	image_view_ci.subresourceRange.levelCount = 1;
-	vkCreateImageView(context.device, &image_view_ci, nullptr, &m_view);
+	vkCreateImageView(context.m_device, &image_view_ci, nullptr, &m_view);
 
 	m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 	
@@ -64,18 +64,18 @@ graphics::image::image(const graphics::canvas& context, uint32_t width, uint32_t
 		create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		create_info.size = memory_requirements.size;
 		create_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		vkCreateBuffer(context.device, &create_info, nullptr, &m_source);
+		vkCreateBuffer(context.m_device, &create_info, nullptr, &m_source);
 
 		// Allocate host memory
 		VkMemoryAllocateInfo memory_allocate_info{};
 		memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		memory_allocate_info.allocationSize = memory_requirements.size;
 		memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
-		check(vkAllocateMemory(context.device, &memory_allocate_info, nullptr, &m_source_memory));
-		check(vkBindBufferMemory(context.device, m_source, m_source_memory, 0));
+		check(vkAllocateMemory(context.m_device, &memory_allocate_info, nullptr, &m_source_memory));
+		check(vkBindBufferMemory(context.m_device, m_source, m_source_memory, 0));
 
 		// Map the host memory so we can read it
-		check(vkMapMemory(context.device, m_source_memory, 0, memory_requirements.size, 0, &m_mapped_memory));
+		check(vkMapMemory(context.m_device, m_source_memory, 0, memory_requirements.size, 0, &m_mapped_memory));
 	}
 
 }
@@ -83,9 +83,9 @@ graphics::image::image(const graphics::canvas& context, uint32_t width, uint32_t
 graphics::image::~image()
 {
 	close();
-	vkFreeMemory(m_context.device, m_destination_memory, nullptr);
-	vkDestroyImageView(m_context.device, m_view, nullptr);
-	vkDestroyImage(m_context.device, m_destination, nullptr);
+	vkFreeMemory(m_context.m_device, m_destination_memory, nullptr);
+	vkDestroyImageView(m_context.m_device, m_view, nullptr);
+	vkDestroyImage(m_context.m_device, m_destination, nullptr);
 }
 
 void graphics::image::send(VkCommandBuffer command_buffer)
@@ -127,8 +127,8 @@ void graphics::image::close()
 {
 	if (m_source_memory != VK_NULL_HANDLE)
 	{
-		vkFreeMemory(m_context.device, m_source_memory, nullptr);
-		vkDestroyBuffer(m_context.device, m_source, nullptr);
+		vkFreeMemory(m_context.m_device, m_source_memory, nullptr);
+		vkDestroyBuffer(m_context.m_device, m_source, nullptr);
 		m_source_memory = VK_NULL_HANDLE;
 		m_source = VK_NULL_HANDLE;
 	}

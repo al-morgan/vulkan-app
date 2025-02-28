@@ -15,7 +15,7 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height)
     create_surface(window_handle);
     get_physical_device();
     create_device();
-    vkGetDeviceQueue(device, graphics_queue.family_index, 0, &graphics_queue.handle);
+    vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
 }
 
 void graphics::canvas::create_instance()
@@ -52,16 +52,16 @@ void graphics::canvas::create_instance()
     create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
     create_info.ppEnabledLayerNames = enabled_layers.data();
 
-    graphics::check(vkCreateInstance(&create_info, nullptr, &instance));
+    graphics::check(vkCreateInstance(&create_info, nullptr, &m_instance));
 }
 
 void graphics::canvas::get_physical_device()
 {
     uint32_t physical_device_count;
     std::vector<VkPhysicalDevice> physical_devices;
-    graphics::check(vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr));
+    graphics::check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr));
     physical_devices.resize(physical_device_count);
-    graphics::check(vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices.data()));
+    graphics::check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data()));
 
     if (physical_device_count != 1)
     {
@@ -69,10 +69,10 @@ void graphics::canvas::get_physical_device()
     }
 
     // I only have one physical device right now so I'm going to cheat
-    physical_device = physical_devices[0];
+    m_physical_device = physical_devices[0];
 
     VkPhysicalDeviceMemoryProperties memory_properties{};
-    vkGetPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
+    vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memory_properties);
 
     constexpr VkMemoryPropertyFlags device_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     constexpr VkMemoryPropertyFlags host_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -105,16 +105,16 @@ void graphics::canvas::create_surface(HWND window_handle)
     create_info.hwnd = window_handle;
     create_info.hinstance = GetModuleHandle(nullptr);
 
-    graphics::check(vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, &surface));
+    graphics::check(vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, &m_surface));
 }
 
 void graphics::canvas::create_device()
 {
     uint32_t queue_family_count;
     std::vector<VkQueueFamilyProperties> queue_families;
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, nullptr);
     queue_families.resize(queue_family_count);
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, queue_families.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queue_family_count, queue_families.data());
     std::optional<uint32_t> queue_family_index_o;
 
     for (uint32_t i = 0; i < queue_family_count; i++)
@@ -122,7 +122,7 @@ void graphics::canvas::create_device()
         constexpr VkFlags required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
         VkBool32 surface_support = VK_FALSE;
 
-        graphics::check(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &surface_support));
+        graphics::check(vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface, &surface_support));
         if ((queue_families[i].queueFlags & required_flags) == required_flags && surface_support)
         {
             queue_family_index_o = i;
@@ -163,21 +163,21 @@ void graphics::canvas::create_device()
     create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
     create_info.pEnabledFeatures = &features;
 
-    vkCreateDevice(physical_device, &create_info, nullptr, &device);
+    vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
 }
 
 graphics::canvas::~canvas()
 {
-    vkDeviceWaitIdle(device);
+    vkDeviceWaitIdle(m_device);
 
     for (auto device_memory : allocated_device_memory)
     {
-        vkFreeMemory(device, device_memory, nullptr);
+        vkFreeMemory(m_device, device_memory, nullptr);
     }
 
-    vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyInstance(instance, nullptr);
+    vkDestroyDevice(m_device, nullptr);
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    vkDestroyInstance(m_instance, nullptr);
 }
 
 
@@ -270,18 +270,18 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
     memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memory_allocate_info.allocationSize = buffer_size;
     memory_allocate_info.memoryTypeIndex = memory_type_host_coherent;
-    check(vkAllocateMemory(device, &memory_allocate_info, nullptr, &device_memory));
+    check(vkAllocateMemory(m_device, &memory_allocate_info, nullptr, &device_memory));
 
     VkBindBufferMemoryInfo bind_buffer_memory_info{};
     bind_buffer_memory_info.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
     bind_buffer_memory_info.memory = device_memory;
     bind_buffer_memory_info.buffer = buffer;
-    check(vkBindBufferMemory(device, buffer, device_memory, 0));
+    check(vkBindBufferMemory(m_device, buffer, device_memory, 0));
 
     void* mem;
-    check(vkMapMemory(device, device_memory, 0, buffer_size, 0, &mem));
+    check(vkMapMemory(m_device, device_memory, 0, buffer_size, 0, &mem));
     memcpy(mem, source, buffer_size);
-    vkUnmapMemory(device, device_memory);
+    vkUnmapMemory(m_device, device_memory);
 
     allocated_device_memory.push_back(device_memory);
 

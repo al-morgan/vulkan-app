@@ -18,11 +18,11 @@ public:
 class canvas
 {
 public:
-    VkInstance          instance;
-    VkSurfaceKHR        surface;
-    VkPhysicalDevice    physical_device;
-    VkDevice            device;
-    VkSwapchainKHR swapchain;
+    VkInstance          m_instance;
+    VkSurfaceKHR        m_surface;
+    VkPhysicalDevice    m_physical_device;
+    VkDevice            m_device;
+    VkSwapchainKHR      m_swapchain;
     VkSemaphore get_next_framebuffer_semaphore;
 
     uint32_t memory_type_device_local;

@@ -27,7 +27,7 @@ namespace graphics
 
         ~descriptor_set()
         {
-            vkDestroyDescriptorSetLayout(m_context.device, m_layout, nullptr);
+            vkDestroyDescriptorSetLayout(m_context.m_device, m_layout, nullptr);
         }
 
         void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags)
@@ -46,14 +46,14 @@ namespace graphics
             layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
             layout_create_info.bindingCount = m_bindings.size();
             layout_create_info.pBindings = m_bindings.data();
-            vkCreateDescriptorSetLayout(m_context.device, &layout_create_info, nullptr, &m_layout);
+            vkCreateDescriptorSetLayout(m_context.m_device, &layout_create_info, nullptr, &m_layout);
 
             VkDescriptorSetAllocateInfo alloc_info{};
             alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             alloc_info.descriptorPool = m_context.descriptor_pool;
             alloc_info.descriptorSetCount = 1;
             alloc_info.pSetLayouts = &m_layout;
-            vkAllocateDescriptorSets(m_context.device, &alloc_info, &m_descriptor_set);
+            vkAllocateDescriptorSets(m_context.m_device, &alloc_info, &m_descriptor_set);
         }
 
         VkDescriptorSetLayout layout() { return m_layout; }

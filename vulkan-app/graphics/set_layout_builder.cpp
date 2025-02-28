@@ -16,7 +16,7 @@ set_layout_builder::~set_layout_builder()
 {
     for (auto layout : m_layouts)
     {
-        vkDestroyDescriptorSetLayout(m_context.device, layout, nullptr);
+        vkDestroyDescriptorSetLayout(m_context.m_device, layout, nullptr);
     }
 }
 
@@ -44,7 +44,7 @@ VkDescriptorSetLayout set_layout_builder::get_result()
     layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layout_create_info.bindingCount = m_bindings.size();
     layout_create_info.pBindings = m_bindings.data();
-    vkCreateDescriptorSetLayout(m_context.device, &layout_create_info, nullptr, &layout);
+    vkCreateDescriptorSetLayout(m_context.m_device, &layout_create_info, nullptr, &layout);
 
     m_layouts.push_back(layout);
 

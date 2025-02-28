@@ -20,12 +20,12 @@ descriptor_set_builder::descriptor_set_builder(graphics::canvas& context) :
     create_info.pPoolSizes = &types;
     create_info.maxSets = 10;
 
-    vkCreateDescriptorPool(m_context.device, &create_info, nullptr, &m_descriptor_pool);
+    vkCreateDescriptorPool(m_context.m_device, &create_info, nullptr, &m_descriptor_pool);
 }
 
 descriptor_set_builder::~descriptor_set_builder()
 {
-    vkDestroyDescriptorPool(m_context.device, m_descriptor_pool, nullptr);
+    vkDestroyDescriptorPool(m_context.m_device, m_descriptor_pool, nullptr);
 }
 
 void descriptor_set_builder::set_layout(VkDescriptorSetLayout layout)
@@ -43,7 +43,7 @@ VkDescriptorSet descriptor_set_builder::get_result()
     alloc_info.descriptorPool = m_descriptor_pool;
     alloc_info.descriptorSetCount = 1;
     alloc_info.pSetLayouts = &m_layout;
-    vkAllocateDescriptorSets(m_context.device, &alloc_info, &descriptor_set);
+    vkAllocateDescriptorSets(m_context.m_device, &alloc_info, &descriptor_set);
 
     return descriptor_set;
 }

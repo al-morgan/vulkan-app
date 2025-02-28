@@ -35,13 +35,13 @@ public:
         VkFenceCreateInfo fence_create_info{};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-        vkCreateFence(context.device, &fence_create_info, nullptr, &m_in_flight_fence);
+        vkCreateFence(context.m_device, &fence_create_info, nullptr, &m_in_flight_fence);
 
         VkSemaphoreCreateInfo semaphore_create_info{};
         semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-        vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
-        vkCreateSemaphore(context.device, &semaphore_create_info, nullptr, &m_swapchain_semaphore);
+        vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
+        vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_swapchain_semaphore);
 
 
         VkCommandPoolCreateInfo create_info{};
@@ -49,7 +49,7 @@ public:
         create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         create_info.queueFamilyIndex = context.graphics_queue.family_index;
 
-        check(vkCreateCommandPool(m_context.device, &create_info, nullptr, &m_command_pool));
+        check(vkCreateCommandPool(m_context.m_device, &create_info, nullptr, &m_command_pool));
 
         VkCommandBufferAllocateInfo alloc_info{};
         alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -57,7 +57,7 @@ public:
         alloc_info.commandPool = m_command_pool;
         alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-        vkAllocateCommandBuffers(m_context.device, &alloc_info, &m_command_buffer);
+        vkAllocateCommandBuffers(m_context.m_device, &alloc_info, &m_command_buffer);
     }
 
     frame(const graphics::frame& other) :
@@ -68,9 +68,9 @@ public:
 
     ~frame()
     {
-        vkDestroySemaphore(m_context.device, m_render_finished_semaphore, nullptr);
-        vkDestroySemaphore(m_context.device, m_swapchain_semaphore, nullptr);
-        vkDestroyFence(m_context.device, m_in_flight_fence, nullptr);
+        vkDestroySemaphore(m_context.m_device, m_render_finished_semaphore, nullptr);
+        vkDestroySemaphore(m_context.m_device, m_swapchain_semaphore, nullptr);
+        vkDestroyFence(m_context.m_device, m_in_flight_fence, nullptr);
     }
 };
 
