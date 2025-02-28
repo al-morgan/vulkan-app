@@ -154,7 +154,6 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="perlin.cpp" />
     <ClCompile Include="graphics\buffer.cpp" />
-    <ClCompile Include="vk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file.hpp" />
@@ -176,7 +175,6 @@
     <ClInclude Include="input\mouse.hpp" />
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="perlin.hpp" />
-    <ClInclude Include="vk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
