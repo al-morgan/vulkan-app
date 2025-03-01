@@ -244,25 +244,16 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             position -= left * speed;
         }
 
-        //position[2] -= fall_speed;
-
         if (position[2] < 199.f)
         {
             throw std::runtime_error("WHAT");
         }
 
         ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));
-
-        ubo->model = glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-
-        ubo->model = glm::mat4(1);/*  glm::rotate(glm::mat4(1.0f), 1.0f * glm::radians(90.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f));*/
-
+        ubo->model = glm::mat4(1);
         ubo->proj = glm::perspective(glm::radians(45.0f),
             static_cast<float>(canvas.get_width()) / static_cast<float>(canvas.get_height()), 0.1f,
             10000.0f);
-
         ubo->proj[1][1] *= -1.0f;
 
         canvas.get_next_framebuffer(frame_set[current_frame].m_swapchain_semaphore);
