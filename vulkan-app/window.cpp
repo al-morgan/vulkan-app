@@ -7,13 +7,17 @@
 
 app::window::window()
 {
-    m_width = 800;
-    m_height = 800;
-
     glfwInit();
+
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* vid_mode = glfwGetVideoMode(monitor);
+    m_width = vid_mode->width;
+    m_height = vid_mode->height;
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", nullptr, nullptr);
+    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", glfwGetPrimaryMonitor(), nullptr);
+
 
     handle = glfwGetWin32Window(glfw_window);
 }
