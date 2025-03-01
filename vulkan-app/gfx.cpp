@@ -59,15 +59,6 @@ app::window::~window()
     glfwTerminate();
 }
 
-static void vk_check(VkResult result)
-{
-    if (result != VK_SUCCESS)
-    {
-        throw std::runtime_error("Vulkan error!");
-    }
-}
-
-// TODO: where should this go?
 void updateds(graphics::canvas& m_context, uint32_t binding, VkDescriptorSet descriptor_set, VkDescriptorType descriptor_type, graphics::buffer& buffer)
 {
     VkDescriptorBufferInfo descriptor_buffer_info{};
