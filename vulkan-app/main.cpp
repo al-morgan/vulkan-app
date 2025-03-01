@@ -4,8 +4,6 @@
 #include <stdexcept>
 #include <cstdlib>
 
-#include <vulkan/vulkan.h>
-
 #include "gfx.hpp"
 #include "graphics/canvas.hpp"
 #include "input/keyboard.hpp"
@@ -17,16 +15,16 @@
 int main()
 {
     app::window window;
-    graphics::canvas context(window.handle, WIDTH, HEIGHT);
+    graphics::canvas canvas(window.handle, WIDTH, HEIGHT);
 
     input::init_keyboard(window.glfw_window);
     input::init_mouse(window.glfw_window);
 
-    app::engine gfx(context);
+    app::engine gfx(canvas);
 
     try
     {
-        gfx.update(context, window);
+        gfx.update(canvas, window);
     }
     catch (const std::exception& e)
     {
