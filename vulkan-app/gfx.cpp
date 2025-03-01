@@ -24,7 +24,6 @@
 #include "graphics/graphics.hpp"
 #include "graphics/canvas.hpp"
 #include "graphics/buffer.hpp"
-#include "graphics/swapchain.hpp"
 #include "graphics/image.hpp"
 #include "graphics/frame.hpp"
 #include "graphics/set_layout_builder.hpp"
