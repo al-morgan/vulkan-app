@@ -9,107 +9,23 @@
 #include "graphics/graphics.hpp"
 #include "graphics/canvas.hpp"
 
+static VkInstance create_instance();
+
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_width(width),
-    m_height(height)
+    m_height(height),
+    m_instance(create_instance())
 {
     create_instance();
     create_surface(window_handle);
     get_physical_device();
     create_device();
     vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
-
-    VkExtent2D extent{};
-    extent.width = width;
-    extent.height = height;
-
-    VkSwapchainCreateInfoKHR create_info{};
-    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = m_surface;
-    create_info.minImageCount = 3;
-    create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-    create_info.imageExtent = extent;
-    create_info.imageArrayLayers = 1;
-    create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-    create_info.clipped = VK_TRUE;
-    create_info.oldSwapchain = VK_NULL_HANDLE;
-    vkCreateSwapchainKHR(m_device, &create_info, nullptr, &m_swapchain);
-
-    uint32_t swapchain_image_count;
-    std::vector<VkImage> images;
-    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, nullptr);
-    images.resize(swapchain_image_count);
-    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, images.data());
-
-    m_framebuffers.resize(swapchain_image_count);
-
-    for (uint32_t i = 0; i < swapchain_image_count; i++)
-    {
-        m_framebuffers[i].index = i;
-        m_framebuffers[i].image = images[i];
-
-        VkImageViewCreateInfo image_view_create_info{};
-        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.image = m_framebuffers[i].image;
-        image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
-        image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        image_view_create_info.subresourceRange.layerCount = 1;
-        image_view_create_info.subresourceRange.levelCount = 1;
-        vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_framebuffers[i].view);
-    }
-
-
+    create_swapchain();
 
     VkSemaphoreCreateInfo semaphore_create_info{};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_semaphore);
-
-
-
-
-}
-
-void graphics::canvas::create_instance()
-{
-    VkApplicationInfo app_info{};
-    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    app_info.pApplicationName = "Vulcan App";
-    app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    app_info.pEngineName = "Unknown Engine.";
-    app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    app_info.apiVersion = VK_API_VERSION_1_3;
-
-    std::vector<const char*> enabled_extensions = { "VK_KHR_surface", "VK_KHR_win32_surface" };
-
-    uint32_t instance_extension_count = 0;
-    std::vector<VkExtensionProperties> instance_extensions;
-    graphics::check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
-    instance_extensions.resize(instance_extension_count);
-    graphics::check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data()));
-
-    uint32_t instance_layer_count;
-    std::vector<VkLayerProperties> instance_layers;
-    graphics::check(vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr));
-    instance_layers.resize(instance_layer_count);
-    graphics::check(vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data()));
-
-    std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
-
-    VkInstanceCreateInfo create_info{};
-    create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    create_info.pApplicationInfo = &app_info;
-    create_info.ppEnabledExtensionNames = enabled_extensions.data();
-    create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
-    create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
-    create_info.ppEnabledLayerNames = enabled_layers.data();
-
-    graphics::check(vkCreateInstance(&create_info, nullptr, &m_instance));
 }
 
 void graphics::canvas::get_physical_device()
@@ -223,6 +139,54 @@ void graphics::canvas::create_device()
     vkCreateDevice(m_physical_device, &create_info, nullptr, &m_device);
 }
 
+void graphics::canvas::create_swapchain()
+{
+    VkExtent2D extent{};
+    extent.width = m_width;
+    extent.height = m_height;
+
+    VkSwapchainCreateInfoKHR create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    create_info.surface = m_surface;
+    create_info.minImageCount = 3;
+    create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+    create_info.imageExtent = extent;
+    create_info.imageArrayLayers = 1;
+    create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+    create_info.clipped = VK_TRUE;
+    create_info.oldSwapchain = VK_NULL_HANDLE;
+    vkCreateSwapchainKHR(m_device, &create_info, nullptr, &m_swapchain);
+
+    uint32_t swapchain_image_count;
+    std::vector<VkImage> images;
+    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, nullptr);
+    images.resize(swapchain_image_count);
+    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, images.data());
+
+    m_framebuffers.resize(swapchain_image_count);
+
+    for (uint32_t i = 0; i < swapchain_image_count; i++)
+    {
+        m_framebuffers[i].index = i;
+        m_framebuffers[i].image = images[i];
+
+        VkImageViewCreateInfo image_view_create_info{};
+        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        image_view_create_info.image = m_framebuffers[i].image;
+        image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+        image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_view_create_info.subresourceRange.layerCount = 1;
+        image_view_create_info.subresourceRange.levelCount = 1;
+        vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_framebuffers[i].view);
+    }
+}
+
 graphics::canvas::~canvas()
 {
     vkDeviceWaitIdle(m_device);
@@ -245,7 +209,6 @@ graphics::canvas::~canvas()
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 }
-
 
 void graphics::canvas::begin_command_buffer(VkCommandBuffer command_buffer)
 {
@@ -351,14 +314,12 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
     allocated_device_memory.push_back(device_memory);
 }
 
-
 void graphics::canvas::get_next_framebuffer(VkSemaphore semaphore)
 {
     uint32_t image_index = 0;
     vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, semaphore, nullptr, &image_index);
     m_current_framebuffer = m_framebuffers[image_index];
 }
-
 
 void graphics::canvas::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
 {
@@ -400,7 +361,6 @@ void graphics::canvas::present(VkSemaphore wait_semaphore)
     vkQueuePresentKHR(graphics_queue.handle, &present_info);
 }
 
-
 uint32_t graphics::canvas::get_height()
 {
     return m_height;
@@ -410,3 +370,45 @@ uint32_t graphics::canvas::get_width()
 {
     return m_width;
 }
+
+static VkInstance create_instance()
+{
+    VkInstance instance;
+
+    VkApplicationInfo app_info{};
+    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app_info.pApplicationName = "Vulcan App";
+    app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.pEngineName = "Unknown Engine.";
+    app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.apiVersion = VK_API_VERSION_1_3;
+
+    std::vector<const char*> enabled_extensions = { "VK_KHR_surface", "VK_KHR_win32_surface" };
+
+    uint32_t instance_extension_count = 0;
+    std::vector<VkExtensionProperties> instance_extensions;
+    graphics::check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
+    instance_extensions.resize(instance_extension_count);
+    graphics::check(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data()));
+
+    uint32_t instance_layer_count;
+    std::vector<VkLayerProperties> instance_layers;
+    graphics::check(vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr));
+    instance_layers.resize(instance_layer_count);
+    graphics::check(vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers.data()));
+
+    std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
+
+    VkInstanceCreateInfo create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    create_info.pApplicationInfo = &app_info;
+    create_info.ppEnabledExtensionNames = enabled_extensions.data();
+    create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
+    create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
+    create_info.ppEnabledLayerNames = enabled_layers.data();
+
+    graphics::check(vkCreateInstance(&create_info, nullptr, &instance));
+
+    return instance;
+}
+

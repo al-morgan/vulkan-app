@@ -14,32 +14,30 @@ struct queue
     uint32_t    family_index;
 };
 
-struct framebuffer
-{
-    VkImage image;
-    VkImageView view;
-    uint32_t index;
-};
+
 
 class canvas
 {
+    struct framebuffer
+    {
+        VkImage image;
+        VkImageView view;
+        uint32_t index;
+    };
+
 public:
-    VkInstance                  m_instance;
-    VkSurfaceKHR                m_surface;
-    VkPhysicalDevice            m_physical_device;
-    VkDevice                    m_device;
-    VkSwapchainKHR              m_swapchain;
-
-    VkSemaphore                 m_semaphore;
-    std::vector<graphics::framebuffer>    m_framebuffers;
-    graphics::framebuffer       m_current_framebuffer;
-
-    uint32_t memory_type_device_local;
-    uint32_t memory_type_host_coherent;
-
-    std::vector<VkDeviceMemory> allocated_device_memory;
-
-    graphics::queue graphics_queue;
+    VkInstance                          m_instance;
+    VkSurfaceKHR                        m_surface;
+    VkPhysicalDevice                    m_physical_device;
+    VkDevice                            m_device;
+    VkSwapchainKHR                      m_swapchain;
+    VkSemaphore                         m_semaphore;
+    std::vector<framebuffer>  m_framebuffers;
+    framebuffer               m_current_framebuffer;
+    uint32_t                            memory_type_device_local;
+    uint32_t                            memory_type_host_coherent;
+    std::vector<VkDeviceMemory>         allocated_device_memory;
+    graphics::queue                     graphics_queue;
 
     canvas(HWND window_handle, uint32_t width, uint32_t height);
     canvas() = delete;
@@ -66,11 +64,10 @@ private:
     uint32_t    m_width;
     uint32_t    m_height;
 
-    void create_instance();
     void get_physical_device();
     void create_surface(HWND window_handle);
     void create_device();
-
+    void create_swapchain();
 };
 
 }
