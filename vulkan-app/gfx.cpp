@@ -259,7 +259,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             glm::vec3(0.0f, 0.0f, 1.0f));*/
 
         ubo->proj = glm::perspective(glm::radians(45.0f),
-            800.0f / 800.0f, 0.1f,
+            static_cast<float>(canvas.get_width()) / static_cast<float>(canvas.get_height()), 0.1f,
             10000.0f);
 
         ubo->proj[1][1] *= -1.0f;

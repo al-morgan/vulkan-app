@@ -9,13 +9,10 @@
 #include "input/keyboard.hpp"
 #include "input/mouse.hpp"
 
-#define WIDTH 800
-#define HEIGHT 800
-
 int main()
 {
     app::window window;
-    graphics::canvas canvas(window.handle, WIDTH, HEIGHT);
+    graphics::canvas canvas(window.handle, window.get_width(), window.get_height());
 
     input::init_keyboard(window.glfw_window);
     input::init_mouse(window.glfw_window);

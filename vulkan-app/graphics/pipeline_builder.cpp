@@ -99,14 +99,14 @@ VkPipeline pipeline_builder::get_result()
     rasterization_state.cullMode = VK_CULL_MODE_BACK_BIT;
 
     VkViewport viewport{};
-    viewport.width = static_cast<float>(800);
-    viewport.height = static_cast<float>(800);
+    viewport.width = static_cast<float>(m_context.get_width());
+    viewport.height = static_cast<float>(m_context.get_height());
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
-    scissor.extent.width = 800;
-    scissor.extent.height = 800;
+    scissor.extent.width = m_context.get_width();
+    scissor.extent.height = m_context.get_height();
 
     VkPipelineViewportStateCreateInfo viewport_state{};
     viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
