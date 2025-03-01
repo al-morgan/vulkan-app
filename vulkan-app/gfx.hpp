@@ -6,19 +6,10 @@
 #include <GLFW/glfw3.h>
 
 #include "graphics/canvas.hpp"
-
+#include "window.hpp"
 
 namespace app
 {
-class window
-{
-private:
-public:
-    window();
-    ~window();
-    GLFWwindow* glfw_window;
-    HWND handle;
-};
 
 class engine
 {

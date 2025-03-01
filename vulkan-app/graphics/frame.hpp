@@ -43,7 +43,6 @@ public:
         vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
         vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_swapchain_semaphore);
 
-
         VkCommandPoolCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;

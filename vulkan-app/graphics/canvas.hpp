@@ -11,8 +11,8 @@ namespace graphics
 struct queue
 {
 public:
-    VkQueue handle;
-    uint32_t family_index;
+    VkQueue     handle;
+    uint32_t    family_index;
 };
 
 class canvas
