@@ -354,7 +354,7 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
 
 void graphics::canvas::get_next_framebuffer(VkSemaphore semaphore)
 {
-    uint32_t image_index;
+    uint32_t image_index = 0;
     vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, semaphore, nullptr, &image_index);
     m_current_framebuffer = m_framebuffers[image_index];
 }
