@@ -10,15 +10,16 @@
 #include "graphics/canvas.hpp"
 
 static VkInstance create_instance();
+static VkPhysicalDevice get_physical_device(VkInstance instance);
 
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_width(width),
     m_height(height),
-    m_instance(create_instance())
+    m_instance(create_instance()),
+    m_physical_device(get_physical_device(m_instance))
 {
-    create_instance();
+    get_physical_device2();
     create_surface(window_handle);
-    get_physical_device();
     create_device();
     vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
     create_swapchain();
@@ -28,22 +29,8 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_semaphore);
 }
 
-void graphics::canvas::get_physical_device()
+void graphics::canvas::get_physical_device2()
 {
-    uint32_t physical_device_count;
-    std::vector<VkPhysicalDevice> physical_devices;
-    graphics::check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr));
-    physical_devices.resize(physical_device_count);
-    graphics::check(vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data()));
-
-    if (physical_device_count != 1)
-    {
-        throw std::runtime_error("Multiple physical devices not supported!");
-    }
-
-    // I only have one physical device right now so I'm going to cheat
-    m_physical_device = physical_devices[0];
-
     VkPhysicalDeviceMemoryProperties memory_properties{};
     vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memory_properties);
 
@@ -412,3 +399,20 @@ static VkInstance create_instance()
     return instance;
 }
 
+static VkPhysicalDevice get_physical_device(VkInstance instance)
+{
+    uint32_t                        physical_device_count;
+    std::vector<VkPhysicalDevice>   physical_devices;
+
+    graphics::check(vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr));
+    physical_devices.resize(physical_device_count);
+    graphics::check(vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices.data()));
+
+    if (physical_device_count != 1)
+    {
+        throw std::runtime_error("Multiple physical devices not supported!");
+    }
+
+    // I only have one physical device right now so I'm going to cheat
+    return physical_devices[0];
+}

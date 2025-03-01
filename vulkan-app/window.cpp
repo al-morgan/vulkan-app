@@ -14,9 +14,12 @@ app::window::window()
     m_width = vid_mode->width;
     m_height = vid_mode->height;
 
+    m_width = 800;
+    m_height = 800;
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", glfwGetPrimaryMonitor(), nullptr);
+    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", nullptr/*glfwGetPrimaryMonitor()*/, nullptr);
 
 
     handle = glfwGetWin32Window(glfw_window);

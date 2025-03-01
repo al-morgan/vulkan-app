@@ -191,8 +191,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         //std::cout << frame_count / blah.count() * 1000.0 << std::endl;
         frame_count++;
 
-
-
         glfwPollEvents();
         vkWaitForFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
 
