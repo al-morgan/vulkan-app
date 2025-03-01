@@ -116,7 +116,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     mesh.make_normals();
 
-    graphics::swapchain swapchain(canvas, WIDTH, HEIGHT, canvas.m_surface);
+    //graphics::swapchain swapchain(canvas, WIDTH, HEIGHT, canvas.m_surface);
     graphics::image depth_buffer(canvas, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
     glm::vec3 position(500.f, 500.f, 100.f);
@@ -266,7 +266,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         ubo->proj[1][1] *= -1.0f;
 
-        swapchain.get_next_framebuffer(frame_set[current_frame].m_swapchain_semaphore);
+        canvas.get_next_framebuffer(frame_set[current_frame].m_swapchain_semaphore);
 
         canvas.begin_command_buffer(frame_set[current_frame].m_command_buffer);
 
@@ -282,7 +282,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
         
         vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
-        swapchain.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
+        canvas.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
         vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
         VkDeviceSize offset = 0;
@@ -298,11 +298,11 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         vkCmdPipelineBarrier(frame_set[current_frame].m_command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-        canvas.begin_rendering(frame_set[current_frame].m_command_buffer, swapchain.image_view(), depth_buffer.view());
+        canvas.begin_rendering(frame_set[current_frame].m_command_buffer, canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(frame_set[current_frame].m_command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
         vkCmdEndRendering(frame_set[current_frame].m_command_buffer);
 
-        swapchain.prepare_swapchain_for_presentation(frame_set[current_frame].m_command_buffer);
+        canvas.prepare_swapchain_for_presentation(frame_set[current_frame].m_command_buffer);
 
         vkEndCommandBuffer(frame_set[current_frame].m_command_buffer);
 
@@ -315,7 +315,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             frame_set[current_frame].m_render_finished_semaphore,
             frame_set[current_frame].m_in_flight_fence);
 
-        swapchain.present(frame_set[current_frame].m_render_finished_semaphore);
+        canvas.present(frame_set[current_frame].m_render_finished_semaphore);
 
         vkDeviceWaitIdle(canvas.m_device);
     }

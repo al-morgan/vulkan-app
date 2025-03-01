@@ -20,13 +20,6 @@ struct vertex3d
     glm::vec3 normal;
 };
 
-struct framebuffer
-{
-    VkImage image;
-    VkImageView view;
-    uint32_t index;
-};
-
 static void check(VkResult result)
 {
     if (result != VK_SUCCESS)

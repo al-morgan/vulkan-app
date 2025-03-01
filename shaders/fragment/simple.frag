@@ -8,6 +8,13 @@ layout(set = 0, binding = 2) readonly buffer NormalBuffer
     vec4 normalBuffer[];
 };
 
+layout(set = 1, binding = 0) uniform ubo
+{
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+};
+
 void main()
 {
     vec3 light = vec3(.707f, 0.0, .707f);
