@@ -10,26 +10,26 @@
 
 namespace app
 {
-	class window
-	{
-	private:
-	public:
-		window();
-		~window();
-		GLFWwindow* glfw_window;
-		HWND handle;
-	};
+class window
+{
+private:
+public:
+    window();
+    ~window();
+    GLFWwindow* glfw_window;
+    HWND handle;
+};
 
-	class engine
-	{
-	private:
-		graphics::canvas& context;
-		VkFence m_in_flight_fence;
-		VkSemaphore m_render_finished_semaphore;
+class engine
+{
+private:
+    graphics::canvas& context;
+    VkFence m_in_flight_fence;
+    VkSemaphore m_render_finished_semaphore;
 
-	public:
-		engine(graphics::canvas& context);
-		~engine();
-		void update(graphics::canvas& context, app::window& window);
-	};
+public:
+    engine(graphics::canvas& context);
+    ~engine();
+    void update(graphics::canvas& context, app::window& window);
+};
 }

@@ -16,17 +16,17 @@
 
 int main()
 {
-	app::window window;
-	graphics::canvas context(window.handle, WIDTH, HEIGHT);
+    app::window window;
+    graphics::canvas context(window.handle, WIDTH, HEIGHT);
 
     input::init_keyboard(window.glfw_window);
     input::init_mouse(window.glfw_window);
 
-	app::engine gfx(context);
+    app::engine gfx(context);
 
     try
     {
-		gfx.update(context, window);
+        gfx.update(context, window);
     }
     catch (const std::exception& e)
     {
