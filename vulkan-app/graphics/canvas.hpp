@@ -24,17 +24,23 @@ class canvas
     };
 
 public:
-    VkInstance                  m_instance;
-    VkPhysicalDevice            m_physical_device;
+    uint32_t                                m_width;
+    uint32_t                                m_height;
+    VkInstance                              m_instance;
+    VkPhysicalDevice                        m_physical_device;
+    VkPhysicalDeviceMemoryProperties        m_memory_properties;
+    uint32_t                                m_memory_type_device_local;
+    uint32_t                                m_memory_type_host_coherent;
+    VkSurfaceKHR                            m_surface;
+    std::vector<VkQueueFamilyProperties>    m_queue_family_properties;
 
-    VkSurfaceKHR                m_surface;
     VkDevice                    m_device;
     VkSwapchainKHR              m_swapchain;
     VkSemaphore                 m_semaphore;
     std::vector<framebuffer>    m_framebuffers;
     framebuffer                 m_current_framebuffer;
-    uint32_t                    memory_type_device_local;
-    uint32_t                    memory_type_host_coherent;
+
+
     std::vector<VkDeviceMemory> allocated_device_memory;
     graphics::queue             graphics_queue;
 
@@ -60,12 +66,6 @@ public:
 
 
 private:
-    uint32_t    m_width;
-    uint32_t    m_height;
-
-    void get_physical_device2();
-    void create_surface(HWND window_handle);
-    void create_device();
     void create_swapchain();
 };
 

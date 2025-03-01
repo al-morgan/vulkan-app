@@ -42,7 +42,7 @@ graphics::buffer::buffer(const graphics::canvas& context, size_t size, VkBufferU
     VkMemoryAllocateInfo memory_allocate_info{};
     memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memory_allocate_info.allocationSize = memory_requirements.size;
-    memory_allocate_info.memoryTypeIndex = context.memory_type_host_coherent;
+    memory_allocate_info.memoryTypeIndex = context.m_memory_type_host_coherent;
     graphics::check(vkAllocateMemory(context.m_device, &memory_allocate_info, nullptr, &m_source_memory));
     graphics::check(vkBindBufferMemory(context.m_device, m_source, m_source_memory, 0));
 
@@ -50,7 +50,7 @@ graphics::buffer::buffer(const graphics::canvas& context, size_t size, VkBufferU
     memory_allocate_info.allocationSize = memory_requirements.size;
 
     // Allocate device memory
-    memory_allocate_info.memoryTypeIndex = context.memory_type_device_local;
+    memory_allocate_info.memoryTypeIndex = context.m_memory_type_device_local;
     check(vkAllocateMemory(context.m_device, &memory_allocate_info, nullptr, &m_destination_memory));
     check(vkBindBufferMemory(context.m_device, m_destination, m_destination_memory, 0));
 
