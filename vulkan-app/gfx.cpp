@@ -86,17 +86,17 @@ void updateds(graphics::canvas& m_context, uint32_t binding, VkDescriptorSet des
     vkUpdateDescriptorSets(m_context.m_device, 1, &write_descriptor_set, 0, nullptr);
 }
 
-app::engine::engine(graphics::canvas& context) : context(context)
+app::engine::engine(graphics::canvas& canvas) : context(canvas)
 {
     VkFenceCreateInfo fence_create_info{};
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-    vkCreateFence(context.m_device, &fence_create_info, nullptr, &m_in_flight_fence);
+    vkCreateFence(canvas.m_device, &fence_create_info, nullptr, &m_in_flight_fence);
 
     VkSemaphoreCreateInfo semaphore_create_info{};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
+    vkCreateSemaphore(canvas.m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
 }
 
 app::engine::~engine()
@@ -306,8 +306,6 @@ void app::engine::update(graphics::canvas& context, app::window& window)
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
         
         vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
-        
-        
         swapchain.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
         vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
