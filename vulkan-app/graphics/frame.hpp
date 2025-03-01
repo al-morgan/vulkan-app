@@ -67,6 +67,7 @@ public:
 
     ~frame()
     {
+        vkDestroyCommandPool(m_context.m_device, m_command_pool, nullptr);
         vkDestroySemaphore(m_context.m_device, m_render_finished_semaphore, nullptr);
         vkDestroySemaphore(m_context.m_device, m_swapchain_semaphore, nullptr);
         vkDestroyFence(m_context.m_device, m_in_flight_fence, nullptr);

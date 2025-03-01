@@ -7,10 +7,13 @@
 
 app::window::window()
 {
+    m_width = 800;
+    m_height = 800;
+
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfw_window = glfwCreateWindow(800, 800, "Vulkan", nullptr, nullptr);
+    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", nullptr, nullptr);
 
     handle = glfwGetWin32Window(glfw_window);
 }
@@ -19,4 +22,14 @@ app::window::~window()
 {
     glfwDestroyWindow(glfw_window);
     glfwTerminate();
+}
+
+uint32_t app::window::get_height()
+{
+    return m_height;
+}
+
+uint32_t app::window::get_width()
+{
+    return m_width;
 }

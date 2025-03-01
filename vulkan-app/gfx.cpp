@@ -38,9 +38,6 @@
 
 #include "perlin.hpp"
 
-#define WIDTH	800
-#define HEIGHT	800
-
 static bool jumping;
 
 void updateds(graphics::canvas& m_context, uint32_t binding, VkDescriptorSet descriptor_set, VkDescriptorType descriptor_type, graphics::buffer& buffer)
@@ -90,7 +87,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     app::perlin noise_low(10, 10, 10000.0f, 10000.0f);
 
     graphics::buffer vbuffer(canvas, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-    
+
     // TODO: I'm not using the ubuffer from the frame so it's getting all weird!
     //graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
@@ -116,7 +113,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     mesh.make_normals();
 
     //graphics::swapchain swapchain(canvas, WIDTH, HEIGHT, canvas.m_surface);
-    graphics::image depth_buffer(canvas, WIDTH, HEIGHT, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
+    graphics::image depth_buffer(canvas, canvas.get_width(), canvas.get_height(), VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
     glm::vec3 position(500.f, 500.f, 100.f);
     glm::vec3 direction(1.0f, 0.0f, 0.0f);
@@ -143,6 +140,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     }
 
     uint32_t current_frame = 0;
+
+    // Good stuff starts here
 
     graphics::shader_builder shader_builder(canvas);
     shader_builder.set_code("./shaders/vertex/simple.spv");
@@ -277,9 +276,9 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         frame_set[current_frame].ubuffer.copy(frame_set[current_frame].m_command_buffer);
 
         depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-        
+
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
-        
+
         vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
         canvas.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
         vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);

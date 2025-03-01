@@ -9,7 +9,9 @@
 #include "graphics/graphics.hpp"
 #include "graphics/canvas.hpp"
 
-graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height)
+graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
+    m_width(width),
+    m_height(height)
 {
     create_instance();
     create_surface(window_handle);
@@ -257,8 +259,8 @@ void graphics::canvas::begin_rendering(VkCommandBuffer command_buffer, VkImageVi
     VkClearValue clear_value{};
 
     VkRect2D render_area{};
-    render_area.extent.width = 800;
-    render_area.extent.height = 800;
+    render_area.extent.width = m_width;
+    render_area.extent.height = m_height;
 
     VkRenderingAttachmentInfo color_attachment_info{};
     color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -396,4 +398,15 @@ void graphics::canvas::present(VkSemaphore wait_semaphore)
     present_info.waitSemaphoreCount = 1;
     present_info.pImageIndices = &m_current_framebuffer.index;
     vkQueuePresentKHR(graphics_queue.handle, &present_info);
+}
+
+
+uint32_t graphics::canvas::get_height()
+{
+    return m_height;
+}
+
+uint32_t graphics::canvas::get_width()
+{
+    return m_width;
 }

@@ -58,13 +58,19 @@ public:
     void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
     void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
     void present(VkSemaphore wait_semaphore);
+    uint32_t get_width();
+    uint32_t get_height();
 
 
 private:
+    uint32_t    m_width;
+    uint32_t    m_height;
+
     void create_instance();
     void get_physical_device();
     void create_surface(HWND window_handle);
     void create_device();
+
 };
 
 }
