@@ -39,10 +39,6 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_semaphore);
 }
 
-
-
-
-
 void graphics::canvas::create_swapchain()
 {
     VkExtent2D extent{};

@@ -88,9 +88,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     graphics::buffer vbuffer(canvas, 112 * 12 * 3 * 2, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-    // TODO: I'm not using the ubuffer from the frame so it's getting all weird!
-    //graphics::buffer ubuffer(context, sizeof(graphics::mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-
     constexpr int axis_size = 1000;
 
     app::mesh mesh(canvas, axis_size, axis_size);
