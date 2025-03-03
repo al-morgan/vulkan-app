@@ -189,9 +189,12 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         frame_count++;
 
         glfwPollEvents();
-        vkWaitForFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
-        current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
-        vkResetFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence);
+
+        canvas.begin_frame();
+
+        //vkWaitForFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
+        //current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
+        //vkResetFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence);
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
@@ -251,7 +254,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             10000.0f);
         ubo->proj[1][1] *= -1.0f;
 
-        canvas.get_next_framebuffer(frame_set[current_frame].m_swapchain_semaphore);
+        canvas.get_next_framebuffer();
 
         canvas.begin_command_buffer(frame_set[current_frame].m_command_buffer);
 
@@ -295,12 +298,13 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         canvas.submit(
             frame_set[current_frame].m_command_buffer,
-            frame_set[current_frame].m_swapchain_semaphore,
-            wait_stage,
-            frame_set[current_frame].m_render_finished_semaphore,
-            frame_set[current_frame].m_in_flight_fence);
+            //frame_set[current_frame].m_swapchain_semaphore,
+            wait_stage
+            //frame_set[current_frame].m_render_finished_semaphore,
+            //frame_set[current_frame].m_in_flight_fence
+            );
 
-        canvas.present(frame_set[current_frame].m_render_finished_semaphore);
+        canvas.present();
 
         //vkDeviceWaitIdle(canvas.m_device);
     }

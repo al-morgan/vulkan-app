@@ -194,18 +194,18 @@ void graphics::canvas::transition_image(VkCommandBuffer command_buffer,
     vkCmdPipelineBarrier(command_buffer, source_stage, desintation_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
-void graphics::canvas::submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence)
+void graphics::canvas::submit(VkCommandBuffer command_buffer, VkPipelineStageFlags wait_stage)
 {
     VkSubmitInfo submit_info{};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &command_buffer;
-    submit_info.pWaitSemaphores = &wait_semaphore;
+    submit_info.pWaitSemaphores = &m_frames[m_current_frame].swapchain_semaphore;
     submit_info.waitSemaphoreCount = 1;
     submit_info.pWaitDstStageMask = &wait_stage;
-    submit_info.pSignalSemaphores = &signal_semaphore;
+    submit_info.pSignalSemaphores = &m_frames[m_current_frame].render_finished_semaphore;
     submit_info.signalSemaphoreCount = 1;
-    vkQueueSubmit(graphics_queue.handle, 1, &submit_info, fence);
+    vkQueueSubmit(graphics_queue.handle, 1, &submit_info, m_frames[m_current_frame].in_flight_fence);
 }
 
 void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
@@ -232,10 +232,10 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
     allocated_device_memory.push_back(device_memory);
 }
 
-void graphics::canvas::get_next_framebuffer(VkSemaphore semaphore)
+void graphics::canvas::get_next_framebuffer()
 {
     uint32_t image_index = 0;
-    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, semaphore, nullptr, &image_index);
+    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_current_frame].swapchain_semaphore, nullptr, &image_index);
     m_current_framebuffer = m_framebuffers[image_index];
 }
 
@@ -267,13 +267,13 @@ void graphics::canvas::prepare_swapchain_for_presentation(VkCommandBuffer comman
     );
 }
 
-void graphics::canvas::present(VkSemaphore wait_semaphore)
+void graphics::canvas::present()
 {
     VkPresentInfoKHR present_info{};
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     present_info.pSwapchains = &m_swapchain;
     present_info.swapchainCount = 1;
-    present_info.pWaitSemaphores = &wait_semaphore;
+    present_info.pWaitSemaphores = &m_frames[m_current_frame].render_finished_semaphore;
     present_info.waitSemaphoreCount = 1;
     present_info.pImageIndices = &m_current_framebuffer.index;
     vkQueuePresentKHR(graphics_queue.handle, &present_info);
@@ -288,6 +288,18 @@ uint32_t graphics::canvas::get_width()
 {
     return m_width;
 }
+
+void graphics::canvas::begin_frame()
+{
+    vkWaitForFences(m_device, 1, &m_frames[m_current_frame].in_flight_fence, VK_TRUE, UINT64_MAX);
+    m_current_frame = (m_current_frame + 1) % m_frames.size();
+    vkResetFences(m_device, 1, &m_frames[m_current_frame].in_flight_fence);
+}
+
+
+
+
+
 
 static VkInstance create_instance()
 {

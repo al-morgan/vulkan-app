@@ -54,17 +54,18 @@ public:
     void begin_command_buffer(VkCommandBuffer command_buffer);
     void begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view);
     void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout) const;
-    void submit(VkCommandBuffer command_buffer, VkSemaphore wait_semaphore, VkPipelineStageFlags wait_stage, VkSemaphore signal_semaphore, VkFence fence);
+    void submit(VkCommandBuffer command_buffer, VkPipelineStageFlags wait_stage);
     void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
-    void get_next_framebuffer(VkSemaphore semaphore);
+    void get_next_framebuffer();
     VkSemaphore get_semaphore() { return m_semaphore; }
     VkImageView image_view() { return m_current_framebuffer.view; };
     void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
     void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
-    void present(VkSemaphore wait_semaphore);
+    void present();
     uint32_t get_width();
     uint32_t get_height();
+    void begin_frame();
 
 private:
 
