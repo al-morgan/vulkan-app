@@ -35,7 +35,7 @@ graphics::recorder::~recorder()
 void graphics::recorder::begin_frame()
 {
     m_current_frame = (m_current_frame + 1) % m_frames.size();
-    //vkResetCommandBuffer(m_frames[m_current_frame].command_buffer);
+    vkResetCommandBuffer(m_frames[m_current_frame].command_buffer, 0);
 }
 
 VkCommandBuffer graphics::recorder::get_command_buffer()

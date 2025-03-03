@@ -193,11 +193,13 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         glfwPollEvents();
 
+        VkCommandBuffer command_buffer;
+
         canvas.begin_frame();
         recorder.begin_frame();
+        command_buffer = recorder.get_command_buffer();
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
-        vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
 
         direction[0] = sin(input::get_yaw());
@@ -256,47 +258,51 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         canvas.get_next_framebuffer();
 
-        canvas.begin_command_buffer(frame_set[current_frame].m_command_buffer);
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(command_buffer, &begin_info);
+
+        //canvas.begin_command_buffer(frame_set[current_frame].m_command_buffer);
 
         if (frame_count == 1)
         {
-            mesh.copy(frame_set[current_frame].m_command_buffer);
+            mesh.copy(command_buffer);
         }
 
-        frame_set[current_frame].ubuffer.copy(frame_set[current_frame].m_command_buffer);
+        frame_set[current_frame].ubuffer.copy(command_buffer);
 
-        depth_buffer.transition(frame_set[current_frame].m_command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
+        depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
 
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
 
-        vkCmdBindDescriptorSets(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
-        canvas.prepare_swapchain_for_writing(frame_set[current_frame].m_command_buffer);
-        vkCmdBindPipeline(frame_set[current_frame].m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
+        canvas.prepare_swapchain_for_writing(command_buffer);
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { mesh.m_mesh_buffer.handle() };
-        vkCmdBindVertexBuffers(frame_set[current_frame].m_command_buffer, 0, 1, buffers, &offset);
+        vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
 
-        vkCmdBindIndexBuffer(frame_set[current_frame].m_command_buffer, mesh.m_index_buffer.handle(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(command_buffer, mesh.m_index_buffer.handle(), 0, VK_INDEX_TYPE_UINT32);
 
         VkMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 
-        vkCmdPipelineBarrier(frame_set[current_frame].m_command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+        vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-        canvas.begin_rendering(frame_set[current_frame].m_command_buffer, canvas.image_view(), depth_buffer.view());
-        vkCmdDrawIndexed(frame_set[current_frame].m_command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
-        vkCmdEndRendering(frame_set[current_frame].m_command_buffer);
+        canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
+        vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+        vkCmdEndRendering(command_buffer);
 
-        canvas.prepare_swapchain_for_presentation(frame_set[current_frame].m_command_buffer);
+        canvas.prepare_swapchain_for_presentation(command_buffer);
 
-        vkEndCommandBuffer(frame_set[current_frame].m_command_buffer);
+        vkEndCommandBuffer(command_buffer);
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        canvas.submit(frame_set[current_frame].m_command_buffer, wait_stage);
+        canvas.submit(command_buffer, wait_stage);
         canvas.present();
     }
 
