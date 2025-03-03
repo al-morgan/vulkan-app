@@ -32,6 +32,7 @@
 #include "graphics/shader_builder.hpp"
 #include "graphics/pipeline_builder.hpp"
 #include "graphics/descriptor_set_builder.hpp"
+#include "graphics/recorder.hpp"
 #include "window.hpp"
 
 #include "mesh.hpp"
@@ -177,6 +178,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
     updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
 
+    graphics::recorder recorder(canvas);
+
     // Next: add layout builder
 
     while (!glfwWindowShouldClose(window.glfw_window))
@@ -191,6 +194,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         glfwPollEvents();
 
         canvas.begin_frame();
+        recorder.begin_frame();
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);

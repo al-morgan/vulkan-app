@@ -141,6 +141,7 @@
     <ClCompile Include="graphics\descriptor_set.cpp" />
     <ClCompile Include="graphics\descriptor_set_builder.cpp" />
     <ClCompile Include="graphics\pipeline_builder.cpp" />
+    <ClCompile Include="graphics\recorder.cpp" />
     <ClCompile Include="graphics\set_builder.cpp" />
     <ClCompile Include="graphics\set_layout_builder.cpp" />
     <ClCompile Include="graphics\frame.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="graphics\descriptor_set.hpp" />
     <ClInclude Include="graphics\descriptor_set_builder.hpp" />
     <ClInclude Include="graphics\pipeline_builder.hpp" />
+    <ClInclude Include="graphics\recorder.hpp" />
     <ClInclude Include="graphics\set_builder.hpp" />
     <ClInclude Include="graphics\set_layout_builder.hpp" />
     <ClInclude Include="graphics\frame.hpp" />
