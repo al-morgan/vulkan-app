@@ -147,6 +147,7 @@
     <ClCompile Include="graphics\image.cpp" />
     <ClCompile Include="graphics\pipeline_layout_builder.cpp" />
     <ClCompile Include="graphics\shader_builder.cpp" />
+    <ClCompile Include="graphics\swapchain.cpp" />
     <ClCompile Include="input\keyboard.cpp" />
     <ClCompile Include="input\mouse.cpp" />
     <ClCompile Include="main.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="graphics\image.hpp" />
     <ClInclude Include="graphics\pipeline_layout_builder.hpp" />
     <ClInclude Include="graphics\shader_builder.hpp" />
+    <ClInclude Include="graphics\swapchain.hpp" />
     <ClInclude Include="input\keyboard.hpp" />
     <ClInclude Include="input\mouse.hpp" />
     <ClInclude Include="mesh.hpp" />

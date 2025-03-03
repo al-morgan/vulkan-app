@@ -1,9 +1,12 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include <Windows.h>
 #include <vulkan/vulkan.h>
+
+#include "graphics.hpp"
 
 namespace graphics
 {
@@ -40,7 +43,6 @@ public:
     std::vector<framebuffer>    m_framebuffers;
     framebuffer                 m_current_framebuffer;
 
-
     std::vector<VkDeviceMemory> allocated_device_memory;
     graphics::queue             graphics_queue;
 
@@ -64,8 +66,18 @@ public:
     uint32_t get_width();
     uint32_t get_height();
 
-
 private:
+
+    struct frame
+    {
+        VkFence     in_flight_fence;
+        VkSemaphore render_finished_semaphore;
+        VkSemaphore swapchain_semaphore;
+    };
+
+    std::array<graphics::canvas::frame, graphics::NUM_FRAMES> m_frames;
+    uint32_t m_current_frame = 0;
+
     void create_swapchain();
 };
 

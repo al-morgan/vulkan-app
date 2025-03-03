@@ -37,6 +37,17 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     VkSemaphoreCreateInfo semaphore_create_info{};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_semaphore);
+
+    for (auto& frame : m_frames)
+    {
+        vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &frame.render_finished_semaphore);
+        vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &frame.swapchain_semaphore);
+
+        VkFenceCreateInfo fence_create_info{};
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        vkCreateFence(m_device, &fence_create_info, nullptr, &frame.in_flight_fence);
+    }
 }
 
 void graphics::canvas::create_swapchain()
@@ -90,6 +101,13 @@ void graphics::canvas::create_swapchain()
 graphics::canvas::~canvas()
 {
     vkDeviceWaitIdle(m_device);
+
+    for (auto& frame : m_frames)
+    {
+        vkDestroySemaphore(m_device, frame.render_finished_semaphore, nullptr);
+        vkDestroySemaphore(m_device, frame.swapchain_semaphore, nullptr);
+        vkDestroyFence(m_device, frame.in_flight_fence, nullptr);
+    }
 
     for (auto device_memory : allocated_device_memory)
     {

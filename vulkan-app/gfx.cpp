@@ -190,11 +190,11 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         glfwPollEvents();
         vkWaitForFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
-
         current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
+        vkResetFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence);
+
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
-        vkResetFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
 
         direction[0] = sin(input::get_yaw());
