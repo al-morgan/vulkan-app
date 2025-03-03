@@ -197,6 +197,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         canvas.begin_frame();
         recorder.begin_frame();
+
         command_buffer = recorder.get_command_buffer();
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
@@ -261,8 +262,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         VkCommandBufferBeginInfo begin_info{};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         vkBeginCommandBuffer(command_buffer, &begin_info);
-
-        //canvas.begin_command_buffer(frame_set[current_frame].m_command_buffer);
 
         if (frame_count == 1)
         {

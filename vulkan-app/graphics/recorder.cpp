@@ -13,7 +13,8 @@ graphics::recorder::recorder(graphics::canvas& canvas) :
     create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     create_info.queueFamilyIndex = m_canvas.graphics_queue.family_index;
-    graphics::check(vkCreateCommandPool(m_canvas.m_device, &create_info, nullptr, &m_command_pool));
+    graphics::check(vkCreateCommandPool(m_canvas.m_device, &create_info,
+        nullptr, &m_command_pool));
 
     VkCommandBufferAllocateInfo alloc_info{};
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -23,7 +24,8 @@ graphics::recorder::recorder(graphics::canvas& canvas) :
 
     for (auto& frame : m_frames)
     {
-        vkAllocateCommandBuffers(m_canvas.m_device, &alloc_info, &frame.command_buffer);
+        graphics::check(vkAllocateCommandBuffers(m_canvas.m_device,
+            &alloc_info, &frame.command_buffer));
     }
 }
 

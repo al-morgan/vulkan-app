@@ -22,7 +22,6 @@ public:
     VkCommandBuffer get_command_buffer();
 
 private:
-
     struct frame
     {
         VkCommandBuffer command_buffer;
@@ -30,9 +29,9 @@ private:
 
     graphics::canvas&   m_canvas;
     VkCommandPool       m_command_pool;
-
-    std::array<graphics::recorder::frame, graphics::NUM_FRAMES> m_frames{};
-    uint32_t m_current_frame = 0;
+    std::array <graphics::recorder::frame, graphics::NUM_FRAMES>
+                        m_frames{};
+    uint32_t            m_current_frame = 0;
 };
 
 }
