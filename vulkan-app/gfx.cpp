@@ -192,10 +192,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         canvas.begin_frame();
 
-        //vkWaitForFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence, VK_TRUE, UINT64_MAX);
-        //current_frame = (current_frame + 1) % graphics::NUM_FRAMES;
-        //vkResetFences(canvas.m_device, 1, &frame_set[current_frame].m_in_flight_fence);
-
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         vkResetCommandBuffer(frame_set[current_frame].m_command_buffer, 0);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
@@ -296,17 +292,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        canvas.submit(
-            frame_set[current_frame].m_command_buffer,
-            //frame_set[current_frame].m_swapchain_semaphore,
-            wait_stage
-            //frame_set[current_frame].m_render_finished_semaphore,
-            //frame_set[current_frame].m_in_flight_fence
-            );
-
+        canvas.submit(frame_set[current_frame].m_command_buffer, wait_stage);
         canvas.present();
-
-        //vkDeviceWaitIdle(canvas.m_device);
     }
 
     vkDeviceWaitIdle(canvas.m_device);

@@ -21,10 +21,6 @@ private:
     graphics::canvas& m_context;
 public:
     graphics::buffer ubuffer;
-    //VkFence m_in_flight_fence;
-    //VkSemaphore m_render_finished_semaphore;
-    //VkSemaphore m_swapchain_semaphore;
-
     VkCommandPool m_command_pool;
     VkCommandBuffer m_command_buffer;
 
@@ -32,17 +28,6 @@ public:
         m_context(context),
         ubuffer(context, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
     {
-        //VkFenceCreateInfo fence_create_info{};
-        //fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        //fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-        //vkCreateFence(context.m_device, &fence_create_info, nullptr, &m_in_flight_fence);
-
-        //VkSemaphoreCreateInfo semaphore_create_info{};
-        //semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        //vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_render_finished_semaphore);
-        //vkCreateSemaphore(context.m_device, &semaphore_create_info, nullptr, &m_swapchain_semaphore);
-
         VkCommandPoolCreateInfo create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -68,9 +53,6 @@ public:
     ~frame()
     {
         vkDestroyCommandPool(m_context.m_device, m_command_pool, nullptr);
-        //vkDestroySemaphore(m_context.m_device, m_render_finished_semaphore, nullptr);
-        //vkDestroySemaphore(m_context.m_device, m_swapchain_semaphore, nullptr);
-        //vkDestroyFence(m_context.m_device, m_in_flight_fence, nullptr);
     }
 };
 
