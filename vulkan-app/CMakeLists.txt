@@ -21,8 +21,12 @@ target_link_libraries(
 
 target_include_directories(
     vulkan-app
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
     PRIVATE
     ${Vulkan_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/lib/glfw-3.4/include
 )
+
+if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    # target_compile_options(vulkan-app PRIVATE "/W4")
+    target_compile_options(vulkan-app PRIVATE "/std:c++20")
+endif()

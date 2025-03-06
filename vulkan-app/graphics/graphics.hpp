@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
 #include <stdexcept>
 #include <glm/glm.hpp>
 

@@ -4,6 +4,19 @@ add_library(
     mouse.cpp
     )
 
+target_include_directories(
+    vulkan-app-input
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/vulkan-app
+    ${PROJECT_SOURCE_DIR}/lib/glfw-3.4/include
+)
+
+target_link_libraries(
+    vulkan-app-input
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/lib/glfw-3.4/lib-vc2022/glfw3.lib
+)
+
 add_library(
     vulkan-app::input
     ALIAS
