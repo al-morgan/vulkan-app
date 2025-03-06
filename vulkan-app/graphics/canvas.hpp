@@ -67,6 +67,8 @@ public:
     uint32_t get_height();
     void begin_frame();
 
+    operator VkDevice() const { return m_device; }
+
 private:
 
     struct frame

@@ -34,6 +34,7 @@
 #include "graphics/descriptor_set_builder.hpp"
 #include "graphics/recorder.hpp"
 #include "window.hpp"
+#include "graphics/program_builder.hpp"
 
 #include "mesh.hpp"
 
@@ -179,6 +180,11 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
 
     graphics::recorder recorder(canvas);
+
+
+    graphics::program_builder program_builder(canvas);
+    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "./shaders/vertex/simple.spv");
+
 
     // Next: add layout builder
 
