@@ -15,9 +15,23 @@ public:
     program_builder(graphics::canvas& canvas);
     ~program_builder();
     void add_stage(VkShaderStageFlagBits stage, std::string code);
+    void add_set(uint32_t set);
+    void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags);
+    VkPipeline get_result();
 private:
-    graphics::canvas& m_canvas;
-    std::vector<VkShaderModule> m_shader_modules;
+    graphics::canvas&                               m_canvas;
+    std::vector<VkShaderModule>                     m_shader_modules;
+    std::vector<VkPipelineShaderStageCreateInfo>    m_pipeline_shader_stage_cis;
+    //std::vector<VkDescriptorSetLayoutBinding>       m_bindings;
+    std::vector<VkDescriptorSetLayout>              m_set_layouts;
+    std::vector<VkPipelineLayout>                   m_pipeline_layouts;
+    std::vector<VkPipeline>                         m_pipelines;
+    uint32_t                                        m_current_set;
+
+    std::vector<std::vector<VkDescriptorSetLayoutBinding>> m_bindings;
+
+    //VkDescriptorSetLayout                       m_layout = VK_NULL_HANDLE;
+
 };
 
 }

@@ -181,10 +181,15 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     graphics::recorder recorder(canvas);
 
-
     graphics::program_builder program_builder(canvas);
     program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "./shaders/vertex/simple.spv");
-
+    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "./shaders/fragment/simple.spv");
+    program_builder.add_set(0);
+    program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
+    program_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    program_builder.add_set(1);
+    program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    program_builder.get_result();
 
     // Next: add layout builder
 
