@@ -1,3 +1,4 @@
+#include <tuple>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -177,25 +178,34 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     //descriptor_set_builder.set_layout(dynamic_set);
     //VkDescriptorSet descriptor_set_2 = descriptor_set_builder.get_result();
 
-
     graphics::recorder recorder(canvas);
 
+
+
+
     graphics::program_builder program_builder(canvas);
-    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "./shaders/vertex/simple.spv");
-    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "./shaders/fragment/simple.spv");
+
+
     program_builder.add_set(0);
     program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
     program_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    VkDescriptorSet descriptor_set = program_builder.get_descriptor_set();
+
     program_builder.add_set(1);
     program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    VkDescriptorSet descriptor_set_2 = program_builder.get_descriptor_set();
+
+    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "./shaders/vertex/simple.spv");
+    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "./shaders/fragment/simple.spv");
+
     graphics::program program = program_builder.get_program();
-    VkDescriptorSet descriptor_set = program_builder.get_descriptor_set(0);
-    VkDescriptorSet descriptor_set_2 = program_builder.get_descriptor_set(1);
 
     updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
     updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
     // Next: add layout builder
 
+
+    
 
     while (!glfwWindowShouldClose(window.glfw_window))
     {

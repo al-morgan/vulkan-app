@@ -11,7 +11,9 @@ namespace graphics
 {
 
 graphics::program_builder::program_builder(graphics::canvas& canvas) :
-    m_canvas(canvas)
+    m_canvas(canvas),
+    m_set_dirty(false)
+
 {
     VkDescriptorPoolSize types;
     types.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
@@ -94,24 +96,26 @@ void program_builder::add_binding(uint32_t binding,
 
 void graphics::program_builder::add_set(uint32_t set)
 {
+    if (m_set_dirty)
+    {
+        VkDescriptorSetLayout layout;
+        VkDescriptorSetLayoutCreateInfo dsl_ci{};
+        dsl_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        dsl_ci.bindingCount = m_bindings[m_current_set].size();
+        dsl_ci.pBindings = m_bindings[m_current_set].data();
+        vkCreateDescriptorSetLayout(m_canvas, &dsl_ci, nullptr, &layout);
+        m_set_layouts.push_back(layout);
+        m_set_dirty = false;
+    }
+
     m_current_set = set;
     m_bindings.resize(set + 1);
+    m_set_dirty = true;
 }
 
 graphics::program program_builder::get_program()
 {
     VkPipelineLayout layout;
-
-    for (auto set_layout : m_bindings)
-    {
-        VkDescriptorSetLayout layout;
-        VkDescriptorSetLayoutCreateInfo dsl_ci{};
-        dsl_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        dsl_ci.bindingCount = set_layout.size();
-        dsl_ci.pBindings = set_layout.data();
-        vkCreateDescriptorSetLayout(m_canvas, &dsl_ci, nullptr, &layout);
-        m_set_layouts.push_back(layout);
-    }
 
     VkPipelineLayoutCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -226,15 +230,27 @@ graphics::program program_builder::get_program()
 }
 
 
-VkDescriptorSet graphics::program_builder::get_descriptor_set(uint32_t set)
+VkDescriptorSet graphics::program_builder::get_descriptor_set()
 {
+    if (m_set_dirty)
+    {
+        VkDescriptorSetLayout layout;
+        VkDescriptorSetLayoutCreateInfo dsl_ci{};
+        dsl_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        dsl_ci.bindingCount = m_bindings[m_current_set].size();
+        dsl_ci.pBindings = m_bindings[m_current_set].data();
+        vkCreateDescriptorSetLayout(m_canvas, &dsl_ci, nullptr, &layout);
+        m_set_layouts.push_back(layout);
+        m_set_dirty = false;
+    }
+
     VkDescriptorSet descriptor_set;
 
     VkDescriptorSetAllocateInfo alloc_info{};
     alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     alloc_info.descriptorPool = m_descriptor_pool;
     alloc_info.descriptorSetCount = 1;
-    alloc_info.pSetLayouts = &m_set_layouts[set];
+    alloc_info.pSetLayouts = &m_set_layouts[m_current_set];
     vkAllocateDescriptorSets(m_canvas, &alloc_info, &descriptor_set);
 
     return descriptor_set;
