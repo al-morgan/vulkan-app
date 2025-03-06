@@ -35,6 +35,7 @@
 #include "graphics/recorder.hpp"
 #include "window.hpp"
 #include "graphics/program_builder.hpp"
+#include "graphics/program.hpp"
 
 #include "mesh.hpp"
 
@@ -142,42 +143,40 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     // Good stuff starts here
 
-    graphics::shader_builder shader_builder(canvas);
-    shader_builder.set_code("./shaders/vertex/simple.spv");
-    VkShaderModule vertex_shader = shader_builder.get_result();
+    //graphics::shader_builder shader_builder(canvas);
+    //shader_builder.set_code("./shaders/vertex/simple.spv");
+    //VkShaderModule vertex_shader = shader_builder.get_result();
 
-    shader_builder.set_code("./shaders/fragment/simple.spv");
-    VkShaderModule fragment_shader = shader_builder.get_result();
+    //shader_builder.set_code("./shaders/fragment/simple.spv");
+    //VkShaderModule fragment_shader = shader_builder.get_result();
 
-    graphics::set_layout_builder my_builder(canvas);
-    my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    VkDescriptorSetLayout static_set = my_builder.get_result();
+    //graphics::set_layout_builder my_builder(canvas);
+    //my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
+    //my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    //VkDescriptorSetLayout static_set = my_builder.get_result();
 
-    my_builder.reset();
-    my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    VkDescriptorSetLayout dynamic_set = my_builder.get_result();
+    //my_builder.reset();
+    //my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    //VkDescriptorSetLayout dynamic_set = my_builder.get_result();
 
-    graphics::pipeline_layout_builder my_pipeline_layout_builder(canvas);
-    my_pipeline_layout_builder.add_set(0, static_set);
-    my_pipeline_layout_builder.add_set(1, dynamic_set);
-    VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();
+    //graphics::pipeline_layout_builder my_pipeline_layout_builder(canvas);
+    //my_pipeline_layout_builder.add_set(0, static_set);
+    //my_pipeline_layout_builder.add_set(1, dynamic_set);
+    //VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();
 
-    graphics::pipeline_builder pipeline_builder(canvas);
-    pipeline_builder.set_fragment_shader(fragment_shader);
-    pipeline_builder.set_vertex_shader(vertex_shader);
-    pipeline_builder.set_layout(my_layout);
-    VkPipeline pipeline = pipeline_builder.get_result();
+    //graphics::pipeline_builder pipeline_builder(canvas);
+    //pipeline_builder.set_fragment_shader(fragment_shader);
+    //pipeline_builder.set_vertex_shader(vertex_shader);
+    //pipeline_builder.set_layout(my_layout);
+    ////VkPipeline pipeline = pipeline_builder.get_result();
 
-    graphics::descriptor_set_builder descriptor_set_builder(canvas);
-    descriptor_set_builder.set_layout(static_set);
-    VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
+    //graphics::descriptor_set_builder descriptor_set_builder(canvas);
+    //descriptor_set_builder.set_layout(static_set);
+    //VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
 
-    descriptor_set_builder.set_layout(dynamic_set);
-    VkDescriptorSet descriptor_set_2 = descriptor_set_builder.get_result();
+    //descriptor_set_builder.set_layout(dynamic_set);
+    //VkDescriptorSet descriptor_set_2 = descriptor_set_builder.get_result();
 
-    updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
-    updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
 
     graphics::recorder recorder(canvas);
 
@@ -189,9 +188,14 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     program_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
     program_builder.add_set(1);
     program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    program_builder.get_result();
+    graphics::program program = program_builder.get_program();
+    VkDescriptorSet descriptor_set = program_builder.get_descriptor_set(0);
+    VkDescriptorSet descriptor_set_2 = program_builder.get_descriptor_set(1);
 
+    updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
+    updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
     // Next: add layout builder
+
 
     while (!glfwWindowShouldClose(window.glfw_window))
     {
@@ -285,9 +289,9 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
 
-        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, my_layout, 0, bindings.size(), bindings.data(), 0, nullptr);
+        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program, 0, bindings.size(), bindings.data(), 0, nullptr);
         canvas.prepare_swapchain_for_writing(command_buffer);
-        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program);
 
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { mesh.m_mesh_buffer.handle() };

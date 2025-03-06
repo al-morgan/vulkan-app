@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.h>
 
 #include "graphics/canvas.hpp"
+#include "graphics/program.hpp"
 
 namespace graphics
 {
@@ -17,7 +18,8 @@ public:
     void add_stage(VkShaderStageFlagBits stage, std::string code);
     void add_set(uint32_t set);
     void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags);
-    VkPipeline get_result();
+    graphics::program get_program();
+    VkDescriptorSet get_descriptor_set(uint32_t set);
 private:
     graphics::canvas&                               m_canvas;
     std::vector<VkShaderModule>                     m_shader_modules;
@@ -27,6 +29,7 @@ private:
     std::vector<VkPipelineLayout>                   m_pipeline_layouts;
     std::vector<VkPipeline>                         m_pipelines;
     uint32_t                                        m_current_set;
+    VkDescriptorPool                                m_descriptor_pool;
 
     std::vector<std::vector<VkDescriptorSetLayoutBinding>> m_bindings;
 
