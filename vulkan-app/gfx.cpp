@@ -149,8 +149,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
     VkDescriptorSet descriptor_set_2 = program_builder.get_descriptor_set();
 
-    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "simple.vert.spv");
-    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "simple.frag.spv");
+    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "simple.vert");
+    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "simple.frag");
 
     graphics::program program = program_builder.get_program();
 
