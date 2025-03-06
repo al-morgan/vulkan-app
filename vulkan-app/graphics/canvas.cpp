@@ -30,8 +30,8 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_queue_family_properties(get_queue_family_properties(m_physical_device)),
     m_device(create_device(m_physical_device, m_surface, m_queue_family_properties))
 {
-    vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
     graphics_queue.family_index = get_queue_family_index(m_physical_device, m_surface, m_queue_family_properties, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT);
+    vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
     create_swapchain();
 
     VkSemaphoreCreateInfo semaphore_create_info{};
