@@ -136,42 +136,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     uint32_t current_frame = 0;
 
-    // Good stuff starts here
-
-    //graphics::shader_builder shader_builder(canvas);
-    //shader_builder.set_code("./shaders/vertex/simple.spv");
-    //VkShaderModule vertex_shader = shader_builder.get_result();
-
-    //shader_builder.set_code("./shaders/fragment/simple.spv");
-    //VkShaderModule fragment_shader = shader_builder.get_result();
-
-    //graphics::set_layout_builder my_builder(canvas);
-    //my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
-    //my_builder.add_binding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    //VkDescriptorSetLayout static_set = my_builder.get_result();
-
-    //my_builder.reset();
-    //my_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-    //VkDescriptorSetLayout dynamic_set = my_builder.get_result();
-
-    //graphics::pipeline_layout_builder my_pipeline_layout_builder(canvas);
-    //my_pipeline_layout_builder.add_set(0, static_set);
-    //my_pipeline_layout_builder.add_set(1, dynamic_set);
-    //VkPipelineLayout my_layout = my_pipeline_layout_builder.get_result();
-
-    //graphics::pipeline_builder pipeline_builder(canvas);
-    //pipeline_builder.set_fragment_shader(fragment_shader);
-    //pipeline_builder.set_vertex_shader(vertex_shader);
-    //pipeline_builder.set_layout(my_layout);
-    ////VkPipeline pipeline = pipeline_builder.get_result();
-
-    //graphics::descriptor_set_builder descriptor_set_builder(canvas);
-    //descriptor_set_builder.set_layout(static_set);
-    //VkDescriptorSet descriptor_set = descriptor_set_builder.get_result();
-
-    //descriptor_set_builder.set_layout(dynamic_set);
-    //VkDescriptorSet descriptor_set_2 = descriptor_set_builder.get_result();
-
     graphics::recorder recorder(canvas);
 
     graphics::program_builder program_builder(canvas);
