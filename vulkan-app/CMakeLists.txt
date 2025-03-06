@@ -21,6 +21,8 @@ target_link_libraries(
 
 target_include_directories(
     vulkan-app
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
     PRIVATE
     ${Vulkan_INCLUDE_DIRS}
 )

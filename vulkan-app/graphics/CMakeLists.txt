@@ -10,6 +10,20 @@ add_library(
     swapchain.cpp
     )
 
+target_link_libraries(
+    vulkan-app-graphics
+    PRIVATE
+    ${Vulkan_LIBRARIES}
+)
+
+target_include_directories(
+    vulkan-app-graphics
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE
+    ${Vulkan_INCLUDE_DIRS}
+)
+
 add_library(
     vulkan-app::graphics
     ALIAS
