@@ -27,12 +27,6 @@
 #include "graphics/buffer.hpp"
 #include "graphics/image.hpp"
 #include "graphics/frame.hpp"
-#include "graphics/set_layout_builder.hpp"
-#include "graphics/set_builder.hpp"
-#include "graphics/pipeline_layout_builder.hpp"
-#include "graphics/shader_builder.hpp"
-#include "graphics/pipeline_builder.hpp"
-#include "graphics/descriptor_set_builder.hpp"
 #include "graphics/recorder.hpp"
 #include "window.hpp"
 #include "graphics/program_builder.hpp"
@@ -180,11 +174,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     graphics::recorder recorder(canvas);
 
-
-
-
     graphics::program_builder program_builder(canvas);
-
 
     program_builder.add_set(0);
     program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
@@ -202,10 +192,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
     updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
-    // Next: add layout builder
-
-
-    
 
     while (!glfwWindowShouldClose(window.glfw_window))
     {
