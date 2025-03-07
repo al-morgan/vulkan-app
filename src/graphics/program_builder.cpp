@@ -81,6 +81,11 @@ void graphics::program_builder::add_stage(VkShaderStageFlagBits stage,
     m_pipeline_shader_stage_cis.push_back(vertex_stage_create_info);
 }
 
+void graphics::program_builder::reset_stages()
+{
+    m_pipeline_shader_stage_cis.clear();
+}
+
 void program_builder::add_binding(uint32_t binding,
     VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags)
 {

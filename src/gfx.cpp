@@ -151,8 +151,13 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "simple.vert");
     program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "simple.frag");
-
     graphics::program program = program_builder.get_program();
+
+    program_builder.reset_stages();
+    //program_builder.add_stage(VK_SHADER_STAGE_GEOMETRY_BIT, "simple.vert");
+    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "simple.vert");
+    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "simple.frag");
+    graphics::program program2 = program_builder.get_program();
 
     updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
     updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
@@ -256,7 +261,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { mesh.m_mesh_buffer.handle() };
         vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
-
         vkCmdBindIndexBuffer(command_buffer, mesh.m_index_buffer.handle(), 0, VK_INDEX_TYPE_UINT32);
 
         VkMemoryBarrier barrier{};
@@ -266,6 +270,11 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
+        canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
+        vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+        vkCmdEndRendering(command_buffer);
+
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program2);
         canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
         vkCmdEndRendering(command_buffer);

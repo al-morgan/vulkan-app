@@ -16,6 +16,7 @@ public:
     program_builder(graphics::canvas& canvas);
     ~program_builder();
     void add_stage(VkShaderStageFlagBits stage, std::string code);
+    void reset_stages();
     void add_set(uint32_t set);
     void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags);
     graphics::program get_program();
