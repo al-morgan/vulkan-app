@@ -9,6 +9,8 @@ function(add_shader shader_name)
         ${shader_name}.spv
         COMMAND
         glslc -o ${shader_name}.spv ${CMAKE_CURRENT_LIST_DIR}/${shader_name}
+        DEPENDS
+        ${CMAKE_CURRENT_LIST_DIR}/${shader_name}
     )
 
     add_custom_target(
@@ -26,3 +28,7 @@ endfunction()
 
 add_shader(simple.vert)
 add_shader(simple.frag)
+
+add_shader(base.vert)
+add_shader(base.frag)
+add_shader(normaldebug.geom)

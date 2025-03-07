@@ -146,7 +146,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     VkDescriptorSet descriptor_set = program_builder.get_descriptor_set();
 
     program_builder.add_set(1);
-    program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    program_builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
     VkDescriptorSet descriptor_set_2 = program_builder.get_descriptor_set();
 
     program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "simple.vert");
@@ -154,9 +154,9 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     graphics::program program = program_builder.get_program();
 
     program_builder.reset_stages();
-    //program_builder.add_stage(VK_SHADER_STAGE_GEOMETRY_BIT, "simple.vert");
-    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "simple.vert");
-    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "simple.frag");
+    program_builder.add_stage(VK_SHADER_STAGE_GEOMETRY_BIT, "normaldebug.geom");
+    program_builder.add_stage(VK_SHADER_STAGE_VERTEX_BIT, "base.vert");
+    program_builder.add_stage(VK_SHADER_STAGE_FRAGMENT_BIT, "base.frag");
     graphics::program program2 = program_builder.get_program();
 
     updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
@@ -272,15 +272,19 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
-        vkCmdEndRendering(command_buffer);
+        //vkCmdEndRendering(command_buffer);
+
+
+        //barrier.srcAccessMask = VK_ACCESS_NONE;
+        //barrier.dstAccessMask = VK_ACCESS_NONE;
+        //vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program2);
-        canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
+        //canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
         vkCmdEndRendering(command_buffer);
 
         canvas.prepare_swapchain_for_presentation(command_buffer);
-
         vkEndCommandBuffer(command_buffer);
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
