@@ -38,6 +38,12 @@ static void key_press_callback(GLFWwindow* window, int key, int scancode, int ac
     case GLFW_KEY_D:
         which_key = KEY_RIGHT;
         break;
+    case GLFW_KEY_C:
+        which_key = KEY_DOWN;
+        break;
+    case GLFW_KEY_SPACE:
+        which_key = KEY_UP;
+        break;
     default:
         return;
     }

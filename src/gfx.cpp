@@ -101,6 +101,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             point[2] = noise.get(point[0], point[1]) * 10.0f;
             point[2] += noise.get(point[0], point[1]) * 100.0f;
 
+            //point[2] = std::sin(static_cast<float>(x) / 5.f) * 100.f + std::sin(static_cast<float>(y) / 5.f) * 100.f;
             mesh.set(x, y, point);
         }
     }
@@ -110,7 +111,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     //graphics::swapchain swapchain(canvas, WIDTH, HEIGHT, canvas.m_surface);
     graphics::image depth_buffer(canvas, canvas.get_width(), canvas.get_height(), VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
-    glm::vec3 position(500.f, 500.f, 100.f);
+    glm::vec3 position(500.f, 500.f, 200.f);
     glm::vec3 direction(1.0f, 0.0f, 0.0f);
 
     double fall_speed = 0.0;
@@ -193,17 +194,17 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         float speed = 0.1f;
 
-        if (position[2] < floor)
-        {
-            position[2] = floor;
-            jumping = false;
-        }
-        else
-        {
-            fall_speed += .0001f;
-        }
+        //if (position[2] < floor)
+        //{
+        //    position[2] = floor;
+        //    jumping = false;
+        //}
+        //else
+        //{
+        //    fall_speed += .0001f;
+        //}
 
-        position[2] = 200.f;
+        //position[2] = 200.f;
 
         if (input::is_pressed(input::KEY_FORWARD))
         {
@@ -225,9 +226,14 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             position -= left * speed;
         }
 
-        if (position[2] < 199.f)
+        if (input::is_pressed(input::KEY_DOWN))
         {
-            throw std::runtime_error("WHAT");
+            position[2] -= speed;
+        }
+
+        if (input::is_pressed(input::KEY_UP))
+        {
+            position[2] += speed;
         }
 
         ubo->view = glm::lookAt(position, position + direction, glm::vec3(0.0f, 0.0f, 1.0f));

@@ -6,6 +6,8 @@ enum keys
     KEY_BACKWARD,
     KEY_LEFT,
     KEY_RIGHT,
+    KEY_DOWN,
+    KEY_UP,
     KEY_COUNT
 };
 

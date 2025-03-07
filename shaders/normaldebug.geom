@@ -16,7 +16,7 @@ layout (location = 0) out vec3 outColor;
 
 void main(void)
 {	
-	float normalLength = 20.0;
+	float normalLength = 10.0;
 	for(int i=0; i<gl_in.length(); i++)
 	{
 		vec3 pos = gl_in[i].gl_Position.xyz;
