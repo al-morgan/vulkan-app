@@ -31,27 +31,6 @@ if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(vulkan-app PRIVATE "/std:c++20")
 endif()
 
-add_custom_command(
-    OUTPUT
-    simple.vert.spv
-    COMMAND
-    glslc -o simple.vert.spv ${PROJECT_SOURCE_DIR}/shaders/vertex/simple.vert
-)
-
-add_custom_command(
-    OUTPUT
-    simple.frag.spv
-    COMMAND
-    glslc -o simple.frag.spv ${PROJECT_SOURCE_DIR}/shaders/fragment/simple.frag
-)
-
-add_custom_target(
-    shaders
-    DEPENDS
-    simple.vert.spv
-    simple.frag.spv
-)
-
 add_dependencies(
     vulkan-app
     shaders 

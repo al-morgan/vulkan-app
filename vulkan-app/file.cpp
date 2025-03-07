@@ -1,7 +1,9 @@
 // File utilities
 
-#include <vector>
 #include <fstream>
+#include <iosfwd>
+#include <vector>
+#include <stdexcept>
 #include <string>
 
 #include "file.hpp"

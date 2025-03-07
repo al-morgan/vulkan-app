@@ -64,7 +64,7 @@ void graphics::program_builder::add_stage(VkShaderStageFlagBits stage,
     VkShaderModuleCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 
-    buffer = app::read_file(code + ".spv");
+    buffer = app::read_file("../shaders/" + code + ".spv");
     create_info.pCode = reinterpret_cast<uint32_t*>(buffer.data());
     create_info.codeSize = buffer.size();
     vkCreateShaderModule(m_canvas, &create_info, nullptr, &shader_module);

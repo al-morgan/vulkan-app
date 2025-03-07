@@ -5,5 +5,7 @@
 
 namespace app
 {
+
 std::vector<char> read_file(std::string filename);
+
 }
