@@ -48,9 +48,15 @@ public:
 
     // Frame
 
-    std::vector<VkFence>                    m_in_flight_fences;
-    std::vector<VkSemaphore>                m_render_finished_semaphores;
-    std::vector<VkSemaphore>                m_swapchain_semaphores;
+    typedef struct
+    {
+        VkFence     in_flight_fence;
+        VkSemaphore render_finished_semaphore;
+        VkSemaphore swapchain_semaphore;
+    } frame;
+
+    std::vector<graphics::canvas::frame>    m_frames;
+
     uint32_t                                m_frame_index = 0;
 
     std::vector<VkDeviceMemory> allocated_device_memory;
