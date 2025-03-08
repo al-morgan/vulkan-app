@@ -183,14 +183,6 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
     allocated_device_memory.push_back(device_memory);
 }
 
-void graphics::canvas::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
-{
-}
-
-void graphics::canvas::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
-{
-}
-
 void graphics::canvas::present()
 {
     VkPresentInfoKHR present_info{};

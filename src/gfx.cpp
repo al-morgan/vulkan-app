@@ -263,7 +263,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
 
         vkCmdBindDescriptorSets(recorder, VK_PIPELINE_BIND_POINT_GRAPHICS, program, 0, bindings.size(), bindings.data(), 0, nullptr);
-        canvas.prepare_swapchain_for_writing(recorder);
 
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { mesh.m_mesh_buffer.handle() };

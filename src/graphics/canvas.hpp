@@ -73,8 +73,6 @@ public:
     void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
     VkImageView image_view() { return m_framebuffers[m_framebuffer_index].image_view; };
-    void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
-    void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
     void present();
     uint32_t get_width();
     void begin_frame(VkCommandBuffer command_buffer);
