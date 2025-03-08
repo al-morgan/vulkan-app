@@ -7,6 +7,7 @@ add_library(
 target_include_directories(
     vulkan-app-input
     PRIVATE
+    ${Vulkan_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/lib/glfw-3.4/include
 )

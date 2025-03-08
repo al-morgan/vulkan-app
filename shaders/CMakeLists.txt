@@ -29,10 +29,10 @@ function(add_shader shader_name)
     )
 
     get_target_property(shaders_sources shaders_build SOURCES)
-    if(shaders_sources STREQUAL "shaders_sources-NOTFOUND")
+    if(NOT shaders_sources)
         set(shaders_sources "")
     endif()
-#        set_target_properties(shaders PROPERTIES SOURCES "${shaders_sources}")
+
     list(APPEND shaders_sources ${shader_name})
     set_target_properties(shaders_build PROPERTIES SOURCES "${shaders_sources}")
 

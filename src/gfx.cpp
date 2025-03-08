@@ -5,8 +5,6 @@
 #include <ctime>
 #include <chrono>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-
 #include <vulkan/vulkan.h>
 
 
@@ -15,9 +13,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
 #include "input/keyboard.hpp"
@@ -299,7 +295,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program2);
         //canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
-        vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+        //vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
         vkCmdEndRendering(command_buffer);
 
         canvas.prepare_swapchain_for_presentation(command_buffer);

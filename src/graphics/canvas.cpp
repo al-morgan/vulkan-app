@@ -1,9 +1,9 @@
+
 #include <iostream>
 #include <vector>
 #include <optional>
 
 #include <Windows.h>
-#define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
 #include "graphics/graphics.hpp"

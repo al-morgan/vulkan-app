@@ -1,3 +1,9 @@
+add_compile_options("/std:c++20")
+
+add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
+add_compile_definitions(GLFW_INCLUDE_VULKAN)
+add_compile_definitions(GLFW_EXPOSE_NATIVE_WIN32)
+
 add_subdirectory(graphics)
 add_subdirectory(input)
 

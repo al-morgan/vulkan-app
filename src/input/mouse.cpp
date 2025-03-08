@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <stdexcept>
 
 #include <GLFW/glfw3.h>
@@ -19,6 +20,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
     yaw += (xpos)*sensitivity;
     pitch += (ypos)*sensitivity;
+    pitch = std::clamp(pitch, -3.14159 / 2, 3.14159 / 2);
 
     glfwSetCursorPos(window, 0.0, 0.0);
 }
