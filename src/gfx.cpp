@@ -284,14 +284,10 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
         recorder.end_rendering();
 
-        //canvas.prepare_swapchain_for_presentation(recorder);
         canvas.end_frame();
         recorder.end_frame();
 
-        VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-        canvas.submit(recorder, wait_stage);
-        canvas.present();
+        canvas.submit();
     }
 
     vkDeviceWaitIdle(canvas.m_device);

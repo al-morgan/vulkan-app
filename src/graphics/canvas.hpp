@@ -69,7 +69,7 @@ public:
     ~canvas();
 
     void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout) const;
-    void submit(VkCommandBuffer command_buffer, VkPipelineStageFlags wait_stage);
+    void submit();
     void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
     VkImageView image_view() { return m_framebuffers[m_framebuffer_index].image_view; };

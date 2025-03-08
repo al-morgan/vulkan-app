@@ -145,18 +145,29 @@ void graphics::canvas::transition_image(VkCommandBuffer command_buffer,
     vkCmdPipelineBarrier(command_buffer, source_stage, desintation_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
-void graphics::canvas::submit(VkCommandBuffer command_buffer, VkPipelineStageFlags wait_stage)
+void graphics::canvas::submit()
 {
+    VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
     VkSubmitInfo submit_info{};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &command_buffer;
+    submit_info.pCommandBuffers = &m_command_buffer;
     submit_info.pWaitSemaphores = &m_frames[m_frame_index].swapchain_semaphore;
     submit_info.waitSemaphoreCount = 1;
     submit_info.pWaitDstStageMask = &wait_stage;
     submit_info.pSignalSemaphores = &m_frames[m_frame_index].render_finished_semaphore;
     submit_info.signalSemaphoreCount = 1;
     vkQueueSubmit(graphics_queue.handle, 1, &submit_info, m_frames[m_frame_index].in_flight_fence);
+
+    VkPresentInfoKHR present_info{};
+    present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present_info.pSwapchains = &m_swapchain;
+    present_info.swapchainCount = 1;
+    present_info.pWaitSemaphores = &m_frames[m_frame_index].render_finished_semaphore;
+    present_info.waitSemaphoreCount = 1;
+    present_info.pImageIndices = &m_framebuffer_index;
+    vkQueuePresentKHR(graphics_queue.handle, &present_info);
 }
 
 void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
@@ -185,14 +196,6 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
 
 void graphics::canvas::present()
 {
-    VkPresentInfoKHR present_info{};
-    present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    present_info.pSwapchains = &m_swapchain;
-    present_info.swapchainCount = 1;
-    present_info.pWaitSemaphores = &m_frames[m_frame_index].render_finished_semaphore;
-    present_info.waitSemaphoreCount = 1;
-    present_info.pImageIndices = &m_framebuffer_index;
-    vkQueuePresentKHR(graphics_queue.handle, &present_info);
 }
 
 uint32_t graphics::canvas::get_height()
