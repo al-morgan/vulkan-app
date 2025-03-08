@@ -1,7 +1,15 @@
+// canvas
+//
+// Holds Vulkan items that are global to the application, such as:
+//
+// * instance
+// * physical device
+// * device
+// * queues
+// * swapchain
 
 #include <iostream>
 #include <vector>
-#include <optional>
 
 #include <Windows.h>
 #include <vulkan/vulkan.h>
@@ -18,6 +26,7 @@ static std::vector<VkQueueFamilyProperties> get_queue_family_properties(VkPhysic
 static VkDevice create_device(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties);
 static uint32_t get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties, VkQueueFlags flags);
 
+// Initialize a canvas with a specific width and height
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_width(width),
     m_height(height),
@@ -30,8 +39,11 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_queue_family_properties(get_queue_family_properties(m_physical_device)),
     m_device(create_device(m_physical_device, m_surface, m_queue_family_properties))
 {
+    // Get a graphics/transfer queue. Just one for now.
     graphics_queue.family_index = get_queue_family_index(m_physical_device, m_surface, m_queue_family_properties, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT);
     vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
+
+    // Create a swapchain
     create_swapchain();
 
     VkSemaphoreCreateInfo semaphore_create_info{};
