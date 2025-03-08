@@ -284,14 +284,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         recorder.begin_rendering(canvas.get_width(), canvas.get_height(), canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
 
-        //vkCmdEndRendering(command_buffer);
-        //barrier.srcAccessMask = VK_ACCESS_NONE;
-        //barrier.dstAccessMask = VK_ACCESS_NONE;
-        //vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
-
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program2);
-        //canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
-        //vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
         vkCmdEndRendering(command_buffer);
 
         canvas.prepare_swapchain_for_presentation(command_buffer);
