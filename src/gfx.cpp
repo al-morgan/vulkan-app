@@ -183,12 +183,9 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         glfwPollEvents();
 
-        VkCommandBuffer command_buffer;
 
         canvas.begin_frame();
         recorder.begin_frame();
-
-        command_buffer = recorder.get_command_buffer();
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
@@ -256,44 +253,44 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         if (frame_count == 1)
         {
-            mesh.copy(command_buffer);
+            mesh.copy(recorder);
         }
 
-        frame_set[current_frame].ubuffer.copy(command_buffer);
+        frame_set[current_frame].ubuffer.copy(recorder);
 
-        depth_buffer.transition(command_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
+        depth_buffer.transition(recorder, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
 
         std::vector<VkDescriptorSet> bindings = { descriptor_set, descriptor_set_2 };
 
-        vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program, 0, bindings.size(), bindings.data(), 0, nullptr);
-        canvas.prepare_swapchain_for_writing(command_buffer);
+        vkCmdBindDescriptorSets(recorder, VK_PIPELINE_BIND_POINT_GRAPHICS, program, 0, bindings.size(), bindings.data(), 0, nullptr);
+        canvas.prepare_swapchain_for_writing(recorder);
 
         VkDeviceSize offset = 0;
         VkBuffer buffers[] = { mesh.m_mesh_buffer.handle() };
-        vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, &offset);
-        vkCmdBindIndexBuffer(command_buffer, mesh.m_index_buffer.handle(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindVertexBuffers(recorder, 0, 1, buffers, &offset);
+        vkCmdBindIndexBuffer(recorder, mesh.m_index_buffer.handle(), 0, VK_INDEX_TYPE_UINT32);
 
         VkMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 
-        vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+        vkCmdPipelineBarrier(recorder, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
         recorder.begin_rendering(canvas.get_width(), canvas.get_height(), canvas.image_view(), depth_buffer.view());
         recorder.use_program(program);
-        vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
 
         recorder.use_program(program2);
-        vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
         recorder.end_rendering();
 
-        canvas.prepare_swapchain_for_presentation(command_buffer);
-        vkEndCommandBuffer(command_buffer);
+        canvas.prepare_swapchain_for_presentation(recorder);
+        vkEndCommandBuffer(recorder);
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        canvas.submit(command_buffer, wait_stage);
+        canvas.submit(recorder, wait_stage);
         canvas.present();
     }
 

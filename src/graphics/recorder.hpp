@@ -16,15 +16,14 @@ class recorder
 public:
     recorder(graphics::canvas& canvas);
     ~recorder();
+    recorder(graphics::recorder&) = delete;
 
     void begin_frame();
     void begin_rendering(uint32_t width, uint32_t height, VkImageView color_view, VkImageView depth_view);
-
     void use_program(graphics::program& program);
-
     void end_rendering();
 
-    recorder(graphics::recorder&) = delete;
+    operator VkCommandBuffer() { return m_frames[m_frame_index].command_buffer; }
 
     VkCommandBuffer get_command_buffer();
 
