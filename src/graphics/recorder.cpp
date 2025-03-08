@@ -91,6 +91,11 @@ void graphics::recorder::use_program(graphics::program& program)
     vkCmdBindPipeline(m_frames[m_frame_index].command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program);
 }
 
+void graphics::recorder::end_rendering()
+{
+    vkCmdEndRendering(m_frames[m_frame_index].command_buffer);
+}
+
 
 VkCommandBuffer graphics::recorder::get_command_buffer()
 {

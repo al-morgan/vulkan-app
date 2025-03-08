@@ -286,7 +286,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         recorder.use_program(program2);
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
-        vkCmdEndRendering(command_buffer);
+        recorder.end_rendering();
 
         canvas.prepare_swapchain_for_presentation(command_buffer);
         vkEndCommandBuffer(command_buffer);

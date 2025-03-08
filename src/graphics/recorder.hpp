@@ -22,6 +22,8 @@ public:
 
     void use_program(graphics::program& program);
 
+    void end_rendering();
+
     recorder(graphics::recorder&) = delete;
 
     VkCommandBuffer get_command_buffer();
