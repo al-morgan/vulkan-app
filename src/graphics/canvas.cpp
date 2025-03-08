@@ -46,12 +46,11 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     // Create a swapchain
     create_swapchain();
 
-    VkSemaphoreCreateInfo semaphore_create_info{};
-    semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_semaphore);
-
     for (auto& frame : m_frames)
     {
+        VkSemaphoreCreateInfo semaphore_create_info{};
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
         vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &frame.render_finished_semaphore);
         vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &frame.swapchain_semaphore);
 
@@ -125,8 +124,6 @@ graphics::canvas::~canvas()
     {
         vkFreeMemory(m_device, device_memory, nullptr);
     }
-
-    vkDestroySemaphore(m_device, m_semaphore, nullptr);
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(m_framebuffers.size()); i++)
     {
