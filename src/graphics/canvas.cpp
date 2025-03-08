@@ -25,6 +25,10 @@ static VkSurfaceKHR create_surface(VkInstance instance, HWND window_handle);
 static std::vector<VkQueueFamilyProperties> get_queue_family_properties(VkPhysicalDevice physical_device);
 static VkDevice create_device(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties);
 static uint32_t get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties, VkQueueFlags flags);
+static VkSwapchainKHR create_swapchain(VkDevice device, VkSurfaceKHR surface, uint32_t width, uint32_t height);
+static std::vector<VkImage> create_swapchain_images(VkDevice device, VkSwapchainKHR swapchain);
+static std::vector<VkImageView> create_swapchain_image_views(VkDevice device, std::vector<VkImage>& images);
+
 
 // Initialize a canvas with a specific width and height
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
@@ -37,15 +41,17 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_memory_type_host_coherent(get_memory_type_index(m_memory_properties, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)),
     m_surface(create_surface(m_instance, window_handle)),
     m_queue_family_properties(get_queue_family_properties(m_physical_device)),
-    m_device(create_device(m_physical_device, m_surface, m_queue_family_properties))
+    m_device(create_device(m_physical_device, m_surface, m_queue_family_properties)),
+    m_swapchain(create_swapchain(m_device, m_surface, m_width, m_height)),
+    m_swapchain_images(create_swapchain_images(m_device, m_swapchain)),
+    m_swapchain_image_views(create_swapchain_image_views(m_device, m_swapchain_images))
 {
     // Get a graphics/transfer queue. Just one for now.
     graphics_queue.family_index = get_queue_family_index(m_physical_device, m_surface, m_queue_family_properties, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT);
     vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
 
-    // Create a swapchain
-    create_swapchain();
-
+    // Create the per-frame semaphores and fences needed to synchronize
+    // swapchain acquisition and rendering.
     for (auto& frame : m_frames)
     {
         VkSemaphoreCreateInfo semaphore_create_info{};
@@ -61,15 +67,17 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     }
 }
 
-void graphics::canvas::create_swapchain()
+static VkSwapchainKHR create_swapchain(VkDevice device, VkSurfaceKHR surface, uint32_t width, uint32_t height)
 {
+    VkSwapchainKHR swapchain;
+
     VkExtent2D extent{};
-    extent.width = m_width;
-    extent.height = m_height;
+    extent.width = width;
+    extent.height = height;
 
     VkSwapchainCreateInfoKHR create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = m_surface;
+    create_info.surface = surface;
     create_info.minImageCount = 3;
     create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
     create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
@@ -82,31 +90,46 @@ void graphics::canvas::create_swapchain()
     create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
     create_info.clipped = VK_TRUE;
     create_info.oldSwapchain = VK_NULL_HANDLE;
-    vkCreateSwapchainKHR(m_device, &create_info, nullptr, &m_swapchain);
+    vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
 
-    uint32_t swapchain_image_count;
+    return swapchain;
+}
+
+
+static std::vector<VkImage> create_swapchain_images(VkDevice device, VkSwapchainKHR swapchain)
+{
+    uint32_t count;
     std::vector<VkImage> images;
-    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, nullptr);
-    images.resize(swapchain_image_count);
-    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, images.data());
+    
+    vkGetSwapchainImagesKHR(device, swapchain, &count, nullptr);
+    images.resize(count);
+    vkGetSwapchainImagesKHR(device, swapchain, &count, images.data());
+    
+    return images;
+}
 
-    m_framebuffers.resize(swapchain_image_count);
-
-    for (uint32_t i = 0; i < swapchain_image_count; i++)
+static std::vector<VkImageView> create_swapchain_image_views(VkDevice device, std::vector<VkImage>& images)
+{
+    std::vector<VkImageView> views;
+    
+    for (VkImage image : images)
     {
-        m_framebuffers[i].index = i;
-        m_framebuffers[i].image = images[i];
+        VkImageView view;
 
         VkImageViewCreateInfo image_view_create_info{};
         image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.image = m_framebuffers[i].image;
+        image_view_create_info.image = image;
         image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
         image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         image_view_create_info.subresourceRange.layerCount = 1;
         image_view_create_info.subresourceRange.levelCount = 1;
-        vkCreateImageView(m_device, &image_view_create_info, nullptr, &m_framebuffers[i].view);
+        vkCreateImageView(device, &image_view_create_info, nullptr, &view);
+
+        views.push_back(view);
     }
+
+    return views;
 }
 
 graphics::canvas::~canvas()
@@ -125,9 +148,9 @@ graphics::canvas::~canvas()
         vkFreeMemory(m_device, device_memory, nullptr);
     }
 
-    for (uint32_t i = 0; i < static_cast<uint32_t>(m_framebuffers.size()); i++)
+    for (uint32_t i = 0; i < static_cast<uint32_t>(m_swapchain_image_views.size()); i++)
     {
-        vkDestroyImageView(m_device, m_framebuffers[i].view, nullptr);
+        vkDestroyImageView(m_device, m_swapchain_image_views[i], nullptr);
     }
 
     vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
@@ -244,15 +267,14 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
 void graphics::canvas::get_next_framebuffer()
 {
     uint32_t image_index = 0;
-    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_current_frame].swapchain_semaphore, nullptr, &image_index);
-    m_current_framebuffer = m_framebuffers[image_index];
-}
+    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_current_frame].swapchain_semaphore, nullptr, &m_swapchain_index);
+    }
 
 void graphics::canvas::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
 {
     transition_image(
         command_buffer,
-        m_current_framebuffer.image,
+        m_swapchain_images[m_swapchain_index],
         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
         VK_ACCESS_NONE,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -266,7 +288,7 @@ void graphics::canvas::prepare_swapchain_for_presentation(VkCommandBuffer comman
 {
     transition_image(
         command_buffer,
-        m_current_framebuffer.image,
+        m_swapchain_images[m_swapchain_index],
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
@@ -284,7 +306,7 @@ void graphics::canvas::present()
     present_info.swapchainCount = 1;
     present_info.pWaitSemaphores = &m_frames[m_current_frame].render_finished_semaphore;
     present_info.waitSemaphoreCount = 1;
-    present_info.pImageIndices = &m_current_framebuffer.index;
+    present_info.pImageIndices = &m_swapchain_index;
     vkQueuePresentKHR(graphics_queue.handle, &present_info);
 }
 

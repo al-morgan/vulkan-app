@@ -19,12 +19,12 @@ struct queue
 
 class canvas
 {
-    struct framebuffer
-    {
-        VkImage     image;
-        VkImageView view;
-        uint32_t    index;
-    };
+    //struct framebuffer
+    //{
+    //    VkImage     image;
+    //    VkImageView view;
+    //    uint32_t    index;
+    //};
 
 public:
     uint32_t                                m_width;
@@ -39,8 +39,12 @@ public:
 
     VkDevice                    m_device;
     VkSwapchainKHR              m_swapchain;
-    std::vector<framebuffer>    m_framebuffers;
-    framebuffer                 m_current_framebuffer;
+    std::vector<VkImage>        m_swapchain_images;
+    std::vector<VkImageView>    m_swapchain_image_views;
+    uint32_t                    m_swapchain_index;
+
+    //std::vector<framebuffer>    m_framebuffers;
+    //framebuffer                 m_current_framebuffer;
 
     std::vector<VkDeviceMemory> allocated_device_memory;
     graphics::queue             graphics_queue;
@@ -57,7 +61,7 @@ public:
     void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
     void get_next_framebuffer();
-    VkImageView image_view() { return m_current_framebuffer.view; };
+    VkImageView image_view() { return m_swapchain_image_views[m_swapchain_index]; };
     void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
     void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
     void present();
@@ -79,7 +83,7 @@ private:
     std::array<graphics::canvas::frame, graphics::NUM_FRAMES> m_frames;
     uint32_t m_current_frame = 0;
 
-    void create_swapchain();
+    //void create_swapchain();
 };
 
 }
