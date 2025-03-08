@@ -17,6 +17,9 @@
 #include "graphics/graphics.hpp"
 #include "graphics/canvas.hpp"
 
+// Number of frames to use for fences/semaphores
+constexpr uint32_t num_frames = 2;
+
 static VkInstance create_instance();
 static VkPhysicalDevice get_physical_device(VkInstance instance);
 static VkPhysicalDeviceMemoryProperties get_memory_properties(VkPhysicalDevice physical_device);
@@ -28,6 +31,8 @@ static VkSwapchainKHR create_swapchain(VkDevice device, VkSurfaceKHR surface, ui
 static std::vector<VkImage> create_swapchain_images(VkDevice device, VkSwapchainKHR swapchain);
 static std::vector<VkImageView> create_swapchain_image_views(VkDevice device, std::vector<VkImage>& images);
 static uint32_t get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties, VkQueueFlags flags);
+static std::vector<VkFence> create_fences(VkDevice m_device, uint32_t count);
+static std::vector<VkSemaphore> create_semaphores(VkDevice m_device, uint32_t count);
 
 // Initialize a canvas with a specific width and height
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
@@ -43,27 +48,49 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     m_device(create_device(m_physical_device, m_surface, m_queue_family_properties)),
     m_swapchain(create_swapchain(m_device, m_surface, m_width, m_height)),
     m_swapchain_images(create_swapchain_images(m_device, m_swapchain)),
-    m_swapchain_image_views(create_swapchain_image_views(m_device, m_swapchain_images))
+    m_swapchain_image_views(create_swapchain_image_views(m_device, m_swapchain_images)),
+    m_in_flight_fences(create_fences(m_device, num_frames)),
+    m_render_finished_semaphores(create_semaphores(m_device, num_frames)),
+    m_swapchain_semaphores(create_semaphores(m_device, num_frames))
 {
     // Get a graphics/transfer queue. Just one for now.
     graphics_queue.family_index = get_queue_family_index(m_physical_device, m_surface, m_queue_family_properties, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT);
     vkGetDeviceQueue(m_device, graphics_queue.family_index, 0, &graphics_queue.handle);
+}
 
-    // Create the per-frame semaphores and fences needed to synchronize
-    // swapchain acquisition and rendering.
-    for (auto& frame : m_frames)
+static std::vector<VkFence> create_fences(VkDevice m_device, uint32_t count)
+{
+    std::vector<VkFence> fences;
+
+    for (uint32_t i = 0; i < count; i++)
     {
-        VkSemaphoreCreateInfo semaphore_create_info{};
-        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &frame.render_finished_semaphore);
-        vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &frame.swapchain_semaphore);
-
+        VkFence fence;
         VkFenceCreateInfo fence_create_info{};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-        vkCreateFence(m_device, &fence_create_info, nullptr, &frame.in_flight_fence);
+
+        vkCreateFence(m_device, &fence_create_info, nullptr, &fence);
+        fences.push_back(fence);
     }
+
+    return fences;
+}
+
+static std::vector<VkSemaphore> create_semaphores(VkDevice m_device, uint32_t count)
+{
+    std::vector<VkSemaphore> semaphores;
+
+    for (uint32_t i = 0; i < count; i++)
+    {
+        VkSemaphore semaphore;
+        VkSemaphoreCreateInfo semaphore_create_info{};
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &semaphore);
+        semaphores.push_back(semaphore);
+    }
+
+    return semaphores;
 }
 
 
@@ -72,11 +99,19 @@ graphics::canvas::~canvas()
 {
     vkDeviceWaitIdle(m_device);
 
-    for (auto& frame : m_frames)
+    for (auto fence : m_in_flight_fences)
     {
-        vkDestroySemaphore(m_device, frame.render_finished_semaphore, nullptr);
-        vkDestroySemaphore(m_device, frame.swapchain_semaphore, nullptr);
-        vkDestroyFence(m_device, frame.in_flight_fence, nullptr);
+        vkDestroyFence(m_device, fence, nullptr);
+    }
+
+    for (auto semaphore : m_render_finished_semaphores)
+    {
+        vkDestroySemaphore(m_device, semaphore, nullptr);
+    }
+
+    for (auto semaphore : m_swapchain_semaphores)
+    {
+        vkDestroySemaphore(m_device, semaphore, nullptr);
     }
 
     for (auto device_memory : allocated_device_memory)
@@ -168,12 +203,12 @@ void graphics::canvas::submit(VkCommandBuffer command_buffer, VkPipelineStageFla
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &command_buffer;
-    submit_info.pWaitSemaphores = &m_frames[m_current_frame].swapchain_semaphore;
+    submit_info.pWaitSemaphores = &m_swapchain_semaphores[m_frame_index];
     submit_info.waitSemaphoreCount = 1;
     submit_info.pWaitDstStageMask = &wait_stage;
-    submit_info.pSignalSemaphores = &m_frames[m_current_frame].render_finished_semaphore;
+    submit_info.pSignalSemaphores = &m_render_finished_semaphores[m_frame_index];
     submit_info.signalSemaphoreCount = 1;
-    vkQueueSubmit(graphics_queue.handle, 1, &submit_info, m_frames[m_current_frame].in_flight_fence);
+    vkQueueSubmit(graphics_queue.handle, 1, &submit_info, m_in_flight_fences[m_frame_index]);
 }
 
 void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size)
@@ -234,7 +269,7 @@ void graphics::canvas::present()
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     present_info.pSwapchains = &m_swapchain;
     present_info.swapchainCount = 1;
-    present_info.pWaitSemaphores = &m_frames[m_current_frame].render_finished_semaphore;
+    present_info.pWaitSemaphores = &m_render_finished_semaphores[m_frame_index];
     present_info.waitSemaphoreCount = 1;
     present_info.pImageIndices = &m_swapchain_index;
     vkQueuePresentKHR(graphics_queue.handle, &present_info);
@@ -252,10 +287,10 @@ uint32_t graphics::canvas::get_width()
 
 void graphics::canvas::begin_frame()
 {
-    vkWaitForFences(m_device, 1, &m_frames[m_current_frame].in_flight_fence, VK_TRUE, UINT64_MAX);
-    m_current_frame = (m_current_frame + 1) % m_frames.size();
-    vkResetFences(m_device, 1, &m_frames[m_current_frame].in_flight_fence);
-    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_current_frame].swapchain_semaphore, nullptr, &m_swapchain_index);
+    vkWaitForFences(m_device, 1, &m_in_flight_fences[m_frame_index], VK_TRUE, UINT64_MAX);
+    m_frame_index = (m_frame_index + 1) % num_frames;
+    vkResetFences(m_device, 1, &m_in_flight_fences[m_frame_index]);
+    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_swapchain_semaphores[m_frame_index], nullptr, &m_swapchain_index);
 }
 
 static VkInstance create_instance()

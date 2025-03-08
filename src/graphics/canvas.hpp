@@ -19,14 +19,10 @@ struct queue
 
 class canvas
 {
-    //struct framebuffer
-    //{
-    //    VkImage     image;
-    //    VkImageView view;
-    //    uint32_t    index;
-    //};
-
 public:
+
+    // Device
+
     uint32_t                                m_width;
     uint32_t                                m_height;
     VkInstance                              m_instance;
@@ -36,12 +32,21 @@ public:
     uint32_t                                m_memory_type_host_coherent;
     VkSurfaceKHR                            m_surface;
     std::vector<VkQueueFamilyProperties>    m_queue_family_properties;
-
     VkDevice                                m_device;
+
+    // Swapchain
+
     VkSwapchainKHR                          m_swapchain;
     std::vector<VkImage>                    m_swapchain_images;
     std::vector<VkImageView>                m_swapchain_image_views;
     uint32_t                                m_swapchain_index = 0;
+
+    // Frame
+
+    std::vector<VkFence>        m_in_flight_fences;
+    std::vector<VkSemaphore>    m_render_finished_semaphores;
+    std::vector<VkSemaphore>    m_swapchain_semaphores;
+    uint32_t                    m_frame_index = 0;
 
     std::vector<VkDeviceMemory> allocated_device_memory;
     
@@ -72,16 +77,6 @@ public:
     operator VkDevice() const { return m_device; }
 
 private:
-
-    struct frame
-    {
-        VkFence     in_flight_fence;
-        VkSemaphore render_finished_semaphore;
-        VkSemaphore swapchain_semaphore;
-    };
-
-    std::array<graphics::canvas::frame, graphics::NUM_FRAMES> m_frames;
-    uint32_t m_current_frame = 0;
 
     //void create_swapchain();
 };
