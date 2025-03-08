@@ -1,5 +1,6 @@
 #include <tuple>
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
@@ -98,13 +99,25 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
             point[0] = static_cast<float>(x) * 10;
             point[1] = static_cast<float>(y) * 10;
-            point[2] = noise.get(point[0], point[1]) * 10.0f;
-            point[2] += noise.get(point[0], point[1]) * 100.0f;
-
-            //point[2] = std::sin(static_cast<float>(x) / 5.f) * 100.f + std::sin(static_cast<float>(y) / 5.f) * 100.f;
+            point[2] = noise.get(point[0] * 1, point[1] * 1) * 100.0f;
             mesh.set(x, y, point);
         }
     }
+
+    //std::ofstream myfile;
+    //myfile.open("terrain.obj", std::ofstream::out | std::ofstream::trunc);
+    //
+    //for (uint32_t i = 0; i < mesh.m_mesh.size(); i++)
+    //{
+    //    myfile << "v " << mesh.m_mesh[i].pos[0] << " " << mesh.m_mesh[i].pos[2] << " " << mesh.m_mesh[i].pos[1] << std::endl;
+    //}
+
+    //for (uint32_t i = 0; i < mesh.m_indices.size(); i += 3)
+    //{
+    //    myfile << "f " << mesh.m_indices[i] + 1 << " " << mesh.m_indices[i + 1] + 1 << " " << mesh.m_indices[i + 2] + 1 << std::endl;
+    //}
+
+    //myfile.close();
 
     mesh.make_normals();
 
@@ -278,9 +291,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
+
         //vkCmdEndRendering(command_buffer);
-
-
         //barrier.srcAccessMask = VK_ACCESS_NONE;
         //barrier.dstAccessMask = VK_ACCESS_NONE;
         //vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);

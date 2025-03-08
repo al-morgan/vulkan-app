@@ -1,6 +1,8 @@
 add_custom_target(
-    shaders
+    shaders_build
     COMMAND echo "Compiling shaders!"
+    SOURCES
+    ""
 ) 
 
 function(add_shader shader_name)
@@ -17,12 +19,24 @@ function(add_shader shader_name)
         ${shader_name}
         DEPENDS
         ${shader_name}.spv
+        SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/${shader_name}
     )
 
     add_dependencies(
-        shaders
+        shaders_build
         ${shader_name}
     )
+
+    get_target_property(shaders_sources shaders_build SOURCES)
+    if(shaders_sources STREQUAL "shaders_sources-NOTFOUND")
+        set(shaders_sources "")
+    endif()
+#        set_target_properties(shaders PROPERTIES SOURCES "${shaders_sources}")
+    list(APPEND shaders_sources ${shader_name})
+    set_target_properties(shaders_build PROPERTIES SOURCES "${shaders_sources}")
+
+    set_target_properties(${shader_name} PROPERTIES FOLDER shaders)
 
 endfunction()
 

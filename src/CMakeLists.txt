@@ -3,12 +3,18 @@ add_subdirectory(input)
 
 add_executable(
     vulkan-app
+
     file.cpp
+    file.hpp
     gfx.cpp
+    gfx.hpp
     main.cpp
     mesh.cpp
+    mesh.hpp
     perlin.cpp
+    perlin.hpp
     window.cpp
+    window.hpp
 )
 
 target_link_libraries(
@@ -33,5 +39,5 @@ endif()
 
 add_dependencies(
     vulkan-app
-    shaders 
+    shaders_build
 )
