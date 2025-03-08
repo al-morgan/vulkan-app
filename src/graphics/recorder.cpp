@@ -3,18 +3,24 @@
 #include "graphics/canvas.hpp"
 #include "graphics/recorder.hpp"
 
+constexpr uint32_t num_frames = 2;
+
 namespace graphics
 {
 
 graphics::recorder::recorder(graphics::canvas& canvas) :
     m_canvas(canvas)
 {
+    // Create command pool
     VkCommandPoolCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     create_info.queueFamilyIndex = m_canvas.graphics_queue.family_index;
-    graphics::check(vkCreateCommandPool(m_canvas.m_device, &create_info,
+    graphics::check(vkCreateCommandPool(m_canvas, &create_info,
         nullptr, &m_command_pool));
+
+    // Create command buffers for each frame
+    m_frames.resize(num_frames);
 
     VkCommandBufferAllocateInfo alloc_info{};
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -45,4 +51,4 @@ VkCommandBuffer graphics::recorder::get_command_buffer()
     return m_frames[m_current_frame].command_buffer;
 }
 
-}
+}   // namespace

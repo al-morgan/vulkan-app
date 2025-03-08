@@ -36,22 +36,24 @@ public:
 
     // Swapchain
 
-    VkSwapchainKHR                          m_swapchain;
-    std::vector<VkImage>                    m_swapchain_images;
-    std::vector<VkImageView>                m_swapchain_image_views;
-    uint32_t                                m_swapchain_index = 0;
+    typedef struct
+    {
+        VkImage image;
+        VkImageView image_view;
+    } framebuffer;
+
+    VkSwapchainKHR                              m_swapchain;
+    std::vector<graphics::canvas::framebuffer>  m_framebuffers;
+    uint32_t                                    m_framebuffer_index = 0;
 
     // Frame
 
-    std::vector<VkFence>        m_in_flight_fences;
-    std::vector<VkSemaphore>    m_render_finished_semaphores;
-    std::vector<VkSemaphore>    m_swapchain_semaphores;
-    uint32_t                    m_frame_index = 0;
+    std::vector<VkFence>                    m_in_flight_fences;
+    std::vector<VkSemaphore>                m_render_finished_semaphores;
+    std::vector<VkSemaphore>                m_swapchain_semaphores;
+    uint32_t                                m_frame_index = 0;
 
     std::vector<VkDeviceMemory> allocated_device_memory;
-    
-    uint32_t    queue_family_index;
-    VkQueue     queue;
     
     graphics::queue             graphics_queue;
 
@@ -60,13 +62,12 @@ public:
     canvas(graphics::canvas&&) = delete;
     ~canvas();
 
-    void begin_command_buffer(VkCommandBuffer command_buffer);
     void begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view);
     void transition_image(VkCommandBuffer command_buffer, VkImage image, VkShaderStageFlags source_stage, VkAccessFlags source_access_mask, VkShaderStageFlags desintation_stage, VkAccessFlags destination_access_mask, VkImageLayout old_layout, VkImageLayout new_layout) const;
     void submit(VkCommandBuffer command_buffer, VkPipelineStageFlags wait_stage);
     void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
-    VkImageView image_view() { return m_swapchain_image_views[m_swapchain_index]; };
+    VkImageView image_view() { return m_framebuffers[m_framebuffer_index].image_view; };
     void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
     void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
     void present();
