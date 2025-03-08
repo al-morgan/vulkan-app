@@ -37,16 +37,17 @@ public:
     VkSurfaceKHR                            m_surface;
     std::vector<VkQueueFamilyProperties>    m_queue_family_properties;
 
-    VkDevice                    m_device;
-    VkSwapchainKHR              m_swapchain;
-    std::vector<VkImage>        m_swapchain_images;
-    std::vector<VkImageView>    m_swapchain_image_views;
-    uint32_t                    m_swapchain_index;
-
-    //std::vector<framebuffer>    m_framebuffers;
-    //framebuffer                 m_current_framebuffer;
+    VkDevice                                m_device;
+    VkSwapchainKHR                          m_swapchain;
+    std::vector<VkImage>                    m_swapchain_images;
+    std::vector<VkImageView>                m_swapchain_image_views;
+    uint32_t                                m_swapchain_index = 0;
 
     std::vector<VkDeviceMemory> allocated_device_memory;
+    
+    uint32_t    queue_family_index;
+    VkQueue     queue;
+    
     graphics::queue             graphics_queue;
 
     canvas(HWND window_handle, uint32_t width, uint32_t height);
@@ -60,7 +61,6 @@ public:
     void submit(VkCommandBuffer command_buffer, VkPipelineStageFlags wait_stage);
     void upload_buffer(VkBuffer buffer, void* source, VkDeviceSize buffer_size);
 
-    void get_next_framebuffer();
     VkImageView image_view() { return m_swapchain_image_views[m_swapchain_index]; };
     void prepare_swapchain_for_writing(VkCommandBuffer command_buffer);
     void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);

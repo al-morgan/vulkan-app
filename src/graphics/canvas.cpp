@@ -24,11 +24,10 @@ static uint32_t get_memory_type_index(VkPhysicalDeviceMemoryProperties& properti
 static VkSurfaceKHR create_surface(VkInstance instance, HWND window_handle);
 static std::vector<VkQueueFamilyProperties> get_queue_family_properties(VkPhysicalDevice physical_device);
 static VkDevice create_device(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties);
-static uint32_t get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties, VkQueueFlags flags);
 static VkSwapchainKHR create_swapchain(VkDevice device, VkSurfaceKHR surface, uint32_t width, uint32_t height);
 static std::vector<VkImage> create_swapchain_images(VkDevice device, VkSwapchainKHR swapchain);
 static std::vector<VkImageView> create_swapchain_image_views(VkDevice device, std::vector<VkImage>& images);
-
+static uint32_t get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties, VkQueueFlags flags);
 
 // Initialize a canvas with a specific width and height
 graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
@@ -67,71 +66,8 @@ graphics::canvas::canvas(HWND window_handle, uint32_t width, uint32_t height) :
     }
 }
 
-static VkSwapchainKHR create_swapchain(VkDevice device, VkSurfaceKHR surface, uint32_t width, uint32_t height)
-{
-    VkSwapchainKHR swapchain;
 
-    VkExtent2D extent{};
-    extent.width = width;
-    extent.height = height;
-
-    VkSwapchainCreateInfoKHR create_info{};
-    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = surface;
-    create_info.minImageCount = 3;
-    create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-    create_info.imageExtent = extent;
-    create_info.imageArrayLayers = 1;
-    create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-    create_info.clipped = VK_TRUE;
-    create_info.oldSwapchain = VK_NULL_HANDLE;
-    vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
-
-    return swapchain;
-}
-
-
-static std::vector<VkImage> create_swapchain_images(VkDevice device, VkSwapchainKHR swapchain)
-{
-    uint32_t count;
-    std::vector<VkImage> images;
-    
-    vkGetSwapchainImagesKHR(device, swapchain, &count, nullptr);
-    images.resize(count);
-    vkGetSwapchainImagesKHR(device, swapchain, &count, images.data());
-    
-    return images;
-}
-
-static std::vector<VkImageView> create_swapchain_image_views(VkDevice device, std::vector<VkImage>& images)
-{
-    std::vector<VkImageView> views;
-    
-    for (VkImage image : images)
-    {
-        VkImageView view;
-
-        VkImageViewCreateInfo image_view_create_info{};
-        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.image = image;
-        image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
-        image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        image_view_create_info.subresourceRange.layerCount = 1;
-        image_view_create_info.subresourceRange.levelCount = 1;
-        vkCreateImageView(device, &image_view_create_info, nullptr, &view);
-
-        views.push_back(view);
-    }
-
-    return views;
-}
-
+// Canvas destructor
 graphics::canvas::~canvas()
 {
     vkDeviceWaitIdle(m_device);
@@ -264,12 +200,6 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
     allocated_device_memory.push_back(device_memory);
 }
 
-void graphics::canvas::get_next_framebuffer()
-{
-    uint32_t image_index = 0;
-    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_current_frame].swapchain_semaphore, nullptr, &m_swapchain_index);
-    }
-
 void graphics::canvas::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
 {
     transition_image(
@@ -325,12 +255,8 @@ void graphics::canvas::begin_frame()
     vkWaitForFences(m_device, 1, &m_frames[m_current_frame].in_flight_fence, VK_TRUE, UINT64_MAX);
     m_current_frame = (m_current_frame + 1) % m_frames.size();
     vkResetFences(m_device, 1, &m_frames[m_current_frame].in_flight_fence);
+    vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_current_frame].swapchain_semaphore, nullptr, &m_swapchain_index);
 }
-
-
-
-
-
 
 static VkInstance create_instance()
 {
@@ -470,6 +396,71 @@ static VkDevice create_device(VkPhysicalDevice physical_device, VkSurfaceKHR sur
     graphics::check(vkCreateDevice(physical_device, &create_info, nullptr, &device));
 
     return device;
+}
+
+
+static VkSwapchainKHR create_swapchain(VkDevice device, VkSurfaceKHR surface, uint32_t width, uint32_t height)
+{
+    VkSwapchainKHR swapchain;
+
+    VkExtent2D extent{};
+    extent.width = width;
+    extent.height = height;
+
+    VkSwapchainCreateInfoKHR create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    create_info.surface = surface;
+    create_info.minImageCount = 3;
+    create_info.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+    create_info.imageExtent = extent;
+    create_info.imageArrayLayers = 1;
+    create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+    create_info.clipped = VK_TRUE;
+    create_info.oldSwapchain = VK_NULL_HANDLE;
+    vkCreateSwapchainKHR(device, &create_info, nullptr, &swapchain);
+
+    return swapchain;
+}
+
+static std::vector<VkImage> create_swapchain_images(VkDevice device, VkSwapchainKHR swapchain)
+{
+    uint32_t count;
+    std::vector<VkImage> images;
+
+    vkGetSwapchainImagesKHR(device, swapchain, &count, nullptr);
+    images.resize(count);
+    vkGetSwapchainImagesKHR(device, swapchain, &count, images.data());
+
+    return images;
+}
+
+static std::vector<VkImageView> create_swapchain_image_views(VkDevice device, std::vector<VkImage>& images)
+{
+    std::vector<VkImageView> views;
+
+    for (VkImage image : images)
+    {
+        VkImageView view;
+
+        VkImageViewCreateInfo image_view_create_info{};
+        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        image_view_create_info.image = image;
+        image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        image_view_create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+        image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_view_create_info.subresourceRange.layerCount = 1;
+        image_view_create_info.subresourceRange.levelCount = 1;
+        vkCreateImageView(device, &image_view_create_info, nullptr, &view);
+
+        views.push_back(view);
+    }
+
+    return views;
 }
 
 static uint32_t get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkQueueFamilyProperties>& queue_family_properties, VkQueueFlags flags)

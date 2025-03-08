@@ -252,8 +252,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             10000.0f);
         ubo->proj[1][1] *= -1.0f;
 
-        canvas.get_next_framebuffer();
-
         VkCommandBufferBeginInfo begin_info{};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         vkBeginCommandBuffer(command_buffer, &begin_info);
