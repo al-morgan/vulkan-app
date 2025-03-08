@@ -120,41 +120,6 @@ graphics::canvas::~canvas()
     vkDestroyInstance(m_instance, nullptr);
 }
 
-void graphics::canvas::begin_rendering(VkCommandBuffer command_buffer, VkImageView view, VkImageView depth_view)
-{
-    VkClearValue clear_value{};
-
-    VkRect2D render_area{};
-    render_area.extent.width = m_width;
-    render_area.extent.height = m_height;
-
-    VkRenderingAttachmentInfo color_attachment_info{};
-    color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    color_attachment_info.clearValue = clear_value;
-    color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-    color_attachment_info.imageView = view;
-    color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-    clear_value.depthStencil.depth = 1.0f;
-    VkRenderingAttachmentInfo depth_attachment_info{};
-    depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    depth_attachment_info.clearValue = clear_value;
-    depth_attachment_info.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    depth_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depth_attachment_info.imageView = depth_view;
-
-    VkRenderingInfo rendering_info{};
-    rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-    rendering_info.pColorAttachments = &color_attachment_info;
-    rendering_info.colorAttachmentCount = 1;
-    rendering_info.layerCount = 1;
-    rendering_info.renderArea = render_area;
-    rendering_info.pDepthAttachment = &depth_attachment_info;
-
-    vkCmdBeginRendering(command_buffer, &rendering_info);
-}
-
 void graphics::canvas::transition_image(VkCommandBuffer command_buffer,
     VkImage image,
     VkShaderStageFlags source_stage,

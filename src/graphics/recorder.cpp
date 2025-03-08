@@ -52,10 +52,6 @@ void graphics::recorder::begin_frame()
 
 void graphics::recorder::begin_rendering(uint32_t width, uint32_t height, VkImageView color_view, VkImageView depth_view)
 {
-
-
-
-
     VkClearValue clear_value{};
 
     VkRect2D render_area{};
