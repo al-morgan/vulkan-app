@@ -252,9 +252,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             10000.0f);
         ubo->proj[1][1] *= -1.0f;
 
-        VkCommandBufferBeginInfo begin_info{};
-        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        vkBeginCommandBuffer(command_buffer, &begin_info);
+
 
         if (frame_count == 1)
         {
@@ -283,7 +281,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
 
-        canvas.begin_rendering(command_buffer, canvas.image_view(), depth_buffer.view());
+        recorder.begin_rendering(canvas.get_width(), canvas.get_height(), canvas.image_view(), depth_buffer.view());
         vkCmdDrawIndexed(command_buffer, mesh.m_indices.size(), 1, 0, 0, 0);
 
         //vkCmdEndRendering(command_buffer);

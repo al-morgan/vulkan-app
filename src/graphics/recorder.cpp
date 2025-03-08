@@ -42,13 +42,56 @@ graphics::recorder::~recorder()
 
 void graphics::recorder::begin_frame()
 {
-    m_current_frame = (m_current_frame + 1) % m_frames.size();
-    vkResetCommandBuffer(m_frames[m_current_frame].command_buffer, 0);
+    m_frame_index = (m_frame_index + 1) % m_frames.size();
+    vkResetCommandBuffer(m_frames[m_frame_index].command_buffer, 0);
+
+    VkCommandBufferBeginInfo begin_info{};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    vkBeginCommandBuffer(m_frames[m_frame_index].command_buffer, &begin_info);
+}
+
+void graphics::recorder::begin_rendering(uint32_t width, uint32_t height, VkImageView color_view, VkImageView depth_view)
+{
+
+
+
+
+    VkClearValue clear_value{};
+
+    VkRect2D render_area{};
+    render_area.extent.width = width;
+    render_area.extent.height = height;
+
+    VkRenderingAttachmentInfo color_attachment_info{};
+    color_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    color_attachment_info.clearValue = clear_value;
+    color_attachment_info.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+    color_attachment_info.imageView = color_view;
+    color_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    color_attachment_info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+    clear_value.depthStencil.depth = 1.0f;
+    VkRenderingAttachmentInfo depth_attachment_info{};
+    depth_attachment_info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    depth_attachment_info.clearValue = clear_value;
+    depth_attachment_info.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    depth_attachment_info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depth_attachment_info.imageView = depth_view;
+
+    VkRenderingInfo rendering_info{};
+    rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    rendering_info.pColorAttachments = &color_attachment_info;
+    rendering_info.colorAttachmentCount = 1;
+    rendering_info.layerCount = 1;
+    rendering_info.renderArea = render_area;
+    rendering_info.pDepthAttachment = &depth_attachment_info;
+
+    vkCmdBeginRendering(m_frames[m_frame_index].command_buffer, &rendering_info);
 }
 
 VkCommandBuffer graphics::recorder::get_command_buffer()
 {
-    return m_frames[m_current_frame].command_buffer;
+    return m_frames[m_frame_index].command_buffer;
 }
 
 }   // namespace

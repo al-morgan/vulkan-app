@@ -16,9 +16,12 @@ public:
     recorder(graphics::canvas& canvas);
     ~recorder();
 
+    void begin_frame();
+
+    void begin_rendering(uint32_t width, uint32_t height, VkImageView color_view, VkImageView depth_view);
+
     recorder(graphics::recorder&) = delete;
 
-    void begin_frame();
     VkCommandBuffer get_command_buffer();
 
 private:
@@ -30,7 +33,7 @@ private:
     const graphics::canvas&                 m_canvas;
     VkCommandPool                           m_command_pool;
     std::vector<graphics::recorder::frame>  m_frames;
-    uint32_t                                m_current_frame = 0;
+    uint32_t                                m_frame_index = 0;
 };
 
 }
