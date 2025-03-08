@@ -6,6 +6,7 @@
 
 #include "graphics/graphics.hpp"
 #include "graphics/canvas.hpp"
+#include "graphics/program.hpp"
 
 namespace graphics
 {
@@ -17,8 +18,9 @@ public:
     ~recorder();
 
     void begin_frame();
-
     void begin_rendering(uint32_t width, uint32_t height, VkImageView color_view, VkImageView depth_view);
+
+    void use_program(graphics::program& program);
 
     recorder(graphics::recorder&) = delete;
 

@@ -2,6 +2,7 @@
 
 #include "graphics/canvas.hpp"
 #include "graphics/recorder.hpp"
+#include "graphics/program.hpp"
 
 constexpr uint32_t num_frames = 2;
 
@@ -84,6 +85,12 @@ void graphics::recorder::begin_rendering(uint32_t width, uint32_t height, VkImag
 
     vkCmdBeginRendering(m_frames[m_frame_index].command_buffer, &rendering_info);
 }
+
+void graphics::recorder::use_program(graphics::program& program)
+{
+    vkCmdBindPipeline(m_frames[m_frame_index].command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program);
+}
+
 
 VkCommandBuffer graphics::recorder::get_command_buffer()
 {
