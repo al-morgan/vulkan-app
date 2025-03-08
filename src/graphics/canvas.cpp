@@ -1,3 +1,4 @@
+#include "canvas.hpp"
 // canvas
 //
 // Holds Vulkan items that are global to the application, such as:
@@ -184,30 +185,10 @@ void graphics::canvas::upload_buffer(VkBuffer buffer, void* source, VkDeviceSize
 
 void graphics::canvas::prepare_swapchain_for_writing(VkCommandBuffer command_buffer)
 {
-    transition_image(
-        command_buffer,
-        m_framebuffers[m_framebuffer_index].image,
-        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-        VK_ACCESS_NONE,
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-    );
 }
 
 void graphics::canvas::prepare_swapchain_for_presentation(VkCommandBuffer command_buffer)
 {
-    transition_image(
-        command_buffer,
-        m_framebuffers[m_framebuffer_index].image,
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-        VK_ACCESS_NONE,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-    );
 }
 
 void graphics::canvas::present()
@@ -232,12 +213,43 @@ uint32_t graphics::canvas::get_width()
     return m_width;
 }
 
-void graphics::canvas::begin_frame()
+void graphics::canvas::begin_frame(VkCommandBuffer command_buffer)
 {
+    m_command_buffer = command_buffer;
+
     vkWaitForFences(m_device, 1, &m_frames[m_frame_index].in_flight_fence, VK_TRUE, UINT64_MAX);
     m_frame_index = (m_frame_index + 1) % num_frames;
     vkResetFences(m_device, 1, &m_frames[m_frame_index].in_flight_fence);
     vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_frames[m_frame_index].swapchain_semaphore, nullptr, &m_framebuffer_index);
+
+    transition_image(
+        m_command_buffer,
+        m_framebuffers[m_framebuffer_index].image,
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+        VK_ACCESS_NONE,
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+    );
+
+}
+
+
+void graphics::canvas::end_frame()
+{
+    transition_image(
+        m_command_buffer,
+        m_framebuffers[m_framebuffer_index].image,
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+        VK_ACCESS_NONE,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+    );
+
+
 }
 
 static VkInstance create_instance()

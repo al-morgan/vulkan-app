@@ -184,8 +184,8 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         glfwPollEvents();
 
 
-        canvas.begin_frame();
         recorder.begin_frame();
+        canvas.begin_frame(recorder);
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
@@ -285,8 +285,9 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
         recorder.end_rendering();
 
-        canvas.prepare_swapchain_for_presentation(recorder);
-        vkEndCommandBuffer(recorder);
+        //canvas.prepare_swapchain_for_presentation(recorder);
+        canvas.end_frame();
+        recorder.end_frame();
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 

@@ -1,3 +1,4 @@
+#include "recorder.hpp"
 #include <vulkan/vulkan.h>
 
 #include "graphics/canvas.hpp"
@@ -100,6 +101,11 @@ void graphics::recorder::end_rendering()
 VkCommandBuffer graphics::recorder::get_command_buffer()
 {
     return m_frames[m_frame_index].command_buffer;
+}
+
+void graphics::recorder::end_frame()
+{
+    vkEndCommandBuffer(m_frames[m_frame_index].command_buffer);
 }
 
 }   // namespace

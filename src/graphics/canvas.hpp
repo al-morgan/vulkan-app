@@ -77,13 +77,14 @@ public:
     void prepare_swapchain_for_presentation(VkCommandBuffer command_buffer);
     void present();
     uint32_t get_width();
+    void begin_frame(VkCommandBuffer command_buffer);
+    void end_frame();
     uint32_t get_height();
-    void begin_frame();
 
     operator VkDevice() const { return m_device; }
 
 private:
-
+    VkCommandBuffer m_command_buffer;
     //void create_swapchain();
 };
 

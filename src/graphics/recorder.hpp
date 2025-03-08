@@ -27,6 +27,8 @@ public:
 
     VkCommandBuffer get_command_buffer();
 
+    void end_frame();
+
 private:
     struct frame
     {
