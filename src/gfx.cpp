@@ -117,7 +117,7 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     mesh.make_normals();
 
-    //graphics::swapchain swapchain(canvas, WIDTH, HEIGHT, canvas.m_surface);
+    //graphics::swapchain swapchain(canvas, WIDTH, HEIGHT, canvas.m_surface);                                  graphics::image_usage::depth_stencil         graphics::image_aspct::depth
     graphics::image depth_buffer(canvas, canvas.get_width(), canvas.get_height(), VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, false);
 
     glm::vec3 position(500.f, 500.f, 200.f);

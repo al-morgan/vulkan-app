@@ -5,6 +5,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 find_package(Vulkan)
 
+add_subdirectory(lib/imgui-1.91.8)
 add_subdirectory(shaders)
 add_subdirectory(src)
 

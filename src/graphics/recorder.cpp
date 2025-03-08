@@ -97,7 +97,6 @@ void graphics::recorder::end_rendering()
     vkCmdEndRendering(m_frames[m_frame_index].command_buffer);
 }
 
-
 VkCommandBuffer graphics::recorder::get_command_buffer()
 {
     return m_frames[m_frame_index].command_buffer;
