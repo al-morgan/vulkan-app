@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 
 #include "input/keyboard.hpp"
+#include "input/state.hpp"
 
 namespace input
 {
@@ -10,7 +11,30 @@ static void key_press_callback(GLFWwindow* window, int key, int scancode, int ac
 {
     bool pressed = false;
 
+
+    input::state* state = static_cast<input::state *>(glfwGetWindowUserPointer(window));
+
     input::keys which_key;
+
+    if (key == GLFW_KEY_GRAVE_ACCENT && action == GLFW_PRESS)
+    {
+        state->show_console = !state->show_console;
+
+        // console on: regular mouse mode.
+        // console off: FPS mouse mode.
+        if (state->show_console)
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+        }
+        else
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+            glfwSetCursorPos(window, 0.0, 0.0);
+        }
+
+    }
 
     switch (action)
     {

@@ -6,7 +6,7 @@ namespace app
 class window
 {
 public:
-    window();
+    window(void *user_data);
     ~window();
     GLFWwindow* glfw_window;
     HWND handle;

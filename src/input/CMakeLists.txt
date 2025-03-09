@@ -1,7 +1,11 @@
 add_library(
     vulkan-app-input
     keyboard.cpp
+    keyboard.hpp
     mouse.cpp
+    mouse.hpp
+    state.cpp
+    state.hpp
     )
 
 target_include_directories(

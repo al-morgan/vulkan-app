@@ -31,6 +31,7 @@
 #include "window.hpp"
 #include "graphics/program_builder.hpp"
 #include "graphics/program.hpp"
+#include "input/state.hpp"
 
 #include "mesh.hpp"
 
@@ -56,7 +57,7 @@ void updateds(graphics::canvas& m_context, uint32_t binding, VkDescriptorSet des
     vkUpdateDescriptorSets(m_context.m_device, 1, &write_descriptor_set, 0, nullptr);
 }
 
-app::engine::engine(graphics::canvas& canvas) : context(canvas)
+app::engine::engine(graphics::canvas& canvas, input::state& state) : context(canvas), m_state(state)
 {
     VkFenceCreateInfo fence_create_info{};
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -226,12 +227,15 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         recorder.begin_frame();
         canvas.begin_frame(recorder);
 
-        //ImGui_ImplVulkan_CreateFontsTexture();
+        bool show_console = m_state.show_console;
 
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::ShowDemoWindow(); // Show demo window! :)
+        if (show_console)
+        {
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::ShowDemoWindow(); // Show demo window! :)
+        }
 
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
@@ -296,8 +300,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             10000.0f);
         ubo->proj[1][1] *= -1.0f;
 
-
-
         if (frame_count == 1)
         {
             mesh.copy(recorder);
@@ -330,9 +332,11 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         recorder.use_program(program2);
         vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
 
-        ImGui::Render();
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), recorder);
-
+        if (show_console)
+        {
+            ImGui::Render();
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), recorder);
+        }
 
         recorder.end_rendering();
 

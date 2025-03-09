@@ -8,16 +8,19 @@
 #include "graphics/canvas.hpp"
 #include "input/keyboard.hpp"
 #include "input/mouse.hpp"
+#include "input/state.hpp"
 
 int main()
 {
-    app::window window;
+    input::state state;
+    
+    app::window window(&state);
     graphics::canvas canvas(window.handle, window.get_width(), window.get_height());
 
     input::init_keyboard(window.glfw_window);
     input::init_mouse(window.glfw_window);
 
-    app::engine gfx(canvas);
+    app::engine gfx(canvas, state);
 
     try
     {

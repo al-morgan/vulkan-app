@@ -3,7 +3,7 @@
 
 #include "window.hpp"
 
-app::window::window()
+app::window::window(void *user_data)
 {
     glfwInit();
 
@@ -19,6 +19,7 @@ app::window::window()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", nullptr/*glfwGetPrimaryMonitor()*/, nullptr);
 
+    glfwSetWindowUserPointer(glfw_window, user_data);
 
     handle = glfwGetWin32Window(glfw_window);
 }

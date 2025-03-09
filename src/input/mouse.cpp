@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "input/mouse.hpp"
+#include "input/state.hpp"
 
 namespace input
 {
@@ -13,9 +14,16 @@ static double pitch = .2;
 static double last_update_x, last_update_y;
 static double mouse_x, mouse_y;
 static bool is_mouse_down;
+static bool is_right_mouse_down;
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    input::state* state = static_cast<input::state*>(glfwGetWindowUserPointer(window));
+    if (state->show_console)
+    {
+        return;
+    }
+    
     constexpr double sensitivity = 0.001;
 
     yaw += (xpos)*sensitivity;
@@ -41,6 +49,8 @@ static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    input::state* state = static_cast<input::state*>(glfwGetWindowUserPointer(window));
+
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
         is_mouse_down = true;
@@ -50,6 +60,19 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {
         is_mouse_down = false;
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    {
+        is_right_mouse_down = true;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
+    {
+        //is_right_mouse_down = false;
+        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        //glfwSetCursorPos(window, 0.0, 0.0);
     }
 }
 
