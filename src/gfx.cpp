@@ -250,17 +250,13 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-
-            ///double this_fps = 1.0 / duration.count();
             auto this_tick = std::chrono::high_resolution_clock::now();
-
             std::chrono::duration<double> duration = this_tick - last_tick;
-
             fps_frame_counter++;
 
             if (duration.count() > 1.0)
             {
-                fps = static_cast<uint32_t>(static_cast<double>(fps_frame_counter) / duration.count());
+                fps = fps_frame_counter / duration.count();
                 fps_frame_counter = 0;
                 last_tick = this_tick;
             }
@@ -269,13 +265,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             ImGui::Text("FPS: %d", fps);
             ImGui::Checkbox("Show normals", &show_normals);
             ImGui::End();
-
-
-            //ImVec2 pos(0, 0);
-            //ImGui::SetNextWindowPos(pos, true);
-            //ImGui::Begin("sdfsdfsdf", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            //ImGui::Text("%f", frame_count / blah.count() * 1000.0);
-            //ImGui::End();
         }
 
 
