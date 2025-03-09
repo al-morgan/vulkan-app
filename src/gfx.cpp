@@ -195,7 +195,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     init_info.QueueFamily = canvas.graphics_queue.family_index;
     init_info.Queue = canvas.graphics_queue.handle;
     init_info.PipelineCache = VK_NULL_HANDLE;
-    //init_info.DescriptorPool = program_builder.m_descriptor_pool;
     init_info.DescriptorPoolSize = IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE + 1;
     init_info.Subpass = 0;
     init_info.MinImageCount = 2;
@@ -280,18 +279,6 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         double floor = noise.get(position[0], position[1]) * 60.f + 4.0f;
 
         float speed = 0.1f;
-
-        //if (position[2] < floor)
-        //{
-        //    position[2] = floor;
-        //    jumping = false;
-        //}
-        //else
-        //{
-        //    fall_speed += .0001f;
-        //}
-
-        //position[2] = 200.f;
 
         if (input::is_pressed(input::KEY_FORWARD))
         {
