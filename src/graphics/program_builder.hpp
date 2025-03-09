@@ -21,6 +21,7 @@ public:
     void add_binding(uint32_t binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags);
     graphics::program get_program();
     VkDescriptorSet get_descriptor_set();
+    VkDescriptorPool                                m_descriptor_pool;
 private:
     graphics::canvas&                               m_canvas;
     std::vector<VkShaderModule>                     m_shader_modules;
@@ -30,7 +31,6 @@ private:
     std::vector<VkPipelineLayout>                   m_pipeline_layouts;
     std::vector<VkPipeline>                         m_pipelines;
     uint32_t                                        m_current_set;
-    VkDescriptorPool                                m_descriptor_pool;
     bool                                            m_set_dirty;
 
     std::vector<std::vector<VkDescriptorSetLayoutBinding>> m_bindings;

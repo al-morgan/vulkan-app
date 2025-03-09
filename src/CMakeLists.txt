@@ -28,6 +28,7 @@ target_link_libraries(
     PRIVATE
     vulkan-app::graphics
     vulkan-app::input
+    imgui
     ${Vulkan_LIBRARIES}
 )
 
@@ -36,6 +37,7 @@ target_include_directories(
     PRIVATE
     ${Vulkan_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/lib/glfw-3.4/include
+    ${PROJECT_SOURCE_DIR}/lib/imgui-1.91.8
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")

@@ -7,6 +7,9 @@
 
 #include <vulkan/vulkan.h>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
 #include "gfx.hpp"
 #include <vector>
@@ -172,6 +175,42 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     updateds(canvas, 0, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, rbuffer);
     updateds(canvas, 1, descriptor_set, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, mesh.m_normal_buffer);
 
+
+    // IMGUI
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    ImGui_ImplGlfw_InitForVulkan(window.glfw_window, true);
+
+    ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.Instance = canvas.m_instance;
+    init_info.PhysicalDevice = canvas.m_physical_device;
+    init_info.Device = canvas.m_device;
+    init_info.QueueFamily = canvas.graphics_queue.family_index;
+    init_info.Queue = canvas.graphics_queue.handle;
+    init_info.PipelineCache = VK_NULL_HANDLE;
+    //init_info.DescriptorPool = program_builder.m_descriptor_pool;
+    init_info.DescriptorPoolSize = IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE + 1;
+    init_info.Subpass = 0;
+    init_info.MinImageCount = 2;
+    init_info.ImageCount = 2;
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.Allocator = nullptr;
+    init_info.CheckVkResultFn = graphics::check;
+    init_info.UseDynamicRendering = true;
+
+    VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
+    init_info.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+    init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &format;
+    init_info.PipelineRenderingCreateInfo.depthAttachmentFormat = VK_FORMAT_D24_UNORM_S8_UINT;
+
+    ImGui_ImplVulkan_Init(&init_info);
+
     while (!glfwWindowShouldClose(window.glfw_window))
     {
         auto elapsed = std::chrono::steady_clock::now();
@@ -186,6 +225,14 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         recorder.begin_frame();
         canvas.begin_frame(recorder);
+
+        //ImGui_ImplVulkan_CreateFontsTexture();
+
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
 
         updateds(canvas, 0, descriptor_set_2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frame_set[current_frame].ubuffer);
         graphics::mvp* ubo = static_cast<graphics::mvp*>(frame_set[current_frame].ubuffer.data());
@@ -282,6 +329,11 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         recorder.use_program(program2);
         vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
+
+        ImGui::Render();
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), recorder);
+
+
         recorder.end_rendering();
 
         canvas.end_frame();
@@ -291,4 +343,9 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
     }
 
     vkDeviceWaitIdle(canvas.m_device);
+
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
 }
