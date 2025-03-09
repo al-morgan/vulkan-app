@@ -1,3 +1,4 @@
+#include <ratio>
 #include <tuple>
 #include <iostream>
 #include <fstream>
@@ -212,13 +213,23 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
     ImGui_ImplVulkan_Init(&init_info);
 
+    bool show_normals = false;
+
+    auto last_tick = std::chrono::high_resolution_clock::now();
+    double last_fps = 1;
+
+    uint32_t fps_frame_counter = 0;
+
+    uint32_t fps = 0;
+
+    std::chrono::duration<double> fps_total_time;
+    fps_total_time = fps_total_time.zero();
+
     while (!glfwWindowShouldClose(window.glfw_window))
     {
-        auto elapsed = std::chrono::steady_clock::now();
-        const std::chrono::duration<double> diff = elapsed - start;
-        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(elapsed);
-        auto blah = now_ms - start;
-        //std::cout << frame_count / blah.count() * 1000.0 << std::endl;
+
+
+        // THIS IS USED FOR MORE THAN JUST FPS
         frame_count++;
 
         glfwPollEvents();
@@ -238,7 +249,33 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            ImGui::ShowDemoWindow(); // Show demo window! :)
+
+
+            ///double this_fps = 1.0 / duration.count();
+            auto this_tick = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double> duration = this_tick - last_tick;
+
+            fps_frame_counter++;
+
+            if (duration.count() > 1.0)
+            {
+                fps = static_cast<uint32_t>(static_cast<double>(fps_frame_counter) / duration.count());
+                fps_frame_counter = 0;
+                last_tick = this_tick;
+            }
+
+            ImGui::Begin("Fuck you", nullptr);
+            ImGui::Text("FPS: %d", fps);
+            ImGui::Checkbox("Show normals", &show_normals);
+            ImGui::End();
+
+
+            //ImVec2 pos(0, 0);
+            //ImGui::SetNextWindowPos(pos, true);
+            //ImGui::Begin("sdfsdfsdf", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            //ImGui::Text("%f", frame_count / blah.count() * 1000.0);
+            //ImGui::End();
         }
 
 
@@ -333,11 +370,16 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
         recorder.use_program(program);
         vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
 
-        recorder.use_program(program2);
-        vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
+        if (show_normals)
+        {
+            recorder.use_program(program2);
+            vkCmdDrawIndexed(recorder, mesh.m_indices.size(), 1, 0, 0, 0);
+        }
 
         if (show_console)
         {
+
+
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), recorder);
         }
