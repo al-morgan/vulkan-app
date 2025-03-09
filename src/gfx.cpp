@@ -223,6 +223,10 @@ void app::engine::update(graphics::canvas& canvas, app::window& window)
 
         glfwPollEvents();
 
+        if (!m_state.focused)
+        {
+            continue;
+        }
 
         recorder.begin_frame();
         canvas.begin_frame(recorder);

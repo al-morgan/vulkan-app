@@ -2,6 +2,14 @@
 #include <GLFW/glfw3native.h>
 
 #include "window.hpp"
+#include "input/state.hpp"
+
+
+static void window_focus_callback(GLFWwindow* window, int focused)
+{
+    input::state* state = static_cast<input::state*>(glfwGetWindowUserPointer(window));
+    state->focused = focused;
+}
 
 app::window::window(void *user_data)
 {
@@ -12,14 +20,21 @@ app::window::window(void *user_data)
     m_width = vid_mode->width;
     m_height = vid_mode->height;
 
-    m_width = 800;
-    m_height = 800;
+    // set to false for fullscreen.
+    if (false)
+    {
+        m_width = 800;
+        m_height = 800;
+        monitor = nullptr;
+
+    }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", nullptr/*glfwGetPrimaryMonitor()*/, nullptr);
+    glfw_window = glfwCreateWindow(m_width, m_height, "Vulkan", monitor, nullptr);
 
     glfwSetWindowUserPointer(glfw_window, user_data);
+    glfwSetWindowFocusCallback(glfw_window, window_focus_callback);
 
     handle = glfwGetWin32Window(glfw_window);
 }

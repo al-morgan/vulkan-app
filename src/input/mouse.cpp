@@ -61,19 +61,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     {
         is_mouse_down = false;
     }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-    {
-        is_right_mouse_down = true;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
-    }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
-    {
-        //is_right_mouse_down = false;
-        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        //glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-        //glfwSetCursorPos(window, 0.0, 0.0);
-    }
+
 }
 
 void init_mouse(GLFWwindow* window)
